@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: kli-Quant
+          persist-credentials: false
+      # 底座与应用使用相邻目录，符合 uv 锁定的本地依赖路径。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: klaus-zzz/Fina-Agent
+          ref: dbf52ce3799204643ef6936d1e5f7212505245da # Fina-Agent 0.2.0
+          path: Fina-Agent
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.12.5"
+          python-version: "3.13"
+      - run: uv sync --directory kli-Quant --locked
+      - run: uv run --directory kli-Quant ruff check .
+      - run: uv run --directory kli-Quant ruff format --check .
+      - run: uv run --directory kli-Quant pytest -m 'not integration'

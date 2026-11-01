@@ -1,0 +1,34 @@
+[project]
+name = "kli-quant"
+version = "0.1.0"
+description = "Versioned quantitative research application for Fina-Agent"
+requires-python = ">=3.13,<3.15"
+license = "Apache-2.0"
+dependencies = ["fina-agent>=0.2,<0.3", "httpx>=0.28,<1"]
+
+[project.entry-points."fina_agent.applications"]
+kli_quant = "kli_quant.application:create_application"
+
+[project.scripts]
+kli-quant = "kli_quant.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+fina-agent = { path = "../Fina-Agent/backend", editable = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires dedicated test database", "live: requires explicit service opt-in"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
