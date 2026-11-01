@@ -2,15 +2,29 @@
 
 import hashlib
 from datetime import timedelta
+from pathlib import Path
 
 import pytest
 from fina_agent.agent.storage import RunStore
+from fina_agent.applications import applications
 from fina_agent.database import Base
+from fina_agent.instance import load_instance
 from fina_agent.models import Research, Run, utcnow
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from kli_quant.config import Settings
+
+
+@pytest.fixture(autouse=True)
+def quant_instance(monkeypatch):
+    """测试固定使用本项目的公开配置，不能误用其他项目实例。"""
+    monkeypatch.setenv("FINA_CONFIG_DIR", str(Path(__file__).parents[1] / ".fina-agent"))
+    load_instance.cache_clear()
+    applications.cache_clear()
+    yield
+    load_instance.cache_clear()
+    applications.cache_clear()
 
 
 class MemoryArchive:

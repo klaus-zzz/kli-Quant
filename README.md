@@ -8,9 +8,9 @@
 ## 分工
 
 - Fina-Agent 运行 Agent、控制预算/权限、管理 CubeSandbox、S3、任务与界面。
-- kli-Quant 注册金融提示、get_market_snapshot、正式产物及结论校验。
+- kli-Quant 提供金融配置目录、get_market_snapshot、正式产物及结论校验。
 - CLI 通过 HTTP 提交任务，不读取模型或 Tushare 凭据。
-- 工作台可选择 kli-Quant 应用；没有另造一套聊天或任务运行系统。
+- 该实例工作台固定使用 kli-Quant 应用；没有另造一套聊天或任务运行系统。
 
 ## 开发运行
 
@@ -26,18 +26,23 @@ workspace/
 ```bash
 uv sync --locked
 uv run kli-quant --help
-# 在 Fina-Agent 目录启动唯一的前后端开发 Compose：
-AGENT_APPLICATION_DIR=../kli-Quant docker compose up -d --force-recreate fina-backend-dev
 ```
 
-按底座 README 配置外部开发 PostgreSQL、SeaweedFS、CubeSandbox 和模型。
-`TUSHARE_TOKEN` 继续放在 Fina-Agent/backend/.env，仅后端读取，不复制进客户端。
-启动后 `GET /api/applications` 应包含 kli-quant；配置完整不代表数据源已经连通。
+本项目使用独立 Fina-Agent 实例，经 HTTP 接入；业务提示在 `.fina-agent/prompts/AGENTS.md`
+维护，模板在 `.fina-agent/config.yaml` 的 `sandbox.template_id` 配置，null 沿用实例环境变量。
+修改后重启 API 和 Worker；已创建任务保留旧提示词与模板。
+
+按底座 README 的独立实例示例启动，设置 AGENT_APPLICATION_DIR 为本项目，
+AGENT_CONFIG_DIR 为本项目 `.fina-agent`，AGENT_ENV_FILE 为本项目 `.env`。
+凭据文件仅供后端挂载读取，包含模型、PG、S3、CubeSandbox、Tushare 和可选 LangSmith 配置。
+请使用独立开发数据库与 bucket；服务端可共用，但任务队列不能和其他项目混用。
+客户端不读取这些凭据。默认 kli-Quant 实例 API 端口 8001，CLI 使用 `--server` 指定地址。
+启动后 `GET /api/applications` 应只包含 kli-quant；配置完整不代表数据源已经连通。
 
 ```bash
-uv run kli-quant research '核实某事件对公司的影响，主动查找反证；证据不足时明确说明'
-uv run kli-quant research '新增待核实材料' --topic <research_id> --url https://example.com/source
-uv run kli-quant status <run_id>
+uv run kli-quant --server http://127.0.0.1:8001 research '核实某事件对公司的影响，主动查找反证；证据不足时明确说明'
+uv run kli-quant --server http://127.0.0.1:8001 research '新增待核实材料' --topic <research_id> --url https://example.com/source
+uv run kli-quant --server http://127.0.0.1:8001 status <run_id>
 ```
 
 ## 金融边界

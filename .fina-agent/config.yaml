@@ -1,0 +1,4 @@
+# 本实例只启用金融应用；模板 ID 可替换为项目专用模板。
+application: kli-quant
+sandbox:
+  template_id: null  # null 沿用实例 .env 的 CUBE_TEMPLATE_ID

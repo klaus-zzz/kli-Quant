@@ -12,7 +12,9 @@ def test_registration_and_version_are_explicit():
     app = get_application("kli-quant")
     assert app.version == "0.1.0"
     assert "get_market_snapshot" in app.tools
-    assert not get_application("assistant").tools
+    with pytest.raises(ToolError, match="application_not_installed"):
+        get_application("assistant")
+    assert "先拆解影响链条" in app.prompt
     with pytest.raises(ToolError, match="application_version_changed"):
         get_application("kli-quant", "different")
 
