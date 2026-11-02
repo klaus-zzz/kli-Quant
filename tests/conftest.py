@@ -1,7 +1,7 @@
 """虚构记录与内存归档只用于离线单元测试，不参与运行时接入。"""
 
 import hashlib
-from datetime import timedelta
+from datetime import UTC, timedelta
 from pathlib import Path
 
 import pytest
@@ -10,7 +10,7 @@ from fina_agent.applications import applications
 from fina_agent.database import Base
 from fina_agent.instance import load_instance
 from fina_agent.models import Research, Run, utcnow
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 
 from kli_quant.config import Settings
@@ -69,6 +69,15 @@ def store(settings):
     """单元测试用 SQLite；锁与迁移另用真正 PostgreSQL 验证。"""
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
+
+    def restore_sqlite_timezone(target, context, attrs):
+        # SQLite 不保留时区；模拟生产 PostgreSQL 刷新行锁查询后的返回值。
+        for name in ("as_of", "deadline"):
+            value = getattr(target, name)
+            if value is not None and value.tzinfo is None:
+                setattr(target, name, value.replace(tzinfo=UTC))
+
+    event.listen(Run, "refresh", restore_sqlite_timezone)
     with Session(engine, expire_on_commit=False) as session:
         research = Research(title="虚构公司事件")
         session.add(research)
@@ -83,5 +92,8 @@ def store(settings):
         )
         session.add(run)
         session.commit()
-        yield RunStore(session, run, MemoryArchive())
+        try:
+            yield RunStore(session, run, MemoryArchive())
+        finally:
+            event.remove(Run, "refresh", restore_sqlite_timezone)
     engine.dispose()

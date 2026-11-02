@@ -23,6 +23,11 @@ def artifact_validator(store, content, purpose, execution):
     return result
 
 
+def result_metadata(data, published_at):
+    """金融结果最早只能在实际发布后评估，通用底座不解释这个字段。"""
+    return {"evaluation_not_before": published_at}
+
+
 def missing_services():
     return [] if Settings().tushare_token else ["tushare"]
 
@@ -50,5 +55,6 @@ def create_application():
         finish_model=Finish,
         validate_finish=validate_finish,
         validate_artifact=artifact_validator,
+        result_metadata=result_metadata,
         missing_services=missing_services,
     )

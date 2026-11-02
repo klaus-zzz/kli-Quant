@@ -69,6 +69,10 @@ def test_real_agent_and_new_evidence_review():
                 "judgment",
             } <= kinds
             original_judgments = [row for row in first["records"] if row["kind"] == "judgment"]
+            assert all(
+                row["data"]["evaluation_not_before"] == row["data"]["published_at"]
+                for row in original_judgments
+            )
             response = client.post(
                 f"/api/researches/{research_id}/runs",
                 json={

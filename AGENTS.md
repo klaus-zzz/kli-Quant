@@ -16,3 +16,6 @@
 - 清理任务临时资源，保留源测试和依赖环境；结果默认直接在对话中报告。
 
 - 金融工作台在 frontend/，修改时读 frontend/AGENTS.md 和 frontend/src/AGENTS.md；前端使用 npm，提交 package-lock.json。
+
+- 本项目 Compose 继承通用 Agent dev 服务并负责安装金融包；不得要求底座 Compose 硬编码本项目。
+- 金融结果字段及发布时间之后的评估约束由本应用维护，通用底座只保存不可变记录和执行状态。

@@ -1,13 +1,20 @@
-# 金融工作台通过 HTTP 使用独立 Agent 实例；配置目录由 Fina-Agent 挂载。
+# 金融项目负责安装自己的应用包，复用通用 Agent dev 服务和集中配置。
 name: kli-quant-dev
 services:
+  agent-dev:
+    extends:
+      file: ../Fina-Agent/compose.yaml
+      service: agent-dev
+    command: /bin/sh -ec 'uv sync --locked && uv pip install --no-deps -e /app/kli-Quant && .venv/bin/python -m fina_agent.dev'
+    volumes:
+      - .:/app/kli-Quant:ro
   frontend-dev:
     image: node:24-bookworm-slim
     working_dir: /app/frontend
     init: true
     command: /bin/sh -ec 'npm ci && npm run dev -- --host 0.0.0.0'
     environment:
-      API_PROXY_TARGET: ${AGENT_PROXY_TARGET:-http://fina-agent-dev-agent-dev-1:8000}
+      API_PROXY_TARGET: ${AGENT_PROXY_TARGET:-http://kli-quant-dev-agent-dev-1:8000}
     volumes:
       - ./frontend:/app/frontend
       - frontend-modules:/app/frontend/node_modules
@@ -15,6 +22,7 @@ services:
       - "127.0.0.1:${QUANT_UI_PORT:-5173}:5173"
     networks: [docker]
 volumes:
+  agent-venv:
   frontend-modules:
 networks:
   docker:

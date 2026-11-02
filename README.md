@@ -32,12 +32,16 @@ workspace/
 TUSHARE_TOKEN 也由该后端凭据文件提供。不要给 CLI 或前端复制凭据。
 
 ```bash
-# 在 Fina-Agent 完成开发数据库迁移并启动 Agent dev 服务后，在本仓库运行：
+# 确认 Fina-Agent/.env 指向开发数据库后，在本仓库运行：
 uv sync --locked
+docker compose build agent-dev
+docker compose run --rm agent-dev uv run --no-sync alembic upgrade head
 docker compose up -d
 ```
 
-工作台 <http://127.0.0.1:5173>，默认经 docker 网络访问底座 `fina-agent-dev-agent-dev-1:8000`。
+本项目 Compose 继承 Fina-Agent 的通用 Agent dev 服务，负责安装金融应用包并启动前端。
+配置和凭据仍只读挂载自 Fina-Agent；不要同时启动底座仓库的另一份 dev 服务。
+工作台 <http://127.0.0.1:5173>，默认经 docker 网络访问 `kli-quant-dev-agent-dev-1:8000`。
 若修改底座 Compose 项目名，设置 AGENT_PROXY_TARGET 为对应实例 HTTP 地址；
 工作台本机端口可通过 QUANT_UI_PORT 修改。停止工作台用 `docker compose down`。
 
@@ -72,6 +76,7 @@ uv run kli-quant status <run_id>
 - 价格保留十进制文本，成交量为手，成交额为千元；缺失值不补零。
 - 排除截止点当天未完成日线。历史行情标记 historical_reconstruction，不宣称点时数据。
 - 正式 signal 产物由后端重算 close_return，验证日期、单位、币种、口径和引用。
+- 金融结果的 conditions、signal_usable 和 evaluation_not_before 由本应用提供；评估时间不得早于实际发布。
 - backtest 仅是带基准的区间收益比较，尚不是含费用、滑点的策略回测。
 - observation 要求正反查证、可确定时间的支持证据、条件和 validated signal 产物。
 - 允许 insufficient_evidence 或 no_opportunity，不编造机会。

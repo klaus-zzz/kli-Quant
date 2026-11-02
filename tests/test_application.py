@@ -30,3 +30,24 @@ def test_financial_finish_still_rejects_unsubstantiated_signal(store, settings):
         )
     assert output["status"] == "failed"
     assert not store.records("judgment")
+
+
+def test_financial_result_keeps_publication_evaluation_boundary(store, settings):
+    """金融评估时间由本应用补充；移出底座后仍以发布时刻为下界。"""
+    from fina_agent.agent.contracts import Action
+
+    store.run.input = {"application": "kli-quant", "application_version": "0.1.0"}
+    store.session.commit()
+    with patch.object(store.session, "refresh"):
+        output = ToolRunner(store, settings).call(
+            0,
+            Action(
+                name="finish",
+                arguments={"outcome": "insufficient_evidence", "conclusion": "虚构缺证结论"},
+            ),
+        )
+    assert output["status"] == "ok"
+    data = store.records("judgment")[0].data
+    assert data["evaluation_not_before"] == data["published_at"]
+    assert data["signal_usable"] is False
+    assert data["conditions"] == []
