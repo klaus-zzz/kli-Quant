@@ -20,7 +20,7 @@ requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-fina-agent = { path = "../Fina-Agent/backend", editable = true }
+fina-agent = { path = "../Fina-Agent", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

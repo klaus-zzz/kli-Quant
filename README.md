@@ -1,61 +1,70 @@
 # kli-Quant
 
 基于 [Fina-Agent](https://github.com/klaus-zzz/Fina-Agent) / Deep Agents 的独立量化研究应用。
-当前提供 A 股事件查证、固定 Tushare 日线、沙箱计算、条件性观察校验与新证据复核。
-这是新项目：参考 OmniQuant 的研究准入与计算口径经验，不复制其部署或用户数据。
-尚未完成与 OmniQuant 的同条件对照，不宣称效果更好或保证投资收益。
+提供金融工作台、A 股事件查证工具、固定 Tushare 日线、计算与条件性观察校验。
+这是新项目，不复制 OmniQuant 部署或用户数据，也不宣称收益或效果更优。
 
-## 分工
+![金融工作台](docs/images/workbench.png)
 
-- Fina-Agent 运行 Agent、控制预算/权限、管理 CubeSandbox、S3、任务与界面。
-- kli-Quant 提供金融配置目录、get_market_snapshot、正式产物及结论校验。
-- CLI 通过 HTTP 提交任务，不读取模型或 Tushare 凭据。
-- 该实例工作台固定使用 kli-Quant 应用；没有另造一套聊天或任务运行系统。
+## 仓库分工
+
+- 本仓库 `frontend/`：金融研究界面，提交任务、查看证据、产物和历史版本。
+- 本仓库 `src/kli_quant/`：行情工具、金融计算/结论校验和 HTTP CLI。
+- Fina-Agent：通用 HTTP API、Worker、Deep Agents、沙箱、预算、归档与执行版本。
+- 模板配置和 Prompt 统一维护在 **Fina-Agent/.fina-agent/**，由 Agent 实例挂载；
+  本仓库不复制配置目录，也不持有前端可访问的数据源或模型凭据。
 
 ## 开发运行
 
-Python 3.13、uv 和 Fina-Agent 0.2.x；两个仓库放在同一父目录（当前锁文件使用相对路径依赖）：
-底座尚未合入主分支时，请检出本项目 CI 中固定的底座提交。
+Python 3.13、uv、Node 24 和 Fina-Agent 0.2.x；仓库相邻放置：
 
 ```text
 workspace/
-  Fina-Agent/backend/
+  Fina-Agent/              # 根目录 Python 工程、.fina-agent/、.env
   kli-Quant/
+    frontend/
+    src/kli_quant/
 ```
 
+底座尚未合入主分支时，检出本项目 CI 固定的底座提交。
+按 Fina-Agent README 配置根目录 `.env`，使用开发 PG、S3 bucket、CubeSandbox 和模型，
+TUSHARE_TOKEN 也由该后端凭据文件提供。不要给 CLI 或前端复制凭据。
+
 ```bash
+# 在 Fina-Agent 完成开发数据库迁移并启动 Agent dev 服务后，在本仓库运行：
 uv sync --locked
-uv run kli-quant --help
+docker compose up -d
 ```
 
-本项目使用独立 Fina-Agent 实例，经 HTTP 接入；业务提示在 `.fina-agent/prompts/AGENTS.md`
-维护，模板在 `.fina-agent/config.yaml` 的 `sandbox.template_id` 配置，null 沿用实例环境变量。
-修改后重启 API 和 Worker；已创建任务保留旧提示词与模板。
+工作台 <http://127.0.0.1:5173>，默认经 docker 网络访问底座 `fina-agent-dev-agent-dev-1:8000`。
+若修改底座 Compose 项目名，设置 AGENT_PROXY_TARGET 为对应实例 HTTP 地址；
+工作台本机端口可通过 QUANT_UI_PORT 修改。停止工作台用 `docker compose down`。
 
-按底座 README 的独立实例示例启动，设置 AGENT_APPLICATION_DIR 为本项目，
-AGENT_CONFIG_DIR 为本项目 `.fina-agent`，AGENT_ENV_FILE 为本项目 `.env`。
-凭据文件仅供后端挂载读取，包含模型、PG、S3、CubeSandbox、Tushare 和可选 LangSmith 配置。
-请使用独立开发数据库与 bucket；服务端可共用，但任务队列不能和其他项目混用。
-客户端不读取这些凭据。默认 kli-Quant 实例 API 端口 8001，CLI 使用 `--server` 指定地址。
-启动后 `GET /api/applications` 应只包含 kli-quant；配置完整不代表数据源已经连通。
+底座的 `.fina-agent/config.yaml` 选择 `application: kli-quant` 及 `sandbox.template_id`。
+研究方法在底座 `.fina-agent/prompts/AGENTS.md` 修改。修改后重启底座 API/Worker，
+旧执行保留创建时的提示词和模板。配置完整不代表真实服务已经连通。
+
+CLI 可独立通过 HTTP 调用：
 
 ```bash
-uv run kli-quant --server http://127.0.0.1:8001 research '核实某事件对公司的影响，主动查找反证；证据不足时明确说明'
-uv run kli-quant --server http://127.0.0.1:8001 research '新增待核实材料' --topic <research_id> --url https://example.com/source
-uv run kli-quant --server http://127.0.0.1:8001 status <run_id>
+uv run kli-quant research '核实某事件对公司的影响，主动查找反证；证据不足时明确说明'
+uv run kli-quant research '新增待核实材料' --topic <research_id> --url https://example.com/source
+uv run kli-quant status <run_id>
 ```
+
+默认 API 为 http://127.0.0.1:8000；可在子命令前传 `--server` 指定其他实例地址。
 
 ## 金融边界
 
-- 当前只支持 A 股 daily / 1d / none；一次最多三只证券、一年区间。
+- 当前支持 A 股 daily / 1d / none；一次最多三只证券、一年区间。
 - 价格保留十进制文本，成交量为手，成交额为千元；缺失值不补零。
 - 排除截止点当天未完成日线。历史行情标记 historical_reconstruction，不宣称点时数据。
 - 正式 signal 产物由后端重算 close_return，验证日期、单位、币种、口径和引用。
-- backtest 当前仅是带基准的区间收益比较，尚不是含费用、滑点的策略回测。
-- observation 必须有正反查证、可确定时间的支持证据、条件与 validated signal 产物。
-- 允许 insufficient_evidence 或 no_opportunity，不为了完成任务编造机会。
-- 新材料创建新执行并保留旧结论；细粒度判断依赖图和自动监控尚未实现。
-- 第一版无自动交易、复杂选股策略或多 Agent；金融规则变更需要升级应用版本。
+- backtest 仅是带基准的区间收益比较，尚不是含费用、滑点的策略回测。
+- observation 要求正反查证、可确定时间的支持证据、条件和 validated signal 产物。
+- 允许 insufficient_evidence 或 no_opportunity，不编造机会。
+- 新材料创建新执行并保留旧结论；细粒度判断依赖和自动监控尚未实现。
+- 不做自动交易、复杂选股或多 Agent；金融校验规则变更需要升级应用版本。
 
 ## 验证
 
@@ -63,17 +72,17 @@ uv run kli-quant --server http://127.0.0.1:8001 status <run_id>
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest -m 'not integration'
+npm --prefix frontend ci
+npm --prefix frontend run build
 ```
 
-离线测试不联网、不读取个人凭据。集成测试仅使用 FINA_TEST_DATABASE_URL 指定的专用库。
-隔离容器内装好本应用与底座，工作目录设为底座 backend（读取其 .env）：
+离线测试不调用真实服务。集成测试仅使用 FINA_TEST_DATABASE_URL 专用库。
+隔离容器中安装本应用和底座，工作目录设为 Fina-Agent 根目录以读取后端 `.env`：
 
 ```bash
-FINA_LIVE_SERVICES=1 python -m pytest /app/application/tests/test_live_services.py -s
-FINA_LIVE_AGENT=1 python -m pytest /app/application/tests/test_live_agent.py -s
+FINA_LIVE_SERVICES=1 python -m pytest /app/kli-Quant/tests/test_live_services.py -s
+FINA_LIVE_AGENT=1 python -m pytest /app/kli-Quant/tests/test_live_agent.py -s
 ```
 
-真实测试需要现有已授权服务额度；测试结束清理自身执行对应的沙箱、S3 对象和数据库记录。
-不使用生产数据库，不把测试替身结果展示为真实接入。
-
+真实测试需要现有已授权服务额度；结束后清理自身沙箱、S3 对象和数据库记录。
 代码采用 Apache-2.0；数据服务许可独立于代码许可。

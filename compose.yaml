@@ -1,0 +1,22 @@
+# 金融工作台通过 HTTP 使用独立 Agent 实例；配置目录由 Fina-Agent 挂载。
+name: kli-quant-dev
+services:
+  frontend-dev:
+    image: node:24-bookworm-slim
+    working_dir: /app/frontend
+    init: true
+    command: /bin/sh -ec 'npm ci && npm run dev -- --host 0.0.0.0'
+    environment:
+      API_PROXY_TARGET: ${AGENT_PROXY_TARGET:-http://fina-agent-dev-agent-dev-1:8000}
+    volumes:
+      - ./frontend:/app/frontend
+      - frontend-modules:/app/frontend/node_modules
+    ports:
+      - "127.0.0.1:${QUANT_UI_PORT:-5173}:5173"
+    networks: [docker]
+volumes:
+  frontend-modules:
+networks:
+  docker:
+    external: true
+    name: docker

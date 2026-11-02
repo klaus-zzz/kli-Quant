@@ -1,0 +1,58 @@
+/* 基础排版与克制的研究工作台配色。 */
+:root {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #183b32;
+  background: #f4f5ef;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  line-height: 1.6;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1080px; margin: auto; padding: 0 40px; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; border-bottom: 1px solid #d7dfd4; }
+header > span, .eyebrow { color: #546a5e; font-size: 13px; letter-spacing: .08em; }
+.brand { color: inherit; text-decoration: none; font-size: 24px; font-weight: 750; }
+.brand span { font-weight: 400; }
+.intro { padding: 64px 0 40px; }
+h1 { margin: 18px 0; font-size: clamp(36px, 5.5vw, 60px); line-height: 1.25; letter-spacing: -.035em; }
+.description { max-width: 640px; font-size: 17px; color: #546a5e; }
+h2 { margin: 0 0 8px; font-size: 18px; }
+p { margin: 0; }
+.panel { display: flex; justify-content: space-between; gap: 24px; padding: 26px; border: 1px solid #d7dfd4; background: #fcfdf8; border-radius: 12px; }
+.panel p, .steps p { color: #546a5e; font-size: 14px; }
+dl { min-width: 180px; margin: 0; font-size: 14px; }
+dl > div { display: flex; justify-content: space-between; gap: 24px; padding: 4px 0; }
+dd { margin: 0; }
+[data-status="available"] { color: #227045; }
+[data-status="unavailable"] { color: #94511c; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 44px 0; }
+.steps article > span { display: block; margin-bottom: 16px; font-size: 13px; color: #607568; }
+footer { padding: 24px 0; border-top: 1px solid #d7dfd4; color: #607568; font-size: 12px; }
+/* 输入、版本列表和证据卡片沿用工作台配色，长原文保持可读。 */
+form, .history { margin: 28px 0; }
+label { display: block; font-weight: 600; margin: 12px 0 6px; }
+textarea, select { width: 100%; padding: 12px; border: 1px solid #b7c5b6; border-radius: 6px; background: #fff; font: inherit; }
+textarea { min-height: 90px; resize: vertical; }
+button { border: 0; padding: 10px 16px; border-radius: 6px; background: #235a45; color: white; font: inherit; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.notice { padding: 12px; background: #fff1db; color: #7e431b; overflow-wrap: anywhere; }
+.history { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.saved-record { margin: 16px 0; padding: 20px; background: #fcfdf8; border: 1px solid #d7dfd4; border-radius: 8px; }
+.saved-record p { margin: 8px 0; }
+small { color: #607568; font-weight: 400; }
+blockquote { margin: 12px 0; padding-left: 16px; border-left: 3px solid #b7c5b6; white-space: pre-wrap; overflow-wrap: anywhere; }
+pre { max-height: 400px; padding: 12px; overflow: auto; background: #eef1e9; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+details { margin: 10px 0; }
+summary { cursor: pointer; }
+a { color: #236b50; }
+.limitations { font-size: 13px; color: #765020; }
+/* 小屏幕按阅读顺序展开状态和流程。 */
+@media (max-width: 640px) {
+  main { padding: 0 20px; }
+  .intro { padding-top: 40px; }
+  .panel { flex-direction: column; }
+  .steps { grid-template-columns: 1fr; gap: 24px; }
+  .history { grid-template-columns: 1fr; }
+}

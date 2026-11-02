@@ -1,0 +1,28 @@
+// 最小 API 类型只覆盖界面展示的数据；完整审计字段以 JSON 详情显示。
+export type Research = { id: string; title: string };
+export type Application = { id: string; label: string; version: string; missing_services: string[] };
+export type RunSummary = { id: string; status: string; as_of: string };
+export type SavedRecord = { id: string; kind: string; data: Record<string, unknown> };
+export type Run = RunSummary & {
+  research_id: string;
+  input: { application?: string };
+  stop_reason: string | null;
+  cleanup_pending: boolean;
+  records: SavedRecord[];
+  calls: { id: string; name: string; step: number; status: string; result: unknown }[];
+};
+
+export async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const response = await fetch('/api' + path, options);
+  const body = await response.json();
+  if (!response.ok) {
+    const detail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+    throw new Error(detail || `请求失败 (${response.status})`);
+  }
+  return body as T;
+}
+
+export const statusLabels: Record<string, string> = {
+  queued: '等待 Worker', running: '正在执行', completed: '任务完成',
+  inconclusive: '证据不足', limited: '达到限制', failed: '执行失败', cancelled: '已取消',
+};

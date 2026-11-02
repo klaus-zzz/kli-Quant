@@ -18,8 +18,10 @@ from kli_quant.config import Settings
 
 @pytest.fixture(autouse=True)
 def quant_instance(monkeypatch):
-    """测试固定使用本项目的公开配置，不能误用其他项目实例。"""
-    monkeypatch.setenv("FINA_CONFIG_DIR", str(Path(__file__).parents[1] / ".fina-agent"))
+    """测试固定使用底座维护的金融配置，不能误用其他项目实例。"""
+    monkeypatch.setenv(
+        "FINA_CONFIG_DIR", str(Path(__file__).parents[2] / "Fina-Agent" / ".fina-agent")
+    )
     load_instance.cache_clear()
     applications.cache_clear()
     yield

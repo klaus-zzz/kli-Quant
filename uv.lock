@@ -434,7 +434,7 @@ wheels = [
 [[package]]
 name = "fina-agent"
 version = "0.2.0"
-source = { editable = "../Fina-Agent/backend" }
+source = { editable = "../Fina-Agent" }
 dependencies = [
     { name = "alembic" },
     { name = "beautifulsoup4" },
@@ -712,7 +712,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fina-agent", editable = "../Fina-Agent/backend" },
+    { name = "fina-agent", editable = "../Fina-Agent" },
     { name = "httpx", specifier = ">=0.28,<1" },
 ]
 
