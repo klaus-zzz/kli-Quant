@@ -56,3 +56,16 @@ a { color: #236b50; }
   .steps { grid-template-columns: 1fr; gap: 24px; }
   .history { grid-template-columns: 1fr; }
 }
+/* 对话为主入口；后台研究卡片与消息独立更新，小屏仍可直接操作。 */
+.chat-intro { padding: 36px 0 24px; }
+.chat-intro h1 { font-size: clamp(28px, 4vw, 42px); }
+.conversation-picker { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; }
+.conversation-picker label { white-space: nowrap; }
+.conversation-picker select { flex: 1; min-width: 0; }
+.conversation-picker button { flex-shrink: 0; }
+.conversation { min-height: 180px; }
+.chat-turn { margin: 20px 0; }
+.message { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 10px; }
+.user-message { background: #e5ece1; margin-left: 12%; }
+.message-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.research-card { border: 1px solid #b7c5b6; padding: 20px; border-radius: 10px; background: #fcfdf8; margin: 18px 0; overflow-wrap: anywhere; }

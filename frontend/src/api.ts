@@ -26,3 +26,16 @@ export const statusLabels: Record<string, string> = {
   queued: '等待 Worker', running: '正在执行', completed: '任务完成',
   inconclusive: '证据不足', limited: '达到限制', failed: '执行失败', cancelled: '已取消',
 };
+
+// 对话轮次和后台研究各自更新，失败消息不会隐藏已创建的任务。
+export type Turn = {
+  id: string; content: string; response: string; status: string; error: string | null;
+  created_at: string; context_start: string | null;
+  calls: { name: string; arguments: unknown; result: unknown }[];
+};
+export type Job = {
+  id: string; research_id: string; status: string; event: string; as_of: string;
+  parent_run_id: string | null; stop_reason: string | null; last_tool: string | null;
+  judgment: Record<string, unknown> | null;
+};
+export type Conversation = { id: string; title: string; turns: Turn[]; jobs: Job[] };

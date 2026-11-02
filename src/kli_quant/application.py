@@ -33,6 +33,11 @@ def create_application():
         id="kli-quant",
         label="kli-Quant 量化研究",
         version="0.1.0",
+        research_tool_name="research_a_share_event",
+        research_description=(
+            "多跳查证新闻或原文对 A 股的影响，获取行情并计算；"
+            "后台返回真实结论或证据不足。新证据用 research_id 复核。"
+        ),
         prompt="正式 signal/backtest 产物必须符合 Calculation："
         + json.dumps(Calculation.model_json_schema(), ensure_ascii=False),
         tools={

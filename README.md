@@ -1,14 +1,15 @@
 # kli-Quant
 
 基于 [Fina-Agent](https://github.com/klaus-zzz/Fina-Agent) / Deep Agents 的独立量化研究应用。
-提供金融工作台、A 股事件查证工具、固定 Tushare 日线、计算与条件性观察校验。
+以持续对话为主入口；A 股事件多跳研究是 Agent 按需调用的后台工具。
+提供固定 Tushare 日线、计算与条件性观察校验，研究运行时可以继续聊天、查看进度或取消。
 这是新项目，不复制 OmniQuant 部署或用户数据，也不宣称收益或效果更优。
 
 ![金融工作台](docs/images/workbench.png)
 
 ## 仓库分工
 
-- 本仓库 `frontend/`：金融研究界面，提交任务、查看证据、产物和历史版本。
+- 本仓库 `frontend/`：对话界面，后台研究卡片、固定证据、产物和历史版本。
 - 本仓库 `src/kli_quant/`：行情工具、金融计算/结论校验和 HTTP CLI。
 - Fina-Agent：通用 HTTP API、Worker、Deep Agents、沙箱、预算、归档与执行版本。
 - 模板配置和 Prompt 统一维护在 **Fina-Agent/.fina-agent/**，由 Agent 实例挂载；
@@ -41,6 +42,7 @@ docker compose up -d
 工作台本机端口可通过 QUANT_UI_PORT 修改。停止工作台用 `docker compose down`。
 
 底座的 `.fina-agent/config.yaml` 选择 `application: kli-quant` 及 `sandbox.template_id`。
+对话身份在底座 `.fina-agent/prompts/CHAT.md` 修改；
 研究方法在底座 `.fina-agent/prompts/AGENTS.md` 修改。修改后重启底座 API/Worker，
 旧执行保留创建时的提示词和模板。配置完整不代表真实服务已经连通。
 
@@ -53,6 +55,16 @@ uv run kli-quant status <run_id>
 ```
 
 默认 API 为 http://127.0.0.1:8000；可在子命令前传 `--server` 指定其他实例地址。
+
+## 对话与后台研究
+
+普通问题直接回复，明确要求查证新闻或事件时调用 `research_a_share_event`。
+调度工具立即返回任务编号；Worker 执行原有多跳查证、固定行情和沙箱链路。
+完成结论自动显示在任务卡片中，可展开证据与产物；允许证据不足或没有机会。
+会话、消息、任务与版本保存在后端，刷新后可恢复；新增材料通过研究主题编号复核。
+每会话同时最多一轮研究；旧工作台记录仍可在“全部历史研究与版本”查看。
+目前回复整段返回，对话带入最近最多 10 轮和 5 个任务摘要，受字符预算裁剪；
+完整历史保留，但不承诺无限记忆。网络失败重试原消息复用编号，不重复启动研究。
 
 ## 金融边界
 
