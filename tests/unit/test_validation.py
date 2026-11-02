@@ -8,8 +8,8 @@ from fina_agent.agent.contracts import ToolError
 from fina_agent.agent.storage import json_bytes
 from pydantic import ValidationError
 
-from kli_quant.contracts import Finish
-from kli_quant.validation import validate_calculation, validate_finish
+from kli_quant.finance.contracts import Finish
+from kli_quant.finance.validation import validate_calculation, validate_finish
 
 
 def calculation_fixture(store):

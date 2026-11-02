@@ -15,6 +15,30 @@
 - 模板配置和 Prompt 统一维护在 **Fina-Agent/.fina-agent/**，由 Agent 实例挂载；
   本仓库不复制配置目录，也不持有前端可访问的数据源或模型凭据。
 
+## 目录与开发规则
+
+从 [AGENTS.md](AGENTS.md) 开始，按修改路径逐层阅读局部规则。
+
+```text
+src/kli_quant/
+  application.py          # 注册应用工具与校验器
+  config.py               # 后端金融凭据配置
+  cli.py                  # HTTP 命令行客户端
+  finance/
+    contracts.py          # 行情输入与正式结论契约
+    market.py             # 固定行情快照
+    validation.py         # 正式计算与结论校验
+tests/
+  conftest.py              # 共享夹具与金融实例配置
+  unit/                   # 离线回归
+  integration/            # 显式启用的真实服务联调
+frontend/
+  src/                    # 金融工作台界面与交互
+```
+
+金融内部模块统一使用 `kli_quant.finance.*` 导入。
+应用注册入口 `kli_quant.application:create_application` 和命令行入口 `kli-quant` 保持稳定。
+
 ## 开发运行
 
 Python 3.13、uv、Node 24 和 Fina-Agent 0.2.x；仓库相邻放置：
@@ -92,8 +116,9 @@ npm --prefix frontend run build
 隔离容器中安装本应用和底座，工作目录设为 Fina-Agent 根目录以读取后端 `.env`：
 
 ```bash
-FINA_LIVE_SERVICES=1 python -m pytest /app/kli-Quant/tests/test_live_services.py -s
-FINA_LIVE_AGENT=1 python -m pytest /app/kli-Quant/tests/test_live_agent.py -s
+FINA_LIVE_SERVICES=1 python -m pytest /app/kli-Quant/tests/integration/test_live_services.py -s
+FINA_LIVE_AGENT=1 python -m pytest /app/kli-Quant/tests/integration/test_live_agent.py -s
+FINA_LIVE_AGENT=1 python -m pytest /app/kli-Quant/tests/integration/test_live_chat.py -s
 ```
 
 真实测试需要现有已授权服务额度；结束后清理自身沙箱、S3 对象和数据库记录。

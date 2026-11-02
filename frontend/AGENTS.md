@@ -2,6 +2,15 @@
 
 先读 [根目录规则](../AGENTS.md)，界面修改继续读 [src/AGENTS.md](src/AGENTS.md)。
 
+## 目录与职责
+
+| 修改范围 | 规则与职责 |
+| --- | --- |
+| `src/` | [界面规则](src/AGENTS.md)：对话、研究卡片、历史结果与 HTTP 调用 |
+| 本目录配置文件 | 本文件：依赖、TypeScript、Vite 与开发代理 |
+
+## 工程约束
+
 - 使用 React、TypeScript、Vite 和 npm；同步 package.json 与 package-lock.json。
 - 保持 TypeScript 严格检查，不以 any 或忽略错误绕过接口问题。
 - 从本目录执行 `npm ci`、`npm run typecheck`、`npm run build`。

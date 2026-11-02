@@ -10,7 +10,7 @@ from fina_agent.agent.contracts import StrictModel, ToolError
 from fina_agent.agent.storage import RunStore
 from pydantic import Field
 
-from kli_quant.contracts import Finish
+from kli_quant.finance.contracts import Finish
 
 
 class Calculation(StrictModel):

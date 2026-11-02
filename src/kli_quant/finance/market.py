@@ -10,7 +10,7 @@ from fina_agent.agent.storage import RunStore, json_bytes
 from fina_agent.models import utcnow
 
 from kli_quant.config import Settings
-from kli_quant.contracts import MarketSnapshot
+from kli_quant.finance.contracts import MarketSnapshot
 
 FIELDS = ["ts_code", "trade_date", "open", "high", "low", "close", "vol", "amount"]
 UNITS = {

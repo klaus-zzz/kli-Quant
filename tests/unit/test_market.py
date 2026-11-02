@@ -6,8 +6,8 @@ import pytest
 from fina_agent.agent.contracts import ToolError
 from pydantic import ValidationError
 
-from kli_quant.contracts import MarketSnapshot
-from kli_quant.market import validate_rows
+from kli_quant.finance.contracts import MarketSnapshot
+from kli_quant.finance.market import validate_rows
 
 
 def test_market_time_units_and_missing_values():

@@ -5,9 +5,9 @@ import json
 from fina_agent.applications import Application
 
 from kli_quant.config import Settings
-from kli_quant.contracts import Finish, MarketSnapshot
-from kli_quant.market import get_market_snapshot
-from kli_quant.validation import Calculation, validate_calculation, validate_finish
+from kli_quant.finance.contracts import Finish, MarketSnapshot
+from kli_quant.finance.market import get_market_snapshot
+from kli_quant.finance.validation import Calculation, validate_calculation, validate_finish
 
 
 def market_tool(store, args, settings):
