@@ -9,6 +9,8 @@
 | `application.py` | 通过 `fina_agent.applications` 入口点注册工具、契约和校验器 |
 | `config.py` | 扩展后端配置，读取金融数据凭据 |
 | `cli.py` | 通过 HTTP 提交研究、创建复核执行和查询状态 |
+| `service.py` | 独立 HTTP 工具契约、服务鉴权、会话归属与固定结果引用 |
+| `dev.py`、`migrate.py` | 独立数据库校验、开发服务与显式迁移 |
 | `finance/` | [金融规则](finance/AGENTS.md)：业务契约、行情与计算校验 |
 
 ## 接入约束

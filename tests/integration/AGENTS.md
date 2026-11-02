@@ -6,6 +6,7 @@
 - 测试数据库仅使用 FINA_TEST_DATABASE_URL 专用库，不回退到业务数据库。
 - `test_live_services.py` 用 FINA_LIVE_SERVICES=1 启用，验证归档、行情和沙箱链路。
 - `test_live_agent.py`、`test_live_chat.py` 用 FINA_LIVE_AGENT=1 启用，验证真实研究、持续对话、复核与取消。
+- `test_gateway_services.py` 用 FINA_LIVE_GATEWAY=1 启用，对接独立运行的 Gateway 与金融服务；两库和服务地址必须使用本次隔离环境，清理前等待 worker_released 与沙箱回收。
 - 在隔离开发容器中安装当前源码和底座，从 Fina-Agent 根目录读取后端配置；命令见 README。
 - 真实调用仅使用已授权的开发或测试服务及额度；不使用生产数据。
 - 在 finally 中清理本用例创建的沙箱、归档和数据库记录，按自身执行或会话编号限定范围。

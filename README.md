@@ -71,7 +71,9 @@ npm --prefix frontend run build
 ```
 
 真实测试须显式设置 FINA_LIVE_SERVICES=1 或 FINA_LIVE_AGENT=1；数据库仅使用
-FINA_TEST_DATABASE_URL 专用测试库。跨服务 Gateway 测试另外要求独立的
+FINA_TEST_DATABASE_URL 专用测试库。跨服务 Gateway 测试用 FINA_LIVE_GATEWAY=1 启用，另外要求独立的
 FINA_TEST_CORE_DATABASE_URL、FINA_TEST_GATEWAY_URL 和 FINA_TEST_PROVIDER_URL。
+在金融验证容器中运行 `pytest tests/integration/test_gateway_services.py -s`，
+两端 API/Worker 须事先启动，GATEWAY_TOKEN 与 KLI_TOOL_TOKEN 仅由后端环境提供。
 只有实走 HTTP/Gateway、模型、行情、归档和沙箱才算真实接入，不用替身代替。
 测试清理自身记录与对象，保留测试源码和已有服务。Apache-2.0，数据许可独立。
