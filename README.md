@@ -1,106 +1,64 @@
 # kli-Quant
 
-基于 [Fina-Agent](https://github.com/klaus-zzz/Fina-Agent) / Deep Agents 的独立量化研究应用。
-以持续对话为主入口；A 股事件多跳研究是 Agent 按需调用的后台工具。
-提供固定 Tushare 日线、计算与条件性观察校验，研究运行时可以继续聊天、查看进度或取消。
-这是新项目，不复制 OmniQuant 部署或用户数据，也不宣称收益或效果更优。
+基于 Deep Agents 的独立金融研究服务。对话入口由 [Fina-Agent](https://github.com/klaus-zzz/Fina-Agent)
+提供；A 股事件多跳研究作为 HTTP 后台工具接入，支持固定行情、沙箱计算、证据与版本。
+研究完成后唤醒对话 Agent 主动解释结果，研究期间仍可继续聊天或取消。
 
-![金融工作台](docs/images/workbench.png)
+## 职责与配置
 
-## 仓库分工
+- 本仓库：金融 HTTP 服务、研究 Worker、行情与结果校验、React 工作台。
+- Fina-Agent：通用对话、WebSocket Gateway、HTTP 工具调度、沙箱与归档运行库。
+- Fina-Agent 不安装本包；金融服务单向使用它的通用 Python 库，并在独立容器、数据库执行。
+- 配置集中在 Fina-Agent/.fina-agent；金融服务挂载 providers/kli-quant，模板与 Prompt 不在本仓库复制。
 
-- 本仓库 `frontend/`：对话界面，后台研究卡片、固定证据、产物和历史版本。
-- 本仓库 `src/kli_quant/`：行情工具、金融计算/结论校验和 HTTP CLI。
-- Fina-Agent：通用 HTTP API、Worker、Deep Agents、沙箱、预算、归档与执行版本。
-- 模板配置和 Prompt 统一维护在 **Fina-Agent/.fina-agent/**，由 Agent 实例挂载；
-  本仓库不复制配置目录，也不持有前端可访问的数据源或模型凭据。
-
-## 目录与开发规则
-
-从 [AGENTS.md](AGENTS.md) 开始，按修改路径逐层阅读局部规则。
-
-```text
-src/kli_quant/
-  application.py          # 注册应用工具与校验器
-  config.py               # 后端金融凭据配置
-  cli.py                  # HTTP 命令行客户端
-  finance/
-    contracts.py          # 行情输入与正式结论契约
-    market.py             # 固定行情快照
-    validation.py         # 正式计算与结论校验
-tests/
-  conftest.py              # 共享夹具与金融实例配置
-  unit/                   # 离线回归
-  integration/            # 显式启用的真实服务联调
-frontend/
-  src/                    # 金融工作台界面与交互
-```
-
-金融内部模块统一使用 `kli_quant.finance.*` 导入。
-应用注册入口 `kli_quant.application:create_application` 和命令行入口 `kli-quant` 保持稳定。
+`src/kli_quant/service.py` 实现提交、查询、取消和结果引用；领域规则位于 finance/。
+`frontend/` 经同源网关聊天，经底座代理查看金融详情，不持有任何服务凭据。
+[开发规则](AGENTS.md) 按目录分层，另一个会话的目录整理可独立合并。
 
 ## 开发运行
 
-Python 3.13、uv、Node 24 和 Fina-Agent 0.2.x；仓库相邻放置：
+Python 3.13、uv、Node 24；两仓库相邻放置。按 Fina-Agent README 配置它的根 `.env`：
+DATABASE_URL 为对话库，KLI_DATABASE_URL 为独立金融库，两者不能相同；
+KLI_TOOL_TOKEN 为两端共享服务令牌。模型、Tushare、S3、CubeSandbox 仍由后端读取。
+所有服务使用外部 docker 网络，金融服务默认不向宿主发布端口。
 
-```text
-workspace/
-  Fina-Agent/              # 根目录 Python 工程、.fina-agent/、.env
-  kli-Quant/
-    frontend/
-    src/kli_quant/
-```
-
-底座尚未合入主分支时，检出本项目 CI 固定的底座提交。
-按 Fina-Agent README 配置根目录 `.env`，使用开发 PG、S3 bucket、CubeSandbox 和模型，
-TUSHARE_TOKEN 也由该后端凭据文件提供。不要给 CLI 或前端复制凭据。
+先从 Fina-Agent 启动并迁移对话服务，然后在本仓库：
 
 ```bash
-# 在 Fina-Agent 完成开发数据库迁移并启动 Agent dev 服务后，在本仓库运行：
 uv sync --locked
+docker compose build research-dev
+docker compose run --rm research-dev sh -ec 'uv sync --locked && .venv/bin/python -m kli_quant.migrate'
 docker compose up -d
 ```
 
-工作台 <http://127.0.0.1:5173>，默认经 docker 网络访问底座 `fina-agent-dev-agent-dev-1:8000`。
-若修改底座 Compose 项目名，设置 AGENT_PROXY_TARGET 为对应实例 HTTP 地址；
-工作台本机端口可通过 QUANT_UI_PORT 修改。停止工作台用 `docker compose down`。
+工作台 http://127.0.0.1:5173，默认代理 fina-agent-dev-agent-dev-1:8000。
+AGENT_PROXY_TARGET 可覆盖底座地址，AGENT_ENV_FILE / AGENT_CONFIG_DIR 控制集中配置挂载。
+配置修改后重启对应服务；旧执行保留创建时提示词与模板。
+`docker compose down` 停止开发容器，不部署生产。
 
-底座的 `.fina-agent/config.yaml` 选择 `application: kli-quant` 及 `sandbox.template_id`。
-对话身份在底座 `.fina-agent/prompts/CHAT.md` 修改；
-研究方法在底座 `.fina-agent/prompts/AGENTS.md` 修改。修改后重启底座 API/Worker，
-旧执行保留创建时的提示词和模板。配置完整不代表真实服务已经连通。
-
-CLI 可独立通过 HTTP 调用：
+金融服务内部入口是 kli-research:8000，HTTP 契约在 Fina-Agent/docs/http-tools.md。
+CLI 适用于具有服务凭据的后端操作环境，不应把令牌交给普通浏览器用户：
 
 ```bash
-uv run kli-quant research '核实某事件对公司的影响，主动查找反证；证据不足时明确说明'
-uv run kli-quant research '新增待核实材料' --topic <research_id> --url https://example.com/source
-uv run kli-quant status <run_id>
+uv run kli-quant --server http://kli-research:8000 --scope <UUID> research '核实事件并查找反证'
+uv run kli-quant --server http://kli-research:8000 --scope <UUID> research '新增线索' --parent <task_id>
+uv run kli-quant --server http://kli-research:8000 --scope <UUID> status <task_id>
+uv run kli-quant --server http://kli-research:8000 --scope <UUID> cancel <task_id>
 ```
 
-默认 API 为 http://127.0.0.1:8000；可在子命令前传 `--server` 指定其他实例地址。
-
-## 对话与后台研究
-
-普通问题直接回复，明确要求查证新闻或事件时调用 `research_a_share_event`。
-调度工具立即返回任务编号；Worker 执行原有多跳查证、固定行情和沙箱链路。
-完成结论自动显示在任务卡片中，可展开证据与产物；允许证据不足或没有机会。
-会话、消息、任务与版本保存在后端，刷新后可恢复；新增材料通过研究主题编号复核。
-每会话同时最多一轮研究；旧工作台记录仍可在“全部历史研究与版本”查看。
-目前回复整段返回，对话带入最近最多 10 轮和 5 个任务摘要，受字符预算裁剪；
-完整历史保留，但不承诺无限记忆。网络失败重试原消息复用编号，不重复启动研究。
+重试提交可传同一个 --request-id；新证据必须引用该主题最新终态版本，否则拒绝。
+旧研究数据不自动迁移或删除，旧界面历史入口仅查询旧底座数据库；新研究从会话任务卡查看。
+旧金融会话固定原应用，切换为独立服务后应创建新会话，不能静默改写历史。
 
 ## 金融边界
 
-- 当前支持 A 股 daily / 1d / none；一次最多三只证券、一年区间。
-- 价格保留十进制文本，成交量为手，成交额为千元；缺失值不补零。
-- 排除截止点当天未完成日线。历史行情标记 historical_reconstruction，不宣称点时数据。
-- 正式 signal 产物由后端重算 close_return，验证日期、单位、币种、口径和引用。
-- backtest 仅是带基准的区间收益比较，尚不是含费用、滑点的策略回测。
-- observation 要求正反查证、可确定时间的支持证据、条件和 validated signal 产物。
-- 允许 insufficient_evidence 或 no_opportunity，不编造机会。
-- 新材料创建新执行并保留旧结论；细粒度判断依赖和自动监控尚未实现。
-- 不做自动交易、复杂选股或多 Agent；金融校验规则变更需要升级应用版本。
+支持 A 股 daily / 1d / none，每次最多三只证券、一年区间；价格保留十进制文本，
+成交量为手、成交额为千元。排除截止点当天未完成日线，不把历史重建说成点时数据。
+正式 signal / backtest 重算 close_return 并验证时间、单位、引用和计算口径；
+backtest 仅表示带基准的区间收益比较，不包含完整交易、费用或滑点模型。
+observation 需要支持和反向查证、可确定时间的证据、条件及 validated signal。
+允许 insufficient_evidence 或 no_opportunity，不编造机会，不宣称收益。
+新证据追加执行和判断，保留旧版；不做自动交易、复杂选股或多 Agent。
 
 ## 验证
 
@@ -112,14 +70,8 @@ npm --prefix frontend ci
 npm --prefix frontend run build
 ```
 
-离线测试不调用真实服务。集成测试仅使用 FINA_TEST_DATABASE_URL 专用库。
-隔离容器中安装本应用和底座，工作目录设为 Fina-Agent 根目录以读取后端 `.env`：
-
-```bash
-FINA_LIVE_SERVICES=1 python -m pytest /app/kli-Quant/tests/integration/test_live_services.py -s
-FINA_LIVE_AGENT=1 python -m pytest /app/kli-Quant/tests/integration/test_live_agent.py -s
-FINA_LIVE_AGENT=1 python -m pytest /app/kli-Quant/tests/integration/test_live_chat.py -s
-```
-
-真实测试需要现有已授权服务额度；结束后清理自身沙箱、S3 对象和数据库记录。
-代码采用 Apache-2.0；数据服务许可独立于代码许可。
+真实测试须显式设置 FINA_LIVE_SERVICES=1 或 FINA_LIVE_AGENT=1；数据库仅使用
+FINA_TEST_DATABASE_URL 专用测试库。跨服务 Gateway 测试另外要求独立的
+FINA_TEST_CORE_DATABASE_URL、FINA_TEST_GATEWAY_URL 和 FINA_TEST_PROVIDER_URL。
+只有实走 HTTP/Gateway、模型、行情、归档和沙箱才算真实接入，不用替身代替。
+测试清理自身记录与对象，保留测试源码和已有服务。Apache-2.0，数据许可独立。

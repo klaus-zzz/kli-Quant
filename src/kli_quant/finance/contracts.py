@@ -7,6 +7,13 @@ from fina_agent.agent.contracts import StrictModel
 from pydantic import Field, field_validator
 
 
+class ResearchRequest(StrictModel):
+    """金融 HTTP 工具只接受研究内容；预算、凭据和模型仍由后端控制。"""
+
+    event: str = Field(default="", max_length=6000)
+    source_urls: list[str] = Field(default_factory=list, max_length=3)
+
+
 class MarketSnapshot(StrictModel):
     instrument_ids: list[str] = Field(min_length=1, max_length=3)
     dataset: Literal["daily"] = "daily"

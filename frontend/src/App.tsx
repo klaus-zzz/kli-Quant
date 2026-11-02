@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
-import type { Conversation, Turn } from './api';
+import type { Conversation } from './api';
 import ResearchCard from './ResearchCard';
 import LegacyResearch from './LegacyResearch';
+import RemoteResearchCard from './RemoteResearchCard';
+import { useGateway } from './gateway';
 
 export default function App() {
   const [list, setList] = useState<{ id: string; title: string }[]>([]);
@@ -24,24 +26,13 @@ export default function App() {
     return () => controller.abort();
   }, []);
 
+  const gateway = useGateway(id, detail => {
+    setConversation(detail);
+    setList(previous => [{ id: detail.id, title: detail.title }, ...previous.filter(item => item.id !== detail.id)]);
+  });
   useEffect(() => {
     setConversation(null);
     localStorage.setItem('kli-conversation', id);
-    if (!id) return;
-    const controller = new AbortController();
-    let timer: ReturnType<typeof setTimeout>;
-    // 完成一次轮询后再调度下次，切换会话时丢弃旧响应。
-    const refresh = async () => {
-      try {
-        const detail = await api<Conversation>(`/conversations/${id}`, { signal: controller.signal });
-        if (controller.signal.aborted) return;
-        setConversation(detail);
-        setList(previous => [{ id, title: detail.title }, ...previous.filter(item => item.id !== id)]);
-      } catch { if (!controller.signal.aborted) setError('会话读取失败，将自动重试'); }
-      if (!controller.signal.aborted) timer = setTimeout(() => void refresh(), 2000);
-    };
-    void refresh();
-    return () => { controller.abort(); clearTimeout(timer); };
   }, [id]);
 
   async function newConversation() {
@@ -66,20 +57,15 @@ export default function App() {
       if (pending.current?.id !== target || pending.current.content !== content) {
         pending.current = { id: target, content, request_id: crypto.randomUUID() };
       }
-      const result = await api<Turn>(`/conversations/${target}/messages`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, request_id: pending.current.request_id }),
-      });
+      await gateway.command('message', target, pending.current.request_id, { content });
       if (currentId.current !== target) return;
       setDraft(''); pending.current = null;
-      const detail = await api<Conversation>(`/conversations/${target}`);
-      if (currentId.current === target) setConversation(detail);
-      if (result.status === 'failed') setError('本轮回复失败；已创建的后台研究仍可查看或取消。');
+
     } catch (err) { setError(err instanceof Error ? err.message : '发送失败，可用原内容重试'); }
     finally { setBusy(false); }
   }
 
-  const replying = conversation?.turns.some(turn => turn.status === 'running');
+  const replying = conversation?.turns.some(turn => ['queued', 'running'].includes(turn.status));
   const timeline = [
     ...(conversation?.turns || []).map(turn => ({ key: turn.id, time: turn.created_at, turn, job: null })),
     ...(conversation?.jobs || []).map(job => ({ key: job.id, time: job.as_of, turn: null, job })),
@@ -98,17 +84,21 @@ export default function App() {
       {!timeline.length && <p>例如：“解释一下多跳研究”，或“请研究这条新闻可能影响哪些 A 股公司……”</p>}
       {timeline.map(item => item.job ? <ResearchCard key={item.key} job={item.job} conversationId={id} /> :
         item.turn && <article key={item.key} className="chat-turn">
-          <p className="message user-message"><strong>你</strong><span className="message-text">{item.turn.content}</span></p>
+          {item.turn.kind !== 'task_completion' && <p className="message user-message"><strong>你</strong><span className="message-text">{item.turn.content}</span></p>}
+          {item.turn.kind === 'task_completion' && <small>研究完成 · Agent 主动回复</small>}
           <p className="message"><strong>Agent</strong><span className="message-text">{item.turn.response ||
-            (item.turn.status === 'running' ? '正在回复…' : `本轮未完成：${item.turn.error || '未知错误'}`)}</span></p>
+            (['queued', 'running'].includes(item.turn.status) ? '正在回复…' : `本轮未完成：${item.turn.error || '未知错误'}`)}</span></p>
           {!!item.turn.calls.length && <details><summary>本轮工具调用</summary><pre>{JSON.stringify(item.turn.calls, null, 2)}</pre></details>}
         </article>)}
+      {conversation?.tasks.map(task => <RemoteResearchCard key={task.id} task={task} conversationId={id}
+        cancel={taskId => gateway.command('cancel', id, crypto.randomUUID(), { task_id: taskId })} />)}
     </section>
+    <p role="status">{gateway.connected ? '网关已连接' : '网关重连中；后台研究继续运行'}</p>
     {error && <p role="alert" className="notice">{error}</p>}
     <form onSubmit={e => { e.preventDefault(); void send(); }}>
       <label htmlFor="message">消息</label><textarea id="message" maxLength={6000} value={draft}
         disabled={busy} onChange={e => setDraft(e.target.value)} placeholder="输入问题、事件或原文链接…" />
-      <div className="actions"><button disabled={busy || replying || !draft.trim()}>{busy || replying ? '正在回复…' : '发送'}</button>
+      <div className="actions"><button disabled={busy || replying || !gateway.connected || !draft.trim()}>{busy || replying ? '正在回复…' : '发送'}</button>
         <small>后台研究不会锁住聊天。对话带入最近最多 10 轮，完整记录保留。</small></div>
     </form>
     <LegacyResearch />

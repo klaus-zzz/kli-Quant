@@ -11,7 +11,7 @@ const outcomes: Record<string, string> = {
   insufficient_evidence: '证据不足', completed: '任务完成',
 };
 
-function RecordView({ row, runId }: { row: SavedRecord; runId: string }) {
+function RecordView({ row, runId, resultBase }: { row: SavedRecord; runId: string; resultBase?: string }) {
   const data = row.data;
   const source = typeof data.source_url === 'string' ? data.source_url : '';
   // 原文和沙箱结果均按纯文本显示；不渲染来源 HTML。
@@ -40,14 +40,14 @@ function RecordView({ row, runId }: { row: SavedRecord; runId: string }) {
     {Array.isArray(data.limitations) && <ul className="limitations">{data.limitations.map((item, i) =>
       <li key={i}>{String(item)}</li>)}</ul>}
     {source.startsWith('http') && <a href={source} target="_blank" rel="noreferrer">查看来源网页</a>}
-    {row.kind === 'evidence' && <a href={`/api/runs/${runId}/records/${String(data.document_id)}/content`}>
+    {row.kind === 'evidence' && <a href={resultBase ? `${resultBase}/${String(data.document_id)}` : `/api/runs/${runId}/records/${String(data.document_id)}/content`}>
       下载固定版本原文</a>}
-    {!!data.object && <a href={`/api/runs/${runId}/records/${row.id}/content`}> 下载归档文件</a>}
+    {!!data.object && <a href={resultBase ? `${resultBase}/${row.id}` : `/api/runs/${runId}/records/${row.id}/content`}> 下载归档文件</a>}
     <details><summary>引用、口径与审计详情</summary><pre>{JSON.stringify(data, null, 2)}</pre></details>
   </article>;
 }
 
-export default function RunView({ run }: { run: Run }) {
+export default function RunView({ run, resultBase }: { run: Run; resultBase?: string }) {
   const judgments = run.records.filter(row => row.kind === 'judgment');
   return <section aria-live="polite" aria-label="研究执行详情">
     <h2>{statusLabels[run.status] || run.status}</h2>
@@ -55,7 +55,7 @@ export default function RunView({ run }: { run: Run }) {
     {run.stop_reason && <p>停止原因：{run.stop_reason}</p>}
     {run.cleanup_pending && <p className="notice">沙箱尚待清理，Worker 会继续收尾。</p>}
     {judgments.length === 0 && <p>本轮尚无已保存结果，请查看执行状态和工具记录。</p>}
-    {judgments.map(row => <RecordView key={row.id} row={row} runId={run.id} />)}
+    {judgments.map(row => <RecordView key={row.id} row={row} runId={run.id} resultBase={resultBase} />)}
     <h3>工具进度</h3>
     {run.calls.length === 0 && <p>尚无工具调用；请确认独立 Worker 已启动。</p>}
     {run.calls.map(call => <details key={call.id}>
@@ -64,6 +64,6 @@ export default function RunView({ run }: { run: Run }) {
     </details>)}
     <h3>证据与计算</h3>
     {run.records.filter(row => row.kind !== 'judgment').map(row =>
-      <RecordView key={row.id} row={row} runId={run.id} />)}
+      <RecordView key={row.id} row={row} runId={run.id} resultBase={resultBase} />)}
   </section>;
 }

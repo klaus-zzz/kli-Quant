@@ -1,6 +1,22 @@
 # 金融工作台通过 HTTP 使用独立 Agent 实例；配置目录由 Fina-Agent 挂载。
 name: kli-quant-dev
 services:
+  research-dev:
+    build: ../Fina-Agent
+    working_dir: /app/kli-Quant
+    init: true
+    environment:
+      FINA_CONFIG_DIR: /app/.fina-agent/providers/kli-quant
+    command: /bin/sh -ec 'uv sync --locked && .venv/bin/python -m kli_quant.dev'
+    volumes:
+      - .:/app/kli-Quant
+      - ../Fina-Agent:/app/Fina-Agent:ro
+      - research-venv:/app/kli-Quant/.venv
+      - ${AGENT_CONFIG_DIR:-../Fina-Agent/.fina-agent}:/app/.fina-agent:ro
+      - ${AGENT_ENV_FILE:-../Fina-Agent/.env}:/app/kli-Quant/.env:ro
+    networks:
+      docker:
+        aliases: [kli-research]
   frontend-dev:
     image: node:24-bookworm-slim
     working_dir: /app/frontend
@@ -15,6 +31,7 @@ services:
       - "127.0.0.1:${QUANT_UI_PORT:-5173}:5173"
     networks: [docker]
 volumes:
+  research-venv:
   frontend-modules:
 networks:
   docker:

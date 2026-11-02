@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: klaus-zzz/Fina-Agent
-          ref: 17cc4b550e00b4046e6880d8fbb54e1fd6614df6 # Fina-Agent 0.2.0
+          ref: c6b0632fc11831da7a47c5f03d1aa3fb2ad27267 # HTTP 工具与 WebSocket Gateway
           path: Fina-Agent
           persist-credentials: false
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3

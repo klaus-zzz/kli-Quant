@@ -12,6 +12,7 @@ export default defineConfig({
         target: process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:8000',
         // 保留浏览器 Host，与后端 Origin 校验一致，避免同源提交被误拦截。
         changeOrigin: false,
+        ws: true,
       },
     },
   },

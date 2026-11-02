@@ -27,6 +27,11 @@ def missing_services():
     return [] if Settings().tushare_token else ["tushare"]
 
 
+def result_metadata(data, published_at):
+    """金融判断只能在发布后评估；旧执行和引用保留各自的固定版本。"""
+    return {"evaluation_not_before": published_at}
+
+
 def create_application():
     """应用版本固定到任务输入；规则变更必须升级版本。"""
     return Application(
@@ -51,4 +56,5 @@ def create_application():
         validate_finish=validate_finish,
         validate_artifact=artifact_validator,
         missing_services=missing_services,
+        result_metadata=result_metadata,
     )
