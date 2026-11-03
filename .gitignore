@@ -1,0 +1,17 @@
+# 本地新对话交接文档不提交仓库
+/tasks/
+
+# 本地环境、依赖和验证输出不进入版本库
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+node_modules/
+dist/
+*.tsbuildinfo
+playwright-report/
+test-results/
