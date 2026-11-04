@@ -13,7 +13,6 @@ from fastapi import APIRouter, Request
 from sandbox.cli.catalog import CONTRACTS, validate
 
 router = APIRouter()
-UPSTREAM = "https://api.tushare.pro"
 MAX_BYTES = 8 * 1024 * 1024
 TIMEOUT = 20
 # 单进程开发服务的硬预算；无自动重试或自动翻页。
@@ -48,10 +47,12 @@ def error_status(code, message):
 
 
 async def fetch(name, params, fields, token):
-    """固定 HTTPS 上游，限制总耗时、解压后大小并禁止跟随重定向。"""
+    """限制总耗时、解压后大小并禁止跟随重定向。"""
+    # 上游由后端环境配置，未设置时使用官方地址。
+    upstream = os.environ.get("TUSHARE_BASE_URL", "https://api.tushare.pro")
     payload = {"api_name": name, "token": token, "params": params, "fields": fields}
     async with httpx.AsyncClient(timeout=TIMEOUT, trust_env=False) as client:
-        async with client.stream("POST", UPSTREAM, json=payload) as response:
+        async with client.stream("POST", upstream, json=payload) as response:
             if response.status_code != 200:
                 return result(name, params, error_status(response.status_code, ""))
             content = bytearray()

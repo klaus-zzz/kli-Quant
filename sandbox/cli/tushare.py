@@ -3,10 +3,12 @@
 import inspect
 import json
 import os
+from pathlib import Path
 from typing import Annotated
 
 import httpx
 from axi import tool
+from dotenv import dotenv_values
 from pydantic import Field
 
 from sandbox.cli.catalog import CONTRACTS, validate
@@ -19,7 +21,11 @@ def make_tool(contract):
     def execute(**params):
         fields = params.pop("fields", "")
         validate(name, params, fields)
-        base = os.environ.get("KLI_QUANT_BACKEND_URL", "http://127.0.0.1:18100")
+        # 沙箱注入优先，否则只读取 CLI 同目录配置，不搜索含凭据的根 .env。
+        base = os.environ.get("KLI_QUANT_BACKEND_URL")
+        if base is None:
+            config = dotenv_values(Path(__file__).with_name(".env"), interpolate=False)
+            base = config.get("KLI_QUANT_BACKEND_URL") or "http://127.0.0.1:18100"
         try:
             response = httpx.post(
                 f"{base.rstrip('/')}/api/tushare/{name}",

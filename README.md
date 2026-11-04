@@ -47,9 +47,13 @@ docker compose logs -f
 
 页面地址为 <http://127.0.0.1:15173>，后端为 <http://127.0.0.1:18100/api/health>。
 首次启动会下载锁定的依赖；若页面端口尚未就绪，等待前端日志出现 Vite 地址。
-端口只绑定本机；如有冲突，修改根 `.env` 的 `FRONTEND_PORT` 或 `BACKEND_PORT`。
+前端端口只绑定本机，后端端口发布到宿主机所有接口，供受控内网沙箱访问。
+请限制后端端口的网络访问来源；如有端口冲突，修改根 `.env` 的 `FRONTEND_PORT` 或 `BACKEND_PORT`。
 浏览器请求同源 `/api/health`，Vite 将其转发到后端容器。根 `.env` 支持 Compose 端口配置
-及 `TUSHARE_TOKEN`，后者只注入后端；请勿添加含凭据的 `VITE_*`。
+及 `TUSHARE_TOKEN`、`TUSHARE_BASE_URL`，并通过后端的 `env_file` 加载到后端容器；
+前端不加载该文件，请勿添加含凭据的 `VITE_*`。
+`TUSHARE_BASE_URL` 默认使用 `https://api.tushare.pro`；修改 `.env` 后执行
+`docker compose up -d backend` 更新容器环境。
 
 后端挂载仓库，前端只挂载 `frontend/` 和浏览器测试目录，依赖使用独立卷。
 修改 `backend/main.py` 会重载后端，修改 `frontend/src/App.tsx` 会触发页面热更新。

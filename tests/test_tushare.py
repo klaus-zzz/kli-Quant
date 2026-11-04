@@ -147,6 +147,33 @@ def test_success_and_fields(upstream):
     assert upstream[0][0]["token"] == "fixture-secret-only"
 
 
+@pytest.mark.parametrize("configured", [None, "https://upstream.example.test/api"])
+def test_upstream_address(monkeypatch, configured):
+    """通过实际请求路径验证官方默认地址和环境覆盖，不连接真实上游。"""
+    monkeypatch.delenv("TUSHARE_BASE_URL", raising=False)
+    if configured is not None:
+        monkeypatch.setenv("TUSHARE_BASE_URL", configured)
+    monkeypatch.setenv("TUSHARE_TOKEN", "fixture-secret-only")
+    tushare._calls.clear()
+    original = httpx.AsyncClient
+    urls = []
+
+    def handler(request):
+        urls.append(str(request.url))
+        return httpx.Response(
+            200, json={"code": 0, "data": {"fields": [], "items": []}}
+        )
+
+    monkeypatch.setattr(
+        tushare.httpx,
+        "AsyncClient",
+        lambda **kw: original(**kw, transport=httpx.MockTransport(handler)),
+    )
+    with TestClient(app) as client:
+        assert client.post("/api/tushare/daily", json={}).json()["status"] == "empty"
+    assert urls == [configured or "https://api.tushare.pro"]
+
+
 @pytest.mark.parametrize(
     "data,status",
     [
@@ -204,35 +231,69 @@ def test_rejected_before_upstream(upstream, monkeypatch):
     assert upstream[0] == []
 
 
-def test_axi_registration_and_ptc(upstream, monkeypatch):
-    """使用 axi 公开加载入口，核对全部工具及 PTC 共用的执行路径。"""
+@pytest.mark.parametrize(
+    "file_value,env_value,expected",
+    [
+        (None, None, "http://127.0.0.1:18100"),
+        ("", None, "http://127.0.0.1:18100"),
+        ("'http://file-backend:18100/'", None, "http://file-backend:18100"),
+        (
+            "http://file-backend:18100",
+            "http://sandbox-backend:18100",
+            "http://sandbox-backend:18100",
+        ),
+    ],
+)
+def test_axi_registration_and_ptc(
+    monkeypatch, tmp_path, file_value, env_value, expected
+):
+    """核对注册、PTC 和地址优先级；配置定位不依赖当前工作目录。"""
     import subprocess
     import sys
 
     # 独立进程避免 axi 的进程级配置与其他测试相互污染。
     monkeypatch.setenv("AXI_CONFIG", str(Path("sandbox/cli/axi.json").resolve()))
+    monkeypatch.setenv("PYTHONPATH", str(Path.cwd()))
+    monkeypatch.delenv("KLI_QUANT_BACKEND_URL", raising=False)
+    monkeypatch.delenv("TUSHARE_TOKEN", raising=False)
+    if env_value is not None:
+        monkeypatch.setenv("KLI_QUANT_BACKEND_URL", env_value)
+    cli_dir = tmp_path / "cli"
+    cli_dir.mkdir()
+    if file_value is not None:
+        (cli_dir / ".env").write_text(f"KLI_QUANT_BACKEND_URL={file_value}\n")
+    # 当前目录的凭据文件不得被自动搜索或加载。
+    (tmp_path / ".env").write_text(
+        "TUSHARE_TOKEN=must-not-load\nKLI_QUANT_BACKEND_URL=http://wrong-backend\n"
+    )
     script = """
+import os
+from pathlib import Path
 from axi import tool
 from axi.providers.native import load_native_tool_modules
 from axi.runtime import registry
 from sandbox.cli.catalog import CONTRACTS
 import httpx
 load_native_tool_modules()
+from sandbox.cli import tushare
+tushare.__file__ = str(Path.cwd() / 'cli' / 'tushare.py')
 assert set(registry.list_names()) == {'tushare/' + n for n in CONTRACTS}
 meta = registry.get('tushare/daily')
 assert 'trade_date' in meta.input_schema['properties']
 assert '成交量' in meta.description
 assert 'tushare/daily' in [item.name for item in registry.search('股票日线', top_k=20)]
 def fake_post(url, **kwargs):
-    assert url.endswith('/api/tushare/daily')
+    assert url == EXPECTED_BASE + '/api/tushare/daily'
     assert kwargs['json']['params'] == {'ts_code': '000001.SZ'}
     return httpx.Response(200, json={'status': 'success'},
                           request=httpx.Request('POST', url))
 httpx.post = fake_post
 assert tool('tushare/daily')(ts_code='000001.SZ')['status'] == 'success'
+assert 'TUSHARE_TOKEN' not in os.environ
 """
+    script = "EXPECTED_BASE = " + repr(expected) + "\n" + script
     completed = subprocess.run(
-        [sys.executable, "-c", script], capture_output=True, text=True
+        [sys.executable, "-c", script], capture_output=True, text=True, cwd=tmp_path
     )
     assert completed.returncode == 0, completed.stderr
 

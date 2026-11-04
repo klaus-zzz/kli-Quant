@@ -9,18 +9,19 @@ services:
       sh -c "uv sync --locked &&
       uv run --no-sync uvicorn backend.main:app --host 0.0.0.0 --port 18100
       --reload --reload-dir backend"
+    # 数据源配置从根 .env 加载，仅供后端使用。
+    env_file:
+      - .env
     environment:
       UV_PROJECT_ENVIRONMENT: /opt/venv
       UV_PYTHON_INSTALL_DIR: /opt/python
       UV_CACHE_DIR: /tmp/uv-cache
-      # 仅将数据源凭据注入后端，前端和 CLI 均不接收。
-      TUSHARE_TOKEN: ${TUSHARE_TOKEN:-}
     volumes:
       - .:/app
       - backend-venv:/opt/venv
       - backend-python:/opt/python
     ports:
-      - "127.0.0.1:${BACKEND_PORT:-18100}:18100"
+      - "${BACKEND_PORT:-18100}:18100"
     networks:
       docker:
         aliases: ["${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-backend"]

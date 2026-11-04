@@ -19,6 +19,8 @@ uv run uvicorn backend.main:app --host 127.0.0.1 --port 18100 --env-file .env
 ```bash
 export AXI_CONFIG="$PWD/sandbox/cli/axi.json"
 export PYTHONPATH="$PWD"
+# 首次配置时复制，并按需修改其中的后端地址。
+cp -n sandbox/cli/.env.example sandbox/cli/.env
 uv run axi list tushare
 uv run axi search "股票日线"
 uv run axi describe tushare/daily
@@ -36,9 +38,43 @@ from axi import tool
 result = tool("tushare/daily")(ts_code="000001.SZ", trade_date="20261030")
 ```
 
-CLI 的后端地址默认 `http://127.0.0.1:18100`，由启动环境中的
-`KLI_QUANT_BACKEND_URL` 修改；模型参数不能改地址。分发时仅需要 `sandbox/cli/`
-及其包路径和依赖，不复制根 `.env` 或后端配置。完整 CubeSandbox 网络接入尚未实现。
+CLI 按以下优先级读取 `KLI_QUANT_BACKEND_URL`：进程环境变量、
+`sandbox/cli/.env`、默认地址 `http://127.0.0.1:18100`。
+文件路径相对于 `tushare.py` 定位，切换工作目录不影响读取；文件缺失或值为空时使用默认地址。
+不会搜索根 `.env`，也不将文件中的其他变量导出到进程；模型参数不能改地址。
+分发时需要 CLI 代码、包路径和依赖（含 `python-dotenv`），不复制根 `.env` 或后端配置。
+CLI 的 `.env` 不提交版本库，里面只填写后端地址：
+
+```dotenv
+KLI_QUANT_BACKEND_URL=http://127.0.0.1:18100
+```
+
+后续接入 CubeSandbox 时，建议由创建沙箱的服务读取自身配置，再注入到沙箱。
+以下为接入示例，当前仓库尚未实现或验证完整沙箱接入：
+
+```python
+import os
+from cubesandbox import Sandbox
+
+# 配置来自创建沙箱的服务，地址无需写入 CLI 或模板镜像。
+with Sandbox.create(
+    template=os.environ["CUBE_TEMPLATE_ID"],
+    envs={"KLI_QUANT_BACKEND_URL": os.environ["KLI_QUANT_BACKEND_URL"]},
+) as sandbox:
+    # 创建时注入的变量会被 commands.run 启动的 CLI 继承。
+    sandbox.commands.run("axi list tushare")
+```
+
+前提是沙箱已安装 CLI 依赖并配置 `AXI_CONFIG` 和模块路径。
+也可给单次 `sandbox.commands.run(..., envs={...})` 传入变量。
+`run_code` 默认不会继承创建沙箱时的 `envs`，不要与 `commands.run` 混用这一假设；
+具体可见 [CubeSandbox 环境变量说明](https://cubesandbox.com/guide/environment-variables)。
+如果以文件方式配置，将仅含后端地址的 `.env` 放到沙箱内 `tushare.py` 同目录即可。
+地址必须从沙箱可达，`127.0.0.1` 指沙箱自身；当前 Compose 后端端口发布到宿主机所有接口。
+跨机器访问时使用后端宿主机内网地址，并核对沙箱路由与端口访问规则。
+
+后端上游则通过根 `.env` 中的 `TUSHARE_BASE_URL` 配置，默认官方地址
+`https://api.tushare.pro`。仅填写可信地址，后端会向该地址发送 `TUSHARE_TOKEN`。
 
 ## 后端协议与边界
 
@@ -55,15 +91,15 @@ CLI 的后端地址默认 `http://127.0.0.1:18100`，由启动环境中的
 `budget_exceeded`、`busy`。业务结果使用 HTTP 200 信封，调用方必须检查 `status`；
 axi 的外层 `success` 仅表示工具函数执行完成。
 
-固定 HTTPS 上游，单次总耗时 20 秒，解压后响应最多 8 MiB；单进程最多并发 4 次、
+上游地址由后端环境配置，单次总耗时 20 秒，解压后响应最多 8 MiB；单进程最多并发 4 次、
 每分钟最多 30 次真实请求，不自动重试、不自动翻页。CLI 等待后端最多 25 秒。
 达到文档行数上限、请求 `limit` 或上游报告 `has_more` 时返回 `incomplete`；未公布上限或未达到上限
 都不能证明全量，`limits.completeness` 会说明未知或可能截断。
 开放调用只表示允许向官方发请求，不承诺账户积分、接口权限或上游可用性。
 
-当前入口仅供受控开发网络，Compose 端口绑定本机。不要通过反向代理公开该入口，
+当前入口仅供受控开发网络，后端端口应限制为允许的沙箱来源访问。不要通过反向代理公开该入口，
 不要以多 worker 部署绕过进程内预算；多用户认证和分布式预算尚未实现。
-前端只挂载自己的源码和浏览器测试目录，根 `.env` 仅向后端注入 `TUSHARE_TOKEN`。
+前端只挂载自己的源码和浏览器测试目录，根 `.env` 的数据源配置仅向后端注入。
 上游错误原文不回显，避免携带凭据；权限、限流分类依赖上游错误码和中文提示，
 未识别的错误统一为 `service_error`。
 
