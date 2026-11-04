@@ -1,0 +1,33 @@
+{
+  "name": "sz_daily_info",
+  "description": "深圳市场每日交易概况。接口：sz_daily_info 描述：获取深圳市场每日交易概况 限量：单次最大2000，可循环获取，总量不限制 权限：用户积2000积分可调取， 频次有限制，积分越高每分钟调取频次越高，5000积分以上频次相对较高，积分获取方法请参阅 积分获取办法",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=268",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "板块代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "", "default": true},
+    {"name": "ts_code", "type": "str", "description": "市场类型", "default": true},
+    {"name": "count", "type": "int", "description": "股票个数", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额", "default": true},
+    {"name": "vol", "type": "int", "description": "成交量", "default": true},
+    {"name": "total_share", "type": "float", "description": "总股本", "default": true},
+    {"name": "total_mv", "type": "float", "description": "总市值", "default": true},
+    {"name": "float_share", "type": "float", "description": "流通股票", "default": true},
+    {"name": "float_mv", "type": "float", "description": "流通市值", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

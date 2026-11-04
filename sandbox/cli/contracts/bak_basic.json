@@ -1,0 +1,46 @@
+{
+  "name": "bak_basic",
+  "description": "股票历史列表（历史每天股票列表）。接口：bak_basic 描述：获取备用基础列表，数据从2016年开始 限量：单次最大7000条，可以根据日期参数循环获取历史，正式权限需要5000积分。",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=262",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 7000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "industry", "type": "str", "description": "行业", "default": true},
+    {"name": "area", "type": "str", "description": "地域", "default": true},
+    {"name": "pe", "type": "float", "description": "市盈率（动）", "default": true},
+    {"name": "float_share", "type": "float", "description": "流通股本（亿）", "default": true},
+    {"name": "total_share", "type": "float", "description": "总股本（亿）", "default": true},
+    {"name": "total_assets", "type": "float", "description": "总资产（亿）", "default": true},
+    {"name": "liquid_assets", "type": "float", "description": "流动资产（亿）", "default": true},
+    {"name": "fixed_assets", "type": "float", "description": "固定资产（亿）", "default": true},
+    {"name": "reserved", "type": "float", "description": "公积金", "default": true},
+    {"name": "reserved_pershare", "type": "float", "description": "每股公积金", "default": true},
+    {"name": "eps", "type": "float", "description": "每股收益", "default": true},
+    {"name": "bvps", "type": "float", "description": "每股净资产", "default": true},
+    {"name": "pb", "type": "float", "description": "市净率", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "undp", "type": "float", "description": "未分配利润", "default": true},
+    {"name": "per_undp", "type": "float", "description": "每股未分配利润", "default": true},
+    {"name": "rev_yoy", "type": "float", "description": "收入同比（%）", "default": true},
+    {"name": "profit_yoy", "type": "float", "description": "利润同比（%）", "default": true},
+    {"name": "gpr", "type": "float", "description": "毛利率（%）", "default": true},
+    {"name": "npr", "type": "float", "description": "净利润率（%）", "default": true},
+    {"name": "holder_num", "type": "int", "description": "股东人数", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

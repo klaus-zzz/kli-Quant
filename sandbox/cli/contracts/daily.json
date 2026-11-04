@@ -1,0 +1,37 @@
+{
+  "name": "daily",
+  "description": "股票日线行情（A股，未复权）。接口：daily，可以通过 数据工具 调试和查看数据 数据说明：交易日每天15点～16点之间入库。本接口是未复权行情，停牌期间不提供数据 调取说明： 最低120积分可以免费试用，每分钟50频次。 基础5000积分每分钟内可调取500次，每次6000条数据，一次请求相当于提取一个股票23年历史。 描述：获取股票行情数据，或通过 通用行情接口 获取数据，包含了前后复权数据",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=27",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码（支持多个股票同时提取，逗号分隔）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "最高价", "default": true},
+    {"name": "low", "type": "float", "description": "最低价", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨收价【除权价】", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌额", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅（%） 【基于除权后的昨收计算的涨跌幅：（今收-除权昨收）/除权昨收 】", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量 （手）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额 （千元）", "default": true},
+    {"name": "ah_vol", "type": "float", "description": "盘后成交量 （手）", "default": false},
+    {"name": "ah_amount", "type": "float", "description": "盘后成交额 （千元）", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,35 @@
+{
+  "name": "index_monthly",
+  "description": "指数月线行情。接口：index_monthly 描述：获取指数月线行情,每月更新一次 限量：单次最大1000行记录,可多次获取,总量不限制 积分：用户需要至少600积分才可以调取，积分越多频次越高，具体请参阅 积分获取办法",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=172",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS指数代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日", "default": true},
+    {"name": "close", "type": "float", "description": "收盘点位", "default": true},
+    {"name": "open", "type": "float", "description": "开盘点位", "default": true},
+    {"name": "high", "type": "float", "description": "最高点位", "default": true},
+    {"name": "low", "type": "float", "description": "最低点位", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨日收盘点", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌点位", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量（手）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额（千元）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

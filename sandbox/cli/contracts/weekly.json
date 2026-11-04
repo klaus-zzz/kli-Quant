@@ -1,0 +1,35 @@
+{
+  "name": "weekly",
+  "description": "周线行情。接口：weekly 描述：获取A股周线行情，本接口每周最后一个交易日更新，如需要使用每天更新的周线数据，请使用 日度更新的周线行情接口 。 限量：单次最大6000行，可使用交易日期循环提取，总量不限制 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=144",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码 （ts_code,trade_date两个参数任选一）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期 （每周最后一个交易日期，YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "close", "type": "float", "description": "周收盘价", "default": true},
+    {"name": "open", "type": "float", "description": "周开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "周最高价", "default": true},
+    {"name": "low", "type": "float", "description": "周最低价", "default": true},
+    {"name": "pre_close", "type": "float", "description": "上一周收盘价", "default": true},
+    {"name": "change", "type": "float", "description": "周涨跌额", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "周涨跌 （未复权，未 100，如果是复权请用 通用行情接口 ，如需%单位请 100 ）", "default": true},
+    {"name": "vol", "type": "float", "description": "周成交量", "default": true},
+    {"name": "amount", "type": "float", "description": "周成交额", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

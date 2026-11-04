@@ -1,0 +1,42 @@
+{
+  "name": "fut_daily_adj",
+  "description": "期货复权行情。接口：fut_daily_adj 描述：获取主力合约的后复权日线行情 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法 注意： 复权数据是参考股票计算，在主力合约切换时以新的合约和旧的合约的收盘价相比得出 主力发生变化的交易日 : 每个切换点 k 取切换前一日新旧主力的同日收盘价之比 ` r_k = C_new / C_old `（ C 取 raw_1day 当日真实收盘）， 复权因子从最早段起为 1.0 ，每越过一个切换点累乘 ` 1 / r_k `： 切换前段（首日 .. 第一个切换前一日）： adj = 1.0 ； 第 k 段（第 k 次切换日及之后，直到下一个切换）： adj = Π _ { j <= k } ( 1 / r_j ) 。",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=492",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "合约代码", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码(CFFEX,CZCE,DCE,GFEX,INE,SHFE)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（格式：YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（格式：YYYYMMDD）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易代码", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨收盘价", "default": true},
+    {"name": "pre_settle", "type": "float", "description": "昨结算价", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "最高价", "default": true},
+    {"name": "low", "type": "float", "description": "最低价", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "settle", "type": "float", "description": "结算价", "default": true},
+    {"name": "change1", "type": "float", "description": "涨跌1,收盘价-昨结算价", "default": true},
+    {"name": "change2", "type": "float", "description": "涨跌2,结算价-昨结算价", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量(手)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额(万元)", "default": true},
+    {"name": "oi", "type": "float", "description": "持仓量(手)", "default": true},
+    {"name": "oi_chg", "type": "float", "description": "持仓量变化", "default": true},
+    {"name": "delv_settle", "type": "float", "description": "交割结算价", "default": false},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

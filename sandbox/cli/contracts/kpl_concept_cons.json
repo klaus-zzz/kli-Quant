@@ -1,0 +1,30 @@
+{
+  "name": "kpl_concept_cons",
+  "description": "开盘啦题材成分。接口：kpl_concept_cons 描述：获取概念题材的成分股 限量：单次最大3000条，可根据代码和日期循环获取全部数据 积分：5000积分可提取数据，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=351",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "题材代码（xxxxxx.KP格式）", "minLength": 1, "maxLength": 2000},
+      "con_code": {"type": "string", "description": "成分代码（xxxxxx.SH格式）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "题材ID", "default": true},
+    {"name": "name", "type": "str", "description": "题材名称", "default": true},
+    {"name": "con_name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "con_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "desc", "type": "str", "description": "描述", "default": true},
+    {"name": "hot_num", "type": "int", "description": "人气值", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

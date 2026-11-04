@@ -1,0 +1,40 @@
+{
+  "name": "stk_holdertrade",
+  "description": "股东增减持。接口：stk_holdertrade 描述：获取上市公司增减持数据，了解重要股东近期及历史上的股份增减变化 限量：单次最大提取3000行记录，总量不限制 积分：用户需要至少2000积分才可以调取。基础积分有流量控制，积分越多权限越大，5000积分以上无明显限制，请自行提高积分，具体请参阅 积分获取办法",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=175",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS股票代码", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000},
+      "trade_type": {"type": "string", "description": "交易类型IN增持DE减持", "minLength": 1, "maxLength": 2000},
+      "holder_type": {"type": "string", "description": "股东类型C公司P个人G高管", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "holder_name", "type": "str", "description": "股东名称", "default": true},
+    {"name": "holder_type", "type": "str", "description": "股东类型G高管P个人C公司", "default": true},
+    {"name": "in_de", "type": "str", "description": "类型IN增持DE减持", "default": true},
+    {"name": "change_vol", "type": "float", "description": "变动数量", "default": true},
+    {"name": "change_ratio", "type": "float", "description": "占流通比例（%）", "default": true},
+    {"name": "after_share", "type": "float", "description": "变动后持股", "default": true},
+    {"name": "after_ratio", "type": "float", "description": "变动后占流通比例（%）", "default": true},
+    {"name": "avg_price", "type": "float", "description": "平均价格", "default": true},
+    {"name": "total_share", "type": "float", "description": "持股总数", "default": true},
+    {"name": "begin_date", "type": "str", "description": "增减持开始日期", "default": false},
+    {"name": "close_date", "type": "str", "description": "增减持结束日期", "default": false},
+    {"name": "cur_stage", "type": "str", "description": "进程(预案)", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "ths_member",
+  "description": "概念板块成分。接口：ths_member 描述：获取概念板块成分列表 限量：用户积累6000积分可调取，每分钟可调取200次，是最新的概念板块成分。",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=261",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块指数代码", "minLength": 1, "maxLength": 2000},
+      "con_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "指数代码", "default": true},
+    {"name": "con_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "con_name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "weight", "type": "float", "description": "权重(暂无)", "default": false},
+    {"name": "in_date", "type": "str", "description": "纳入日期(暂无)", "default": false},
+    {"name": "out_date", "type": "str", "description": "剔除日期(暂无)", "default": false},
+    {"name": "is_new", "type": "str", "description": "是否最新Y是N否", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

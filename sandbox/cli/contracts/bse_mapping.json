@@ -1,0 +1,26 @@
+{
+  "name": "bse_mapping",
+  "description": "北交所新旧代码对照表。接口：bse_mapping 描述：获取北交所股票代码变更后新旧代码映射表数据 限量：单次最大1000条（本接口总数据量300以内） 积分：2000积分即可调取",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=375",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "o_code": {"type": "string", "description": "旧代码", "minLength": 1, "maxLength": 2000},
+      "n_code": {"type": "string", "description": "新代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "o_code", "type": "str", "description": "原代码", "default": true},
+    {"name": "n_code", "type": "str", "description": "新代码", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,36 @@
+{
+  "name": "repo_daily",
+  "description": "债券回购日行情。接口：repo_daily 描述：债券回购日行情 限量：单次最大2000条，可多次提取，总量不限制 权限：用户需要累积2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=256",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "repo_maturity", "type": "str", "description": "期限品种", "default": true},
+    {"name": "pre_close", "type": "float", "description": "前收盘(%)", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价(%)", "default": true},
+    {"name": "high", "type": "float", "description": "最高价(%)", "default": true},
+    {"name": "low", "type": "float", "description": "最低价(%)", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价(%)", "default": true},
+    {"name": "weight", "type": "float", "description": "加权价(%)", "default": true},
+    {"name": "weight_r", "type": "float", "description": "加权价(利率债)(%)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额(万元)", "default": true},
+    {"name": "num", "type": "int", "description": "成交笔数(笔)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

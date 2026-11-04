@@ -1,0 +1,29 @@
+{
+  "name": "stock_st",
+  "description": "ST股票列表。接口：stock_st，可以通过 数据工具 调试和查看数据。 描述：获取ST股票列表，可根据交易日期获取历史上每天的ST列表 权限：3000积分起 提示：每天上午9:20更新，单次请求最大返回1000行数据，可循环提取,本接口数据从20000101开始,太早历史无法补齐",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=397",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始时间", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束时间", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "type", "type": "str", "description": "类型", "default": true},
+    {"name": "type_name", "type": "str", "description": "类型名称", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

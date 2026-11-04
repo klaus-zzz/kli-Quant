@@ -1,0 +1,27 @@
+{
+  "name": "fut_mapping",
+  "description": "期货主力与连续合约。接口：fut_mapping 描述：获取期货主力（或连续）合约与月合约映射数据 限量：单次最大2000条，总量不限制 积分：用户需要至少2000积分才可以调取，未来可能调整积分，请尽可能多积累积分。具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=189",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "合约代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "连续合约代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "起始日期", "default": true},
+    {"name": "mapping_ts_code", "type": "str", "description": "期货合约代码", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

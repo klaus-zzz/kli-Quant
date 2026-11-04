@@ -1,0 +1,42 @@
+{
+  "name": "fut_wsr",
+  "description": "仓单日报。接口：fut_wsr 描述：获取仓单日报数据，了解各仓库/厂库的仓单变化 限量：单次最大1000，总量不限制 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=140",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "symbol": {"type": "string", "description": "产品代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "symbol", "type": "str", "description": "产品代码", "default": true},
+    {"name": "fut_name", "type": "str", "description": "产品名称", "default": true},
+    {"name": "warehouse", "type": "str", "description": "仓库名称", "default": true},
+    {"name": "wh_id", "type": "str", "description": "仓库编号", "default": false},
+    {"name": "pre_vol", "type": "int", "description": "昨日仓单量", "default": true},
+    {"name": "vol", "type": "int", "description": "今日仓单量", "default": true},
+    {"name": "vol_chg", "type": "int", "description": "增减量", "default": true},
+    {"name": "area", "type": "str", "description": "地区", "default": false},
+    {"name": "year", "type": "str", "description": "年度", "default": false},
+    {"name": "grade", "type": "str", "description": "等级", "default": false},
+    {"name": "brand", "type": "str", "description": "品牌", "default": false},
+    {"name": "place", "type": "str", "description": "产地", "default": false},
+    {"name": "pd", "type": "int", "description": "升贴水", "default": false},
+    {"name": "is_ct", "type": "str", "description": "是否折算仓单", "default": false},
+    {"name": "unit", "type": "str", "description": "单位", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

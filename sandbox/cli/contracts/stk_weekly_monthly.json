@@ -1,0 +1,38 @@
+{
+  "name": "stk_weekly_monthly",
+  "description": "股票周/月线行情(每日更新)。接口：stk_weekly_monthly 描述：股票周/月线行情(每日更新) 限量：单次最大6000,可使用交易日期循环提取，总量不限制 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=336",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(格式：YYYYMMDD，每周或每月最后一天的日期）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始交易日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束交易日期", "minLength": 1, "maxLength": 2000},
+      "freq": {"type": "string", "description": "频率week周，month月", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["freq"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "计算截至日期", "default": true},
+    {"name": "freq", "type": "str", "description": "频率(周week,月month)", "default": true},
+    {"name": "open", "type": "float", "description": "(周/月)开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "(周/月)最高价", "default": true},
+    {"name": "low", "type": "float", "description": "(周/月)最低价", "default": true},
+    {"name": "close", "type": "float", "description": "(周/月)收盘价", "default": true},
+    {"name": "pre_close", "type": "float", "description": "上一(周/月)收盘价", "default": true},
+    {"name": "vol", "type": "float", "description": "(周/月)成交量", "default": true},
+    {"name": "amount", "type": "float", "description": "(周/月)成交额", "default": true},
+    {"name": "change", "type": "float", "description": "(周/月)涨跌额", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "(周/月)涨跌幅(未复权,如果是复权请用 通用行情接口)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

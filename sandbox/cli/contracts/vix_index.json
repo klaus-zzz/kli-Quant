@@ -1,0 +1,29 @@
+{
+  "name": "vix_index",
+  "description": "美股恐慌指数行情。接口：vix_index 描述：VIX恐慌指数由美国CBOE芝加哥期权交易所编制，底层标的为标普500（S&P 500）期权，主要用于反映美股大盘对未来波动的预期，因此常被视为美股市场恐慌情绪的重要指标。它并不是股票，也不是股票指数，而是一个波动率指数。其数值通过标普500的看涨期权和看跌期权价格计算得出，用来衡量市场对未来30天美股大盘波动程度的预期。当美股大幅下跌时，投资者往往会大量买入看跌期权进行保护，推动VIX快速上涨，所以它也被称为“恐慌指数”。简单参考区间：低于20：市场比较平静，恐慌情绪较低。20—30：市场担忧上升，波动预期增强。高于30：市场出现明显恐慌。高于40：通常意味着重大危机级别，市场处于极度恐慌状态。 限量：单次最大300条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=498",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 300,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期(格式：YYYYMMDD，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "high", "type": "str", "description": "最高价", "default": true},
+    {"name": "low", "type": "str", "description": "最低价", "default": true},
+    {"name": "open", "type": "str", "description": "开盘价", "default": true},
+    {"name": "close", "type": "str", "description": "收盘价", "default": true},
+    {"name": "pct_change", "type": "str", "description": "涨跌幅", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

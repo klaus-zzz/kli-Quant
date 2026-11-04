@@ -1,0 +1,32 @@
+{
+  "name": "hibor",
+  "description": "Hibor利率。接口：hibor 描述：Hibor利率 限量：单次最大4000行数据，总量不限制，可通过设置开始和结束日期分段获取 积分：用户积累120积分可以调取，具体请参阅 积分获取办法 HIBOR (Hongkong InterBank Offered Rate)，是香港银行同行业拆借利率。指香港货币市场上，银行与银行之间的一年期以下的短期资金借贷利率，从伦敦同业拆借利率（LIBOR）变化出来的。",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=153",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "date": {"type": "string", "description": "日期 (日期输入格式：YYYYMMDD，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "date", "type": "str", "description": "日期", "default": true},
+    {"name": "on", "type": "float", "description": "隔夜", "default": true},
+    {"name": "1w", "type": "float", "description": "1周", "default": true},
+    {"name": "2w", "type": "float", "description": "2周", "default": true},
+    {"name": "1m", "type": "float", "description": "1个月", "default": true},
+    {"name": "2m", "type": "float", "description": "2个月", "default": true},
+    {"name": "3m", "type": "float", "description": "3个月", "default": true},
+    {"name": "6m", "type": "float", "description": "6个月", "default": true},
+    {"name": "12m", "type": "float", "description": "12个月", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

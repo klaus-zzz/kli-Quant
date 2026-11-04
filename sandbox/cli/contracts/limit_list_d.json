@@ -1,0 +1,44 @@
+{
+  "name": "limit_list_d",
+  "description": "涨跌停列表（新）。接口：limit_list_d 描述：获取A股每日涨跌停、炸板数据情况，数据从2020年开始（不提供ST股票的统计） 限量：单次最大可以获取2500条数据，可通过日期或者股票循环提取 积分：5000积分每分钟可以请求200次每天总量1万次，8000积分以上每分钟500次每天总量不限制，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=298",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2500,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "limit_type": {"type": "string", "description": "涨跌停类型（U涨停D跌停Z炸板）", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所（SH上交所SZ深交所BJ北交所）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "industry", "type": "str", "description": "所属行业", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额", "default": true},
+    {"name": "limit_amount", "type": "float", "description": "板上成交金额(成交价格为该股票跌停价的所有成交额的总和，涨停无此数据)", "default": true},
+    {"name": "float_mv", "type": "float", "description": "流通市值", "default": true},
+    {"name": "total_mv", "type": "float", "description": "总市值", "default": true},
+    {"name": "turnover_ratio", "type": "float", "description": "换手率", "default": true},
+    {"name": "fd_amount", "type": "float", "description": "封单金额（以涨停价买入挂单的资金总量）", "default": true},
+    {"name": "first_time", "type": "str", "description": "首次封板时间（跌停无此数据）", "default": true},
+    {"name": "last_time", "type": "str", "description": "最后封板时间", "default": true},
+    {"name": "open_times", "type": "int", "description": "炸板次数(跌停为开板次数)", "default": true},
+    {"name": "up_stat", "type": "str", "description": "涨停统计（N/T T天有N次涨停）", "default": true},
+    {"name": "limit_times", "type": "int", "description": "连板数（个股连续封板数量）", "default": true},
+    {"name": "limit", "type": "str", "description": "D跌停U涨停Z炸板", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

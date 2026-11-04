@@ -1,0 +1,32 @@
+{
+  "name": "fina_audit",
+  "description": "财务审计意见。接口：fina_audit 描述：获取上市公司定期财务审计意见数据 权限：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "财务",
+  "source": "https://tushare.pro/document/2?doc_id=80",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000},
+      "period": {"type": "string", "description": "报告期(每个季度最后一天的日期,比如20171231表示年报)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "报告期", "default": true},
+    {"name": "audit_result", "type": "str", "description": "审计结果", "default": true},
+    {"name": "audit_fees", "type": "float", "description": "审计总费用（元）", "default": true},
+    {"name": "audit_agency", "type": "str", "description": "会计事务所", "default": true},
+    {"name": "audit_sign", "type": "str", "description": "签字会计师", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

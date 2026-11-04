@@ -1,0 +1,38 @@
+{
+  "name": "stk_nineturn",
+  "description": "神奇九转指标。接口：stk_nineturn（由于涉及分钟数据每天21点更新） 描述：神奇九转（又称“九转序列”）是一种基于技术分析的股票趋势反转指标，其思想来源于技术分析大师汤姆·迪马克（Tom DeMark）的TD序列。该指标的核心功能是通过识别股价在上涨或下跌过程中连续9天的特定走势，来判断股价的潜在反转点，从而帮助投资者提高抄底和逃顶的成功率，日线级别配合60min的九转效果更好，数据从20230101开始。 限量：单次提取最大返回10000行数据，可通过股票代码和日期循环获取全部数据 权限：达到6000积分可以调用",
+  "category": "特色数据",
+  "source": "https://tushare.pro/document/2?doc_id=364",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 10000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期 （格式：YYYY-MM-DD HH:MM:SS)", "minLength": 1, "maxLength": 2000},
+      "freq": {"type": "string", "description": "频率(日daily)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始时间", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束时间", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "datetime", "description": "交易日期", "default": true},
+    {"name": "freq", "type": "str", "description": "频率(日daily)", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "最高价", "default": true},
+    {"name": "low", "type": "float", "description": "最低价", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额", "default": true},
+    {"name": "up_count", "type": "float", "description": "上九转计数", "default": true},
+    {"name": "down_count", "type": "float", "description": "下九转计数", "default": true},
+    {"name": "nine_up_turn", "type": "str", "description": "是否上九转)+9表示上九转", "default": true},
+    {"name": "nine_down_turn", "type": "str", "description": "是否下九转-9表示下九转", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

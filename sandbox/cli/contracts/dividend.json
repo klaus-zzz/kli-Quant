@@ -1,0 +1,41 @@
+{
+  "name": "dividend",
+  "description": "分红送股。接口：dividend 描述：分红送股数据 权限：起始时间2000-01-01，单次查询返回2000行，每日20点~21点更新，用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "财务",
+  "source": "https://tushare.pro/document/2?doc_id=103",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日", "minLength": 1, "maxLength": 2000},
+      "record_date": {"type": "string", "description": "股权登记日期", "minLength": 1, "maxLength": 2000},
+      "ex_date": {"type": "string", "description": "除权除息日", "minLength": 1, "maxLength": 2000},
+      "imp_ann_date": {"type": "string", "description": "实施公告日", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "end_date", "type": "str", "description": "分红年度", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日(预案，决案)", "default": true},
+    {"name": "div_proc", "type": "str", "description": "实施进度", "default": true},
+    {"name": "stk_div", "type": "float", "description": "每股送转", "default": true},
+    {"name": "stk_bo_rate", "type": "float", "description": "每股送股比例", "default": true},
+    {"name": "stk_co_rate", "type": "float", "description": "每股转增比例", "default": true},
+    {"name": "cash_div", "type": "float", "description": "每股分红（税后）", "default": true},
+    {"name": "cash_div_tax", "type": "float", "description": "每股分红（税前）", "default": true},
+    {"name": "record_date", "type": "str", "description": "股权登记日", "default": true},
+    {"name": "ex_date", "type": "str", "description": "除权除息日", "default": true},
+    {"name": "pay_date", "type": "str", "description": "派息日", "default": true},
+    {"name": "div_listdate", "type": "str", "description": "红股上市日", "default": true},
+    {"name": "imp_ann_date", "type": "str", "description": "实施公告日", "default": true},
+    {"name": "base_date", "type": "str", "description": "基准日", "default": false},
+    {"name": "base_share", "type": "float", "description": "基准股本（万）", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

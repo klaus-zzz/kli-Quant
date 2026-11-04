@@ -13,6 +13,8 @@ services:
       UV_PROJECT_ENVIRONMENT: /opt/venv
       UV_PYTHON_INSTALL_DIR: /opt/python
       UV_CACHE_DIR: /tmp/uv-cache
+      # 仅将数据源凭据注入后端，前端和 CLI 均不接收。
+      TUSHARE_TOKEN: ${TUSHARE_TOKEN:-}
     volumes:
       - .:/app
       - backend-venv:/opt/venv
@@ -21,7 +23,7 @@ services:
       - "127.0.0.1:${BACKEND_PORT:-18100}:18100"
     networks:
       docker:
-        aliases: [kli-quant-skeleton-backend]
+        aliases: ["${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-backend"]
     healthcheck:
       test: ["CMD", "/opt/venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18100/api/health', timeout=2)"]
       interval: 5s
@@ -34,9 +36,11 @@ services:
     working_dir: /app/frontend
     command: sh -c "npm ci && npm run dev"
     environment:
-      BACKEND_PROXY_TARGET: http://kli-quant-skeleton-backend:18100
+      BACKEND_PROXY_TARGET: http://${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-backend:18100
     volumes:
-      - .:/app
+      # 前端只挂载自身源码，无法读取根目录的数据源凭据。
+      - ./frontend:/app/frontend
+      - ./tests/e2e:/app/tests/e2e
       - frontend-node-modules:/app/frontend/node_modules
     ports:
       - "127.0.0.1:${FRONTEND_PORT:-15173}:15173"

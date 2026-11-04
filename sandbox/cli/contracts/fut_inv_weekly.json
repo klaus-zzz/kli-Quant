@@ -1,0 +1,41 @@
+{
+  "name": "fut_inv_weekly",
+  "description": "期货交易所库存周报。接口：fut_inv_weekly 描述：获取上海期货交易所库存周报（其他交易所未披露） 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=495",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "期货代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "期货代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期（YYYYMMDD）", "default": true},
+    {"name": "fut_name", "type": "str", "description": "品种名称", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": true},
+    {"name": "area", "type": "str", "description": "地区", "default": true},
+    {"name": "warehouse", "type": "str", "description": "仓库名称", "default": true},
+    {"name": "grade", "type": "str", "description": "品级/油种", "default": true},
+    {"name": "pre_total", "type": "float", "description": "上周库存小计", "default": true},
+    {"name": "pre_futures", "type": "float", "description": "上周库存期货", "default": true},
+    {"name": "cur_total", "type": "float", "description": "本周库存小计", "default": true},
+    {"name": "cur_futures", "type": "float", "description": "本周库存期货", "default": true},
+    {"name": "chg_total", "type": "float", "description": "库存增减小计", "default": true},
+    {"name": "chg_futures", "type": "float", "description": "库存增减期货", "default": true},
+    {"name": "pre_capacity", "type": "float", "description": "可用库容量上周", "default": true},
+    {"name": "cur_capacity", "type": "float", "description": "可用库容量本周", "default": true},
+    {"name": "chg_capacity", "type": "float", "description": "可用库容量增减", "default": true},
+    {"name": "unit", "type": "str", "description": "单位", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

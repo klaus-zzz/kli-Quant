@@ -1,0 +1,35 @@
+{
+  "name": "fund_manager",
+  "description": "基金经理。接口：fund_manager 描述：获取公募基金经理数据，包括基金经理简历等数据 限量：单次最大5000，支持分页提取数据 积分：用户有500积分可获取数据，2000积分以上可以提高访问频次",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=208",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "基金代码，支持多只基金，逗号分隔", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期，格式：YYYYMMDD", "minLength": 1, "maxLength": 2000},
+      "name": {"type": "string", "description": "基金经理姓名", "minLength": 1, "maxLength": 2000},
+      "offset": {"type": "integer", "description": "开始行数", "minimum": 0, "maximum": 1000000},
+      "limit": {"type": "integer", "description": "每页行数", "minimum": 1, "maximum": 10000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "基金代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "name", "type": "str", "description": "基金经理姓名", "default": true},
+    {"name": "gender", "type": "str", "description": "性别 F:女 M:男", "default": true},
+    {"name": "birth_year", "type": "str", "description": "出生年份", "default": true},
+    {"name": "edu", "type": "str", "description": "学历", "default": true},
+    {"name": "nationality", "type": "str", "description": "国籍", "default": true},
+    {"name": "begin_date", "type": "str", "description": "任职日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "离任日期", "default": true},
+    {"name": "resume", "type": "str", "description": "简历", "default": true}
+  ],
+  "corrections": ["输入 offset 的类型 intint 按参数语义修正为 int"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,37 @@
+{
+  "name": "top_list",
+  "description": "龙虎榜每日明细。接口：top_list 描述：龙虎榜每日交易明细 数据历史： 2005年至今 限量：单次请求返回最大10000行数据，可通过参数循环获取全部历史 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=106",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 10000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["trade_date"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "name", "type": "str", "description": "名称", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率", "default": true},
+    {"name": "amount", "type": "float", "description": "总成交额", "default": true},
+    {"name": "l_sell", "type": "float", "description": "龙虎榜卖出额", "default": true},
+    {"name": "l_buy", "type": "float", "description": "龙虎榜买入额", "default": true},
+    {"name": "l_amount", "type": "float", "description": "龙虎榜成交额", "default": true},
+    {"name": "net_amount", "type": "float", "description": "龙虎榜净买入额", "default": true},
+    {"name": "net_rate", "type": "float", "description": "龙虎榜净买额占比", "default": true},
+    {"name": "amount_rate", "type": "float", "description": "龙虎榜成交额占比", "default": true},
+    {"name": "float_values", "type": "float", "description": "当日流通市值", "default": true},
+    {"name": "reason", "type": "str", "description": "上榜理由", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

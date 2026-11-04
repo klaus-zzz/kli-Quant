@@ -1,0 +1,35 @@
+{
+  "name": "margin_detail",
+  "description": "融资融券交易明细。接口：margin_detail 描述：获取沪深两市每日融资融券明细，交易所于每天8点30左右更新上一日数据。 注：深交所和北交所每周五的数据在下周一上午更新。 限量：单次请求最大返回6000行数据，可根据日期循环 权限：2000积分可获得本接口权限，积分越高权限越大，具体参考 权限说明",
+  "category": "两融",
+  "source": "https://tushare.pro/document/2?doc_id=59",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD，下同）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称 （20190910后有数据）", "default": true},
+    {"name": "rzye", "type": "float", "description": "融资余额(元)", "default": true},
+    {"name": "rqye", "type": "float", "description": "融券余额(元)", "default": true},
+    {"name": "rzmre", "type": "float", "description": "融资买入额(元)", "default": true},
+    {"name": "rqyl", "type": "float", "description": "融券余量（股）", "default": true},
+    {"name": "rzche", "type": "float", "description": "融资偿还额(元)", "default": true},
+    {"name": "rqchl", "type": "float", "description": "融券偿还量(股)", "default": true},
+    {"name": "rqmcl", "type": "float", "description": "融券卖出量(股,份,手)", "default": true},
+    {"name": "rzrqye", "type": "float", "description": "融资融券余额(元)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

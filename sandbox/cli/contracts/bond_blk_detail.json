@@ -1,0 +1,32 @@
+{
+  "name": "bond_blk_detail",
+  "description": "大宗交易明细。接口：bond_blk_detail 权限：用户满5000积分有数据权限，单次最大1000条，可根据日期循环提取，总量不限制 描述：获取沪深交易所债券大宗交易数据 注：本接口目前只有深交所的大宗交易明细，上交所明细已经包含在大宗交易接口里，未单独罗列。",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=272",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "债券代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "债券代码", "default": true},
+    {"name": "name", "type": "str", "description": "债券名称", "default": true},
+    {"name": "price", "type": "float", "description": "成交价（元）", "default": true},
+    {"name": "vol", "type": "float", "description": "成交数量（万股/万份/万张/万手）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额（万元）", "default": true},
+    {"name": "buy_dp", "type": "str", "description": "买方营业部", "default": true},
+    {"name": "sell_dp", "type": "str", "description": "卖方营业部", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

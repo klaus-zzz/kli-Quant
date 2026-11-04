@@ -1,0 +1,40 @@
+{
+  "name": "stock_company",
+  "description": "上市公司基本信息。接口：stock_company，可以通过 数据工具 调试和查看数据。 描述：获取上市公司基础信息，单次提取4500条，可以根据交易所分批提取 积分：用户需要至少120积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=112",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4500,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码 ，SSE上交所 SZSE深交所 BSE北交所", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "com_name", "type": "str", "description": "公司全称", "default": true},
+    {"name": "com_id", "type": "str", "description": "统一社会信用代码", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所代码", "default": true},
+    {"name": "chairman", "type": "str", "description": "法人代表", "default": true},
+    {"name": "manager", "type": "str", "description": "总经理", "default": true},
+    {"name": "secretary", "type": "str", "description": "董秘", "default": true},
+    {"name": "reg_capital", "type": "float", "description": "注册资本(万元)", "default": true},
+    {"name": "setup_date", "type": "str", "description": "注册日期", "default": true},
+    {"name": "province", "type": "str", "description": "所在省份", "default": true},
+    {"name": "city", "type": "str", "description": "所在城市", "default": true},
+    {"name": "introduction", "type": "str", "description": "公司介绍", "default": false},
+    {"name": "website", "type": "str", "description": "公司主页", "default": true},
+    {"name": "email", "type": "str", "description": "电子邮件", "default": true},
+    {"name": "office", "type": "str", "description": "办公室", "default": false},
+    {"name": "employees", "type": "int", "description": "员工人数", "default": true},
+    {"name": "main_business", "type": "str", "description": "主要业务及产品", "default": false},
+    {"name": "business_scope", "type": "str", "description": "经营范围", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

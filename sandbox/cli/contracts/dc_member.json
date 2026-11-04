@@ -1,0 +1,29 @@
+{
+  "name": "dc_member",
+  "description": "板块成分。接口：dc_member 描述：获取板块每日成分数据，可以根据概念板块代码和交易日期，获取历史成分，起始日期2024-12-20。 限量：单次最大获取5000条数据，可以通过日期和代码循环获取 权限：用户积累6000积分可调取，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=363",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块指数代码", "minLength": 1, "maxLength": 2000},
+      "con_code": {"type": "string", "description": "成分股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "概念代码", "default": true},
+    {"name": "con_code", "type": "str", "description": "成分代码", "default": true},
+    {"name": "name", "type": "str", "description": "成分股名称", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

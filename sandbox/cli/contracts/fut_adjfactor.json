@@ -1,0 +1,29 @@
+{
+  "name": "fut_adjfactor",
+  "description": "期货复权因子。接口：fut_adjfactor 描述：获取主力合约的复权因子 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法 注： 前复权行情：当日收盘价 × 当日复权因子 / 最新复权因子 后复权行情：当日收盘价 × 当日复权因子 也可以直接取 期货复权行情",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=499",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "合约代码", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日（YYYYMMDD）", "default": true},
+    {"name": "adj_factor", "type": "float", "description": "累计复权因子", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

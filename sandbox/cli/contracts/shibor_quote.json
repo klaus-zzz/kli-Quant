@@ -1,0 +1,42 @@
+{
+  "name": "shibor_quote",
+  "description": "Shibor报价数据。接口：shibor_quote 描述：Shibor报价数据 限量：单次最大4000行数据，总量不限制，可通过设置开始和结束日期分段获取 积分：用户积累120积分可以调取，具体请参阅 积分获取办法",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=150",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "date": {"type": "string", "description": "日期 (日期输入格式：YYYYMMDD，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "bank": {"type": "string", "description": "银行名称 （中文名称，例如 农业银行）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "date", "type": "str", "description": "日期", "default": true},
+    {"name": "bank", "type": "str", "description": "报价银行", "default": true},
+    {"name": "on_b", "type": "float", "description": "隔夜_Bid", "default": true},
+    {"name": "on_a", "type": "float", "description": "隔夜_Ask", "default": true},
+    {"name": "1w_b", "type": "float", "description": "1周_Bid", "default": true},
+    {"name": "1w_a", "type": "float", "description": "1周_Ask", "default": true},
+    {"name": "2w_b", "type": "float", "description": "2周_Bid", "default": true},
+    {"name": "2w_a", "type": "float", "description": "2周_Ask", "default": true},
+    {"name": "1m_b", "type": "float", "description": "1月_Bid", "default": true},
+    {"name": "1m_a", "type": "float", "description": "1月_Ask", "default": true},
+    {"name": "3m_b", "type": "float", "description": "3月_Bid", "default": true},
+    {"name": "3m_a", "type": "float", "description": "3月_Ask", "default": true},
+    {"name": "6m_b", "type": "float", "description": "6月_Bid", "default": true},
+    {"name": "6m_a", "type": "float", "description": "6月_Ask", "default": true},
+    {"name": "9m_b", "type": "float", "description": "9月_Bid", "default": true},
+    {"name": "9m_a", "type": "float", "description": "9月_Ask", "default": true},
+    {"name": "1y_b", "type": "float", "description": "1年_Bid", "default": true},
+    {"name": "1y_a", "type": "float", "description": "1年_Ask", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

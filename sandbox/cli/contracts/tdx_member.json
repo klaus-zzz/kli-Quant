@@ -1,0 +1,29 @@
+{
+  "name": "tdx_member",
+  "description": "TDX板块成分。接口：tdx_member 描述：获取各板块成分股信息 限量：单次最大3000条数据，可以根据日期和板块代码循环提取 权限：用户积累6000积分可调取，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=377",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块代码：xxxxxx.TDX", "minLength": 1, "maxLength": 2000},
+      "con_code": {"type": "string", "description": "成分股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期：（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期：（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期：（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "板块代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "con_code", "type": "str", "description": "成分股票代码", "default": true},
+    {"name": "con_name", "type": "str", "description": "成分股票名称", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

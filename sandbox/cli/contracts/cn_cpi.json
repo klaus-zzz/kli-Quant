@@ -1,0 +1,36 @@
+{
+  "name": "cn_cpi",
+  "description": "居民消费价格指数。接口：cn_cpi 描述：获取CPI居民消费价格数据，包括全国、城市和农村的数据 限量：单次最大5000行，一次可以提取全部数据 权限：用户积累600积分可以使用，具体请参阅 积分获取办法",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=228",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "m": {"type": "string", "description": "月份（YYYYMM，下同），支持多个月份同时输入，逗号分隔", "minLength": 1, "maxLength": 2000},
+      "start_m": {"type": "string", "description": "开始月份", "minLength": 1, "maxLength": 2000},
+      "end_m": {"type": "string", "description": "结束月份", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "month", "type": "str", "description": "月份YYYYMM", "default": true},
+    {"name": "nt_val", "type": "float", "description": "全国当月值", "default": true},
+    {"name": "nt_yoy", "type": "float", "description": "全国同比（%）", "default": true},
+    {"name": "nt_mom", "type": "float", "description": "全国环比（%）", "default": true},
+    {"name": "nt_accu", "type": "float", "description": "全国累计值", "default": true},
+    {"name": "town_val", "type": "float", "description": "城市当月值", "default": true},
+    {"name": "town_yoy", "type": "float", "description": "城市同比（%）", "default": true},
+    {"name": "town_mom", "type": "float", "description": "城市环比（%）", "default": true},
+    {"name": "town_accu", "type": "float", "description": "城市累计值", "default": true},
+    {"name": "cnt_val", "type": "float", "description": "农村当月值", "default": true},
+    {"name": "cnt_yoy", "type": "float", "description": "农村同比（%）", "default": true},
+    {"name": "cnt_mom", "type": "float", "description": "农村环比（%）", "default": true},
+    {"name": "cnt_accu", "type": "float", "description": "农村累计值", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,41 @@
+{
+  "name": "fut_trade_param_gfe",
+  "description": "广州期货交易参数。接口：fut_trade_param_gfe 描述：获取广州期货交易参数数据 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=501",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "期货代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "合约代码或类型", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期（YYYYMMDD）", "default": true},
+    {"name": "exchange", "type": "str", "description": "期货公司会员简称", "default": true},
+    {"name": "trade_type", "type": "str", "description": "交易类型", "default": true},
+    {"name": "type", "type": "str", "description": "限仓模式", "default": true},
+    {"name": "spec_buy_rate", "type": "float", "description": "投机买保证金率(%)", "default": true},
+    {"name": "spec_buy", "type": "float", "description": "投机买保证金金额(元/手)", "default": true},
+    {"name": "hedge_buy_rate", "type": "float", "description": "套保买保证金率(%)", "default": true},
+    {"name": "hedge_buy", "type": "float", "description": "套保买保证金金额(元/手)", "default": true},
+    {"name": "rise_limit_rate", "type": "float", "description": "涨停板比例(%)", "default": true},
+    {"name": "rise_limit", "type": "float", "description": "涨停板价格(元)", "default": true},
+    {"name": "fall_limit", "type": "float", "description": "跌停板价格(元)", "default": true},
+    {"name": "agent_tot_buy_posi_quota", "type": "float", "description": "经纪会员总买持仓限额(手)", "default": true},
+    {"name": "self_tot_buy_posi_quota", "type": "float", "description": "自营总买持仓限额(手)", "default": true},
+    {"name": "client_buy_posi_quota", "type": "float", "description": "客户买持仓限额(手)", "default": true},
+    {"name": "self_tot_buy_ser_limit", "type": "float", "description": "自营总买限仓(手)", "default": true},
+    {"name": "client_buy_ser_limit", "type": "float", "description": "客户买限仓(手)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

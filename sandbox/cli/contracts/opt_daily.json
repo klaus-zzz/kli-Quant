@@ -1,0 +1,39 @@
+{
+  "name": "opt_daily",
+  "description": "期权日线行情。接口：opt_daily 描述：获取期权日线行情 限量：单次最大15000条数据，可跟进日线或者代码循环，总量不限制 积分：用户需要至少2000积分才可以调取，但有流量控制，请自行提高积分，积分越多权限越大，具体请参阅 积分获取办法",
+  "category": "现货与期权",
+  "source": "https://tushare.pro/document/2?doc_id=159",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 15000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS合约代码（输入代码或时间至少任意一个参数）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所(SSE/SZSE/CFFEX/DCE/SHFE/CZCE）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["trade_date"]}, {"required": ["start_date"]}, {"required": ["end_date"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易市场", "default": true},
+    {"name": "pre_settle", "type": "float", "description": "昨结算价", "default": true},
+    {"name": "pre_close", "type": "float", "description": "前收盘价", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "最高价", "default": true},
+    {"name": "low", "type": "float", "description": "最低价", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "settle", "type": "float", "description": "结算价", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量(手)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额(万元)", "default": true},
+    {"name": "oi", "type": "float", "description": "持仓量(手)", "default": true}
+  ],
+  "corrections": ["条件必填：ts_code、trade_date、start_date、end_date 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

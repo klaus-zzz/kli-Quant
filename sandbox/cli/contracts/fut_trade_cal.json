@@ -1,0 +1,28 @@
+{
+  "name": "fut_trade_cal",
+  "description": "交易日历。接口：fut_trade_cal 描述：获取各大期货交易所交易日历数据 积分：需2000积分才可以提取数据",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=467",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "exchange": {"type": "string", "description": "交易所 SHFE 上期所 DCE 大商所 CFFEX中金所 CZCE郑商所 INE上海国际能源交易所", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "is_open": {"type": "integer", "description": "是否交易 0休市 1交易"}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "exchange", "type": "str", "description": "交易所 同参数部分描述", "default": true},
+    {"name": "cal_date", "type": "str", "description": "日历日期", "default": true},
+    {"name": "is_open", "type": "int", "description": "是否交易 0休市 1交易", "default": true},
+    {"name": "pretrade_date", "type": "str", "description": "上一个交易日", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

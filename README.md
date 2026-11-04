@@ -1,20 +1,20 @@
 # kli-Quant
 
-面向金融业务的开发骨架。目前只有 FastAPI 进程健康检查和 React/TypeScript 空应用，
-页面明确显示“开发骨架”，通过真实请求确认后端状态，不展示模拟研究结果。
+面向金融业务的开发项目，提供 FastAPI 健康检查和 187 个 Tushare 数据工具。
+React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，不展示模拟研究结果。
 
 ## 范围与目录
 
 | 路径 | 当前职责 |
 | --- | --- |
-| `backend/` | FastAPI 入口，仅 `GET /api/health` |
+| `backend/` | 健康检查与受控 Tushare HTTP 入口 |
 | `frontend/` | React 空应用和 Vite 开发代理 |
-| `sandbox/cli/` | CLI 目录说明，无可执行工具 |
+| `sandbox/cli/` | 离线契约、187 个 axi 工具及调用说明 |
 | `tests/` | 健康接口回归与浏览器检查 |
 | `compose.yaml` | 唯一开发 Compose，只启动前后端 |
 | `AGENTS.md` | 公共规则及四个目录规则索引 |
 
-尚未实现金融数据工具、多跳研究、Agent 对话、数据库业务表、对象归档、登录和支付。
+尚未实现多跳研究、Agent 对话、数据库业务表、对象归档、登录和支付。
 后续 Agent 使用 OmniAgent `v1`，数据库使用 PostgreSQL，归档使用 SeaweedFS S3，
 沙箱使用已有内网 CubeSandbox；本阶段不连接或启动这些服务，不构建沙箱镜像，不部署生产。
 
@@ -29,7 +29,8 @@
 OmniAgent 沙箱定义基于 Python 3.12.11，现有 CubeSandbox 派生镜像
 `iruiiii/omniagent-sandbox:quant-0.1.5` 实测 Python 3.12.15。
 因此选择 3.12.15 作为统一开发基线。这里只核对运行时约束，未验证后续服务的完整集成。
-本项目尚不安装 OmniAgent 或 kli-axi，也不复制它们的源码。
+本项目使用 `kli-axi==0.0.13` 注册金融工具，尚不安装 OmniAgent，也不复制其源码。
+工具契约、调用方式和安全边界见 [Tushare 工具说明](sandbox/cli/README.md)。
 
 ## 开发容器启动（推荐）
 
@@ -47,10 +48,10 @@ docker compose logs -f
 页面地址为 <http://127.0.0.1:15173>，后端为 <http://127.0.0.1:18100/api/health>。
 首次启动会下载锁定的依赖；若页面端口尚未就绪，等待前端日志出现 Vite 地址。
 端口只绑定本机；如有冲突，修改根 `.env` 的 `FRONTEND_PORT` 或 `BACKEND_PORT`。
-浏览器请求同源 `/api/health`，Vite 将其转发到后端容器。根 `.env` 仅用于 Compose 端口配置，
-不会作为环境变量注入前端；请勿添加含凭据的 `VITE_*`。
+浏览器请求同源 `/api/health`，Vite 将其转发到后端容器。根 `.env` 支持 Compose 端口配置
+及 `TUSHARE_TOKEN`，后者只注入后端；请勿添加含凭据的 `VITE_*`。
 
-前后端挂载当前仓库源码，Python 环境和 Node 依赖使用独立卷。
+后端挂载仓库，前端只挂载 `frontend/` 和浏览器测试目录，依赖使用独立卷。
 修改 `backend/main.py` 会重载后端，修改 `frontend/src/App.tsx` 会触发页面热更新。
 依赖变更后更新对应锁文件，再执行 `docker compose restart`。
 
@@ -108,4 +109,4 @@ CI 执行依赖锁校验、后端回归、格式检查、前端构建及 Compose
 
 ## 许可
 
-沿用仓库原有 [Apache License 2.0](LICENSE)。旧业务实现已移除；本仓库当前维护上述最小骨架。
+沿用仓库原有 [Apache License 2.0](LICENSE)。接口字段及权限说明以各契约链接的官方文档为准。

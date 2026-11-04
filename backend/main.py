@@ -2,8 +2,11 @@
 
 from fastapi import FastAPI
 
-# 骨架只公开健康检查，后续接口由对应开发任务增加。
+from backend.tushare import router
+
+# 数据工具使用受控入口；健康检查不依赖数据源配置。
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+app.include_router(router)
 
 
 @app.get("/api/health")

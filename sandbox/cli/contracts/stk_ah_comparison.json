@@ -1,0 +1,36 @@
+{
+  "name": "stk_ah_comparison",
+  "description": "AH股比价。接口：stk_ah_comparison，可以通过 数据工具 调试和查看数据。 描述：AH股比价数据，可根据交易日期获取历史 权限：5000积分起 提示：每天盘后17:00更新，单次请求最大返回1000行数据，可循环提取,本接口数据从20250812开始，由于历史不好补充，只能累积",
+  "category": "特色数据",
+  "source": "https://tushare.pro/document/2?doc_id=399",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "hk_code": {"type": "string", "description": "港股股票代码（xxxxx.HK)", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "A股票代码(xxxxxx.SH/SZ/BJ)", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "hk_code", "type": "str", "description": "港股股票代码", "default": true},
+    {"name": "ts_code", "type": "str", "description": "A股股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "hk_name", "type": "str", "description": "港股股票名称", "default": true},
+    {"name": "hk_pct_chg", "type": "float", "description": "港股股票涨跌幅", "default": true},
+    {"name": "hk_close", "type": "float", "description": "港股股票收盘价", "default": true},
+    {"name": "name", "type": "str", "description": "A股股票名称", "default": true},
+    {"name": "close", "type": "float", "description": "A股股票收盘价", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "A股股票涨跌幅", "default": true},
+    {"name": "ah_comparison", "type": "float", "description": "比价(A/H)", "default": true},
+    {"name": "ah_premium", "type": "float", "description": "溢价(A/H)%", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "limit_cpt_list",
+  "description": "最强板块统计。接口：limit_cpt_list 描述：获取每天涨停股票最多最强的概念板块，可以分析强势板块的轮动，判断资金动向 限量：单次最大2000行数据，可根据股票代码或者日期循环提取全部 积分：8000积分以上每分钟500次，每天总量不限制，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=357",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD，下同）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "板块代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "板块代码", "default": true},
+    {"name": "name", "type": "str", "description": "板块名称", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "days", "type": "int", "description": "上榜天数", "default": true},
+    {"name": "up_stat", "type": "str", "description": "连板高度", "default": true},
+    {"name": "cons_nums", "type": "int", "description": "连板家数", "default": true},
+    {"name": "up_nums", "type": "int", "description": "涨停家数", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅%", "default": true},
+    {"name": "rank", "type": "str", "description": "板块热点排名", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "pledge_stat",
+  "description": "股权质押统计数据。接口：pledge_stat 描述：获取股票质押统计数据 限量：单次最大1000 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=110",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "截止日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "end_date", "type": "str", "description": "截止日期", "default": true},
+    {"name": "pledge_count", "type": "int", "description": "质押次数", "default": true},
+    {"name": "unrest_pledge", "type": "float", "description": "无限售股质押数量（万）", "default": true},
+    {"name": "rest_pledge", "type": "float", "description": "限售股份质押数量（万）", "default": true},
+    {"name": "total_share", "type": "float", "description": "总股本（万股）", "default": true},
+    {"name": "pledge_ratio", "type": "float", "description": "质押比例（%）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,35 @@
+{
+  "name": "cyq_perf",
+  "description": "每日筹码及胜率。接口：cyq_perf 描述：获取A股每日筹码平均成本和胜率情况，每天18~19点左右更新，数据从2018-02-01开始 来源：Tushare社区 限量：单次最大6000条，可以分页或者循环提取 积分：5000积分每天20000次，10000积分每天200000次，15000积分每天不限总量 算法说明： 参考用“三角分布法”计算，即当天成交的筹码，在最高价、最低价和平均价之间不是平均分配的，而是越接近平均成交价（或均价），成交的筹码越多，形成一个以均价为峰值的三角形分布。 面积 = 1 * /|\\ ← 高 h = 2/d / | \\ / | \\ / | \\ / | \\ / | \\ *------* ------* low avg high ← d = high - low → 新筹码分配（当日成交量）：假设当日成交的总筹码量为 V，当日最高价为 H，最低价为 L，平均价为 A。三角分布法会按照一个三角形模型，将 V 分配到从 L 到 H 的各个价格上。在均价 A 这个价格点上，分配的筹码数量最多，形成三角形的顶点；随着价格远离 A，分配的筹码数量线性减少，直到在 L 和 H 处降至零。 老筹码更新（历史持仓的搬移）：筹码分布图不是只计算当天的，它是一个动态的、每日更新的过程。每天新产生的交易筹码（来自当天成交的换手），需要从原有的历史持仓中“搬移”出来。这个过程引入了历史换手衰减系数的概念。",
+  "category": "特色数据",
+  "source": "https://tushare.pro/document/2?doc_id=293",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "his_low", "type": "float", "description": "历史最低价", "default": true},
+    {"name": "his_high", "type": "float", "description": "历史最高价", "default": true},
+    {"name": "cost_5pct", "type": "float", "description": "5分位成本", "default": true},
+    {"name": "cost_15pct", "type": "float", "description": "15分位成本", "default": true},
+    {"name": "cost_50pct", "type": "float", "description": "50分位成本", "default": true},
+    {"name": "cost_85pct", "type": "float", "description": "85分位成本", "default": true},
+    {"name": "cost_95pct", "type": "float", "description": "95分位成本", "default": true},
+    {"name": "weight_avg", "type": "float", "description": "加权平均成本", "default": true},
+    {"name": "winner_rate", "type": "float", "description": "胜率", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

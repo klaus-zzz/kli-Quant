@@ -1,0 +1,35 @@
+{
+  "name": "sge_basic",
+  "description": "黄金现货基础信息。接口：sge_basic 描述：获取上海黄金交易所现货合约基础信息 限量：单次最大100条，当前现货合约数不足20个，可以一次提取全部，不需要循环提取 积分：用户积5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "现货与期权",
+  "source": "https://tushare.pro/document/2?doc_id=284",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 100,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "合约代码 （支持多个，逗号分隔，不输入为获取全部）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "品种代码", "default": true},
+    {"name": "ts_name", "type": "str", "description": "品种名称", "default": true},
+    {"name": "trade_type", "type": "str", "description": "交易类型", "default": true},
+    {"name": "t_unit", "type": "float", "description": "交易单位(克/手)", "default": true},
+    {"name": "p_unit", "type": "float", "description": "报价单位", "default": true},
+    {"name": "min_change", "type": "float", "description": "最小变动价位", "default": true},
+    {"name": "price_limit", "type": "float", "description": "每日价格最大波动限制", "default": true},
+    {"name": "min_vol", "type": "int", "description": "最小单笔报价量(手)", "default": true},
+    {"name": "max_vol", "type": "int", "description": "最大单笔报价量(手)", "default": true},
+    {"name": "trade_mode", "type": "str", "description": "交易期限", "default": true},
+    {"name": "margin_rate", "type": "float", "description": "保证金比例", "default": true},
+    {"name": "liq_rate", "type": "float", "description": "违约金比例(%)", "default": true},
+    {"name": "trade_time", "type": "str", "description": "交易时间", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

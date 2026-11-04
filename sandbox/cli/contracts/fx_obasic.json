@@ -1,0 +1,35 @@
+{
+  "name": "fx_obasic",
+  "description": "外汇基础信息（海外）。接口：fx_obasic 描述：获取海外外汇基础信息，目前只有FXCM福汇交易商的数据 数量：单次可提取全部数据 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "外汇",
+  "source": "https://tushare.pro/document/2?doc_id=178",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "exchange": {"type": "string", "description": "交易商", "minLength": 1, "maxLength": 2000},
+      "classify": {"type": "string", "description": "分类", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "外汇代码", "default": true},
+    {"name": "name", "type": "str", "description": "名称", "default": true},
+    {"name": "classify", "type": "str", "description": "分类", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易商", "default": true},
+    {"name": "min_unit", "type": "float", "description": "最小交易单位", "default": true},
+    {"name": "max_unit", "type": "float", "description": "最大交易单位", "default": true},
+    {"name": "pip", "type": "float", "description": "点", "default": true},
+    {"name": "pip_cost", "type": "float", "description": "点值", "default": true},
+    {"name": "traget_spread", "type": "float", "description": "目标差价", "default": true},
+    {"name": "min_stop_distance", "type": "float", "description": "最小止损距离（点子）", "default": true},
+    {"name": "trading_hours", "type": "str", "description": "交易时间", "default": true},
+    {"name": "break_time", "type": "str", "description": "休市时间", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

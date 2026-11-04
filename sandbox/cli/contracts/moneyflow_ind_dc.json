@@ -1,0 +1,43 @@
+{
+  "name": "moneyflow_ind_dc",
+  "description": "东财概念及行业板块资金流向（DC）。接口：moneyflow_ind_dc 描述：获取东方财富板块资金流向，每天盘后更新 限量：单次最大可调取5000条数据，可以根据日期和代码循环提取全部数据 积分：6000积分可以调取，具体请参阅 积分获取办法",
+  "category": "资金流",
+  "source": "https://tushare.pro/document/2?doc_id=344",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "content_type": {"type": "string", "description": "资金类型(行业、概念、地域)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "content_type", "type": "str", "description": "数据类型", "default": true},
+    {"name": "ts_code", "type": "str", "description": "DC板块代码（行业、概念、地域）", "default": true},
+    {"name": "name", "type": "str", "description": "板块名称", "default": true},
+    {"name": "pct_change", "type": "float", "description": "板块涨跌幅（%）", "default": true},
+    {"name": "close", "type": "float", "description": "板块最新指数", "default": true},
+    {"name": "net_amount", "type": "float", "description": "今日主力净流入 净额（元）", "default": true},
+    {"name": "net_amount_rate", "type": "float", "description": "今日主力净流入净占比%", "default": true},
+    {"name": "buy_elg_amount", "type": "float", "description": "今日超大单净流入 净额（元）", "default": true},
+    {"name": "buy_elg_amount_rate", "type": "float", "description": "今日超大单净流入 净占比%", "default": true},
+    {"name": "buy_lg_amount", "type": "float", "description": "今日大单净流入 净额（元）", "default": true},
+    {"name": "buy_lg_amount_rate", "type": "float", "description": "今日大单净流入 净占比%", "default": true},
+    {"name": "buy_md_amount", "type": "float", "description": "今日中单净流入 净额（元）", "default": true},
+    {"name": "buy_md_amount_rate", "type": "float", "description": "今日中单净流入 净占比%", "default": true},
+    {"name": "buy_sm_amount", "type": "float", "description": "今日小单净流入 净额（元）", "default": true},
+    {"name": "buy_sm_amount_rate", "type": "float", "description": "今日小单净流入 净占比%", "default": true},
+    {"name": "buy_sm_amount_stock", "type": "str", "description": "今日主力净流入最大股", "default": true},
+    {"name": "rank", "type": "int", "description": "序号", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,40 @@
+{
+  "name": "fund_div",
+  "description": "公募基金分红。接口：fund_div 描述：获取公募基金分红数据 积分：用户需要至少400积分才可以调取，具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=120",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ann_date": {"type": "string", "description": "公告日（以下参数四选一）", "minLength": 1, "maxLength": 2000},
+      "ex_date": {"type": "string", "description": "除息日", "minLength": 1, "maxLength": 2000},
+      "pay_date": {"type": "string", "description": "派息日", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "基金代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "imp_anndate", "type": "str", "description": "分红实施公告日", "default": true},
+    {"name": "base_date", "type": "str", "description": "分配收益基准日", "default": true},
+    {"name": "div_proc", "type": "str", "description": "方案进度", "default": true},
+    {"name": "record_date", "type": "str", "description": "权益登记日", "default": true},
+    {"name": "ex_date", "type": "str", "description": "除息日", "default": true},
+    {"name": "pay_date", "type": "str", "description": "派息日", "default": true},
+    {"name": "earpay_date", "type": "str", "description": "收益支付日", "default": true},
+    {"name": "net_ex_date", "type": "str", "description": "净值除权日", "default": true},
+    {"name": "div_cash", "type": "float", "description": "每份基金份额派息(元)", "default": true},
+    {"name": "base_unit", "type": "float", "description": "基准基金份额(万份)", "default": true},
+    {"name": "ear_distr", "type": "float", "description": "可分配收益(元)", "default": true},
+    {"name": "ear_amount", "type": "float", "description": "收益分配金额(元)", "default": true},
+    {"name": "account_date", "type": "str", "description": "红利再投资到账日", "default": true},
+    {"name": "base_year", "type": "str", "description": "份额基准年度", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

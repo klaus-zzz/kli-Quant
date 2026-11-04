@@ -1,0 +1,31 @@
+{
+  "name": "etf_limit",
+  "description": "ETF每日涨跌停价格。接口：etf_limit 描述：获取ETF每日涨跌停价格，包括涨停价格，跌停价格等，每个交易日8点40左右更新当日股票涨跌停价格。 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要2000积分可以调取，具体请参阅 积分获取办法",
+  "category": "ETF",
+  "source": "https://tushare.pro/document/2?doc_id=491",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "合约代码", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨日收盘价", "default": false},
+    {"name": "up_limit", "type": "float", "description": "涨停价", "default": true},
+    {"name": "down_limit", "type": "float", "description": "跌停价", "default": true},
+    {"name": "asset_type", "type": "str", "description": "类型 ETF", "default": false},
+    {"name": "exchange", "type": "str", "description": "交易所：SSE/SZSE", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

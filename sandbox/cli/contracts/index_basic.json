@@ -1,0 +1,39 @@
+{
+  "name": "index_basic",
+  "description": "指数基本信息。接口：index_basic，可以通过 数据工具 调试和查看数据。 描述：获取指数基础信息，数据起始时间1990-01-01，每天18点更新，2000积分起，单次返回8000行。",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=94",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 8000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS指数代码", "minLength": 1, "maxLength": 2000},
+      "symbol": {"type": "string", "description": "指数代码，支持多值输入，如000300,000001", "minLength": 1, "maxLength": 2000},
+      "name": {"type": "string", "description": "指数简称", "minLength": 1, "maxLength": 2000},
+      "market": {"type": "string", "description": "交易所或服务商(默认SSE，详见下方说明)", "minLength": 1, "maxLength": 2000},
+      "publisher": {"type": "string", "description": "发布商", "minLength": 1, "maxLength": 2000},
+      "category": {"type": "string", "description": "指数类别", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "name", "type": "str", "description": "简称", "default": true},
+    {"name": "fullname", "type": "str", "description": "指数全称", "default": false},
+    {"name": "market", "type": "str", "description": "市场", "default": true},
+    {"name": "publisher", "type": "str", "description": "发布方", "default": true},
+    {"name": "index_type", "type": "str", "description": "指数风格", "default": false},
+    {"name": "category", "type": "str", "description": "指数类别", "default": true},
+    {"name": "base_date", "type": "str", "description": "基期", "default": true},
+    {"name": "base_point", "type": "float", "description": "基点", "default": true},
+    {"name": "list_date", "type": "str", "description": "发布日期", "default": true},
+    {"name": "weight_rule", "type": "str", "description": "加权方式", "default": false},
+    {"name": "desc", "type": "str", "description": "描述", "default": false},
+    {"name": "exp_date", "type": "str", "description": "终止日期", "default": false}
+  ],
+  "corrections": ["输出表头误写必选；依正文输出参数章节识别为输出字段"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

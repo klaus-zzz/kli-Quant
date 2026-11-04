@@ -3,7 +3,7 @@ name = "kli-quant"
 version = "0.1.0"
 description = "kli-Quant 开发骨架"
 requires-python = "==3.12.*"
-dependencies = ["fastapi", "uvicorn[standard]"]
+dependencies = ["fastapi", "uvicorn[standard]", "httpx", "kli-axi==0.0.13"]
 
 [dependency-groups]
 dev = ["httpx", "pytest", "ruff"]

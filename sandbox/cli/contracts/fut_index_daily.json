@@ -1,0 +1,35 @@
+{
+  "name": "fut_index_daily",
+  "description": "南华期货指数日线行情。接口：fut_index_daily 描述：获取南华指数每日行情，指数行情也可以通过 通用行情接口 获取数据． 权限：用户需要累积2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=468",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "指数代码（南华期货指数以 .NH 结尾，具体请参考本文最下方）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期 （日期格式：YYYYMMDD，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS指数代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日", "default": true},
+    {"name": "close", "type": "float", "description": "收盘点位", "default": true},
+    {"name": "open", "type": "float", "description": "开盘点位", "default": true},
+    {"name": "high", "type": "float", "description": "最高点位", "default": true},
+    {"name": "low", "type": "float", "description": "最低点位", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨日收盘点", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌点", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量（手）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额（千元）", "default": true}
+  ],
+  "corrections": ["输入 end_date 的类型 None 按参数语义修正为 str", "输出表头误写必选；依正文输出参数章节识别为输出字段"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,27 @@
+{
+  "name": "cn_schedule",
+  "description": "中国经济数据发布日程。接口：cn_schedule 描述：获取国家统计局、中国人民银行等经济数据发布日程及对应tushare接口，持续更新中 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要2000积分可以调取，具体请参阅 积分获取办法",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=461",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "m": {"type": "string", "description": "月份（YYYYMM）", "minLength": 1, "maxLength": 2000},
+      "title": {"type": "string", "description": "发布数据", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "month", "type": "str", "description": "月份YYYYMM", "default": true},
+    {"name": "publish_date", "type": "str", "description": "发布日期", "default": true},
+    {"name": "title", "type": "str", "description": "发布数据", "default": true},
+    {"name": "issuing_org", "type": "str", "description": "发布单位", "default": true},
+    {"name": "data_api", "type": "str", "description": "tushare对应接口", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

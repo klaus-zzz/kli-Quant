@@ -1,0 +1,35 @@
+{
+  "name": "bc_bestotcqt",
+  "description": "柜台流通式债券最优报价。接口：bc_bestotcqt 描述：柜台流通式债券最优报价 限量：单次最大2000，可多次提取，总量不限制 积分：用户需要至少500积分可以试用调取，2000积分以上频次相对较高，积分越多权限越大，具体请参阅 积分获取办法",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=323",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "报价日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "报价日期", "default": false},
+    {"name": "ts_code", "type": "str", "description": "债券编码", "default": false},
+    {"name": "name", "type": "str", "description": "债券简称", "default": false},
+    {"name": "remain_maturity", "type": "str", "description": "剩余期限", "default": false},
+    {"name": "bond_type", "type": "str", "description": "债券类型", "default": false},
+    {"name": "best_buy_bank", "type": "str", "description": "最优报买价方", "default": false},
+    {"name": "best_buy_yield", "type": "float", "description": "投资者最优买入价到期收益率（%）", "default": false},
+    {"name": "best_buy_price", "type": "float", "description": "投资者最优买入全价", "default": true},
+    {"name": "best_sell_bank", "type": "str", "description": "最优卖报价方", "default": false},
+    {"name": "best_sell_yield", "type": "float", "description": "投资者最优卖出价到期收益率（%）", "default": false},
+    {"name": "best_sell_price", "type": "float", "description": "投资者最优卖出全价", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

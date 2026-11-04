@@ -1,0 +1,48 @@
+{
+  "name": "fund_basic",
+  "description": "公募基金列表。接口：fund_basic，可以通过 数据工具 调试和查看数据。 描述：获取公募基金数据列表，包括场内和场外基金 积分：用户需要2000积分才可以调取，单次最大可以提取15000条数据，5000积分以上权限更高，具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=19",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 15000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "基金代码", "minLength": 1, "maxLength": 2000},
+      "market": {"type": "string", "description": "交易市场: E场内 O场外（默认E）", "minLength": 1, "maxLength": 2000},
+      "status": {"type": "string", "description": "存续状态 D摘牌/已到期 I发行 L已上市/存续中", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "基金代码", "default": true},
+    {"name": "name", "type": "str", "description": "简称", "default": true},
+    {"name": "management", "type": "str", "description": "管理人", "default": true},
+    {"name": "custodian", "type": "str", "description": "托管人", "default": true},
+    {"name": "fund_type", "type": "str", "description": "投资类型", "default": true},
+    {"name": "found_date", "type": "str", "description": "成立日期", "default": true},
+    {"name": "due_date", "type": "str", "description": "到期日期", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市时间", "default": true},
+    {"name": "issue_date", "type": "str", "description": "发行日期", "default": true},
+    {"name": "delist_date", "type": "str", "description": "退市日期", "default": true},
+    {"name": "issue_amount", "type": "float", "description": "发行份额(亿)", "default": true},
+    {"name": "m_fee", "type": "float", "description": "管理费", "default": true},
+    {"name": "c_fee", "type": "float", "description": "托管费", "default": true},
+    {"name": "duration_year", "type": "float", "description": "存续期", "default": true},
+    {"name": "p_value", "type": "float", "description": "面值", "default": true},
+    {"name": "min_amount", "type": "float", "description": "起点金额(万元)", "default": true},
+    {"name": "exp_return", "type": "float", "description": "预期收益率", "default": true},
+    {"name": "benchmark", "type": "str", "description": "业绩比较基准", "default": true},
+    {"name": "status", "type": "str", "description": "存续状态D摘牌/已到期 I发行 L已上市/存续中", "default": true},
+    {"name": "invest_type", "type": "str", "description": "投资风格", "default": true},
+    {"name": "type", "type": "str", "description": "基金类型", "default": true},
+    {"name": "trustee", "type": "str", "description": "受托人", "default": true},
+    {"name": "purc_startdate", "type": "str", "description": "日常申购起始日", "default": true},
+    {"name": "redm_startdate", "type": "str", "description": "日常赎回起始日", "default": true},
+    {"name": "market", "type": "str", "description": "E场内O场外", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

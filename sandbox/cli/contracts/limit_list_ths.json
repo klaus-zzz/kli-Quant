@@ -1,0 +1,50 @@
+{
+  "name": "limit_list_ths",
+  "description": "涨跌停榜单（同花顺）。接口：limit_list_ths 描述：获取同花顺每日涨跌停榜单数据，历史数据从20231101开始提供，增量每天16点左右更新，：分类（limit_type 涨停池、连扳池、冲刺涨停、炸板池、跌停池，默认：涨停池）不同，字段返回有值情况也不同，如仅有涨停池、连扳池 有最大封单 lu_limit_order返回值，其他分类为空 限量：单次最大4000条，可根据日期或股票代码循环提取 积分：8000积分以上每分钟500次，每天总量不限制，具体请参阅 积分获取办法 注意：本接口只限个人学习和研究使用，如需商业用途，请自行联系同花顺解决数据采购问题。",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=355",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "limit_type": {"type": "string", "description": "涨停池、连扳池、冲刺涨停、炸板池、跌停池，默认：涨停池", "minLength": 1, "maxLength": 2000},
+      "market": {"type": "string", "description": "HS-沪深主板 GEM-创业板 STAR-科创板", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "price", "type": "float", "description": "收盘价(元)", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅%", "default": true},
+    {"name": "open_num", "type": "int", "description": "打开次数", "default": true},
+    {"name": "lu_desc", "type": "str", "description": "涨停原因", "default": true},
+    {"name": "limit_type", "type": "str", "description": "板单类别", "default": true},
+    {"name": "tag", "type": "str", "description": "涨停标签", "default": true},
+    {"name": "status", "type": "str", "description": "涨停状态（N连板、一字板）", "default": true},
+    {"name": "first_lu_time", "type": "str", "description": "首次涨停时间", "default": false},
+    {"name": "last_lu_time", "type": "str", "description": "最后涨停时间", "default": false},
+    {"name": "first_ld_time", "type": "str", "description": "首次跌停时间", "default": false},
+    {"name": "last_ld_time", "type": "str", "description": "最后跌停时间", "default": false},
+    {"name": "limit_order", "type": "float", "description": "封单量(元|个)", "default": true},
+    {"name": "limit_amount", "type": "float", "description": "封单额(元|个)", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率%", "default": true},
+    {"name": "free_float", "type": "float", "description": "实际流通(元|个)", "default": true},
+    {"name": "lu_limit_order", "type": "float", "description": "最大封单(元|个)", "default": true},
+    {"name": "limit_up_suc_rate", "type": "float", "description": "近一年涨停封板率", "default": true},
+    {"name": "turnover", "type": "float", "description": "成交额", "default": true},
+    {"name": "rise_rate", "type": "float", "description": "涨速", "default": false},
+    {"name": "sum_float", "type": "float", "description": "总市值（亿元）", "default": false},
+    {"name": "market_type", "type": "str", "description": "股票类型：HS沪深主板、GEM创业板、STAR科创板", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

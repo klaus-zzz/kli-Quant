@@ -1,0 +1,40 @@
+{
+  "name": "etf_basic",
+  "description": "ETF基础信息。接口：etf_basic 描述：获取国内ETF基础信息，包括了QDII。数据来源与沪深交易所公开披露信息。 限量：单次请求最大放回5000条数据（当前ETF总数未超过2000） 权限：用户至少5000积分可调取，8000积分会有500频次/min 具体请参阅 积分获取办法",
+  "category": "ETF",
+  "source": "https://tushare.pro/document/2?doc_id=385",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "ETF代码（带.SZ/.SH后缀的6位数字，如：159526.SZ）", "minLength": 1, "maxLength": 2000},
+      "index_code": {"type": "string", "description": "跟踪指数代码", "minLength": 1, "maxLength": 2000},
+      "list_date": {"type": "string", "description": "上市日期（格式：YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "list_status": {"type": "string", "description": "上市状态（L上市 D退市 P待上市）", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所（SH上交所 SZ深交所）", "minLength": 1, "maxLength": 2000},
+      "mgr": {"type": "string", "description": "管理人（简称，e.g.华夏基金)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "基金交易代码", "default": true},
+    {"name": "csname", "type": "str", "description": "ETF中文简称", "default": true},
+    {"name": "extname", "type": "str", "description": "ETF扩位简称(对应交易所简称)", "default": true},
+    {"name": "cname", "type": "str", "description": "基金中文全称", "default": true},
+    {"name": "index_code", "type": "str", "description": "ETF基准指数代码", "default": true},
+    {"name": "index_name", "type": "str", "description": "ETF基准指数中文全称", "default": true},
+    {"name": "setup_date", "type": "str", "description": "设立日期（格式：YYYYMMDD）", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期（格式：YYYYMMDD）", "default": true},
+    {"name": "list_status", "type": "str", "description": "存续状态（L上市 D退市 P待上市）", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所（上交所SH 深交所SZ）", "default": true},
+    {"name": "mgr_name", "type": "str", "description": "基金管理人简称", "default": true},
+    {"name": "custod_name", "type": "str", "description": "基金托管人名称", "default": true},
+    {"name": "mgt_fee", "type": "float", "description": "基金管理人收取的费用", "default": true},
+    {"name": "etf_type", "type": "str", "description": "基金投资通道类型（境内、QDII）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

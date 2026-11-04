@@ -1,0 +1,47 @@
+{
+  "name": "report_rc",
+  "description": "卖方盈利预测数据。接口：report_rc 描述：获取券商（卖方）每天研报的盈利预测数据，数据从2010年开始，交易日当天的数据会更新2次，第一次是在21点15更新一次，第二次是在次日9点15更新一次。 限量：单次最大3000条，可分页和循环提取所有数据 权限：本接口2000积分可以试用，每天10次请求，正式权限需8000积分，每天可请求100000次，10000积分以上无总量限制。",
+  "category": "特色数据",
+  "source": "https://tushare.pro/document/2?doc_id=292",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "report_date": {"type": "string", "description": "报告日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "报告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "报告结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "report_date", "type": "str", "description": "研报日期", "default": true},
+    {"name": "report_title", "type": "str", "description": "报告标题", "default": true},
+    {"name": "report_type", "type": "str", "description": "报告类型", "default": true},
+    {"name": "classify", "type": "str", "description": "报告分类", "default": true},
+    {"name": "org_name", "type": "str", "description": "机构名称", "default": true},
+    {"name": "author_name", "type": "str", "description": "作者", "default": true},
+    {"name": "quarter", "type": "str", "description": "预测报告期", "default": true},
+    {"name": "op_rt", "type": "float", "description": "预测营业收入（万元）", "default": true},
+    {"name": "op_pr", "type": "float", "description": "预测营业利润（万元）", "default": true},
+    {"name": "tp", "type": "float", "description": "预测利润总额（万元）", "default": true},
+    {"name": "np", "type": "float", "description": "预测净利润（万元）", "default": true},
+    {"name": "eps", "type": "float", "description": "预测每股收益（元）", "default": true},
+    {"name": "pe", "type": "float", "description": "预测市盈率", "default": true},
+    {"name": "rd", "type": "float", "description": "预测股息率", "default": true},
+    {"name": "roe", "type": "float", "description": "预测净资产收益率", "default": true},
+    {"name": "ev_ebitda", "type": "float", "description": "预测EV/EBITDA", "default": true},
+    {"name": "rating", "type": "str", "description": "卖方评级", "default": true},
+    {"name": "max_price", "type": "float", "description": "预测最高目标价", "default": true},
+    {"name": "min_price", "type": "float", "description": "预测最低目标价", "default": true},
+    {"name": "imp_dg", "type": "str", "description": "机构关注度", "default": false},
+    {"name": "create_time", "type": "datetime", "description": "TS数据更新时间", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

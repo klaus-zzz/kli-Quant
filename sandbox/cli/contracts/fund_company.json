@@ -1,0 +1,38 @@
+{
+  "name": "fund_company",
+  "description": "公募基金公司。接口：fund_company 描述：获取公募基金管理人列表 积分：用户需要1500积分才可以调取，一次可以提取全部数据。具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=118",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "name", "type": "str", "description": "基金公司名称", "default": true},
+    {"name": "shortname", "type": "str", "description": "简称", "default": true},
+    {"name": "short_enname", "type": "str", "description": "英文缩写", "default": false},
+    {"name": "province", "type": "str", "description": "省份", "default": true},
+    {"name": "city", "type": "str", "description": "城市", "default": true},
+    {"name": "address", "type": "str", "description": "注册地址", "default": true},
+    {"name": "phone", "type": "str", "description": "电话", "default": true},
+    {"name": "office", "type": "str", "description": "办公地址", "default": true},
+    {"name": "website", "type": "str", "description": "公司网址", "default": true},
+    {"name": "chairman", "type": "str", "description": "法人代表", "default": true},
+    {"name": "manager", "type": "str", "description": "总经理", "default": true},
+    {"name": "reg_capital", "type": "float", "description": "注册资本", "default": true},
+    {"name": "setup_date", "type": "str", "description": "成立日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "公司终止日期", "default": true},
+    {"name": "employees", "type": "float", "description": "员工总数", "default": true},
+    {"name": "main_business", "type": "str", "description": "主要产品及业务", "default": true},
+    {"name": "org_code", "type": "str", "description": "组织机构代码", "default": true},
+    {"name": "credit_code", "type": "str", "description": "统一社会信用代码", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

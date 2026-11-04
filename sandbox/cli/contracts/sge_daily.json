@@ -1,0 +1,38 @@
+{
+  "name": "sge_daily",
+  "description": "现货黄金日行情。接口：sge_daily 描述：获取上海黄金交易所现货合约日线行情 限量：单次最大2000，可循环或者分页提取 积分：用户积2000积分可调取，具体请参阅 积分获取办法 注：数据由当日9:00至15:30的交易和前一日夜盘的20:00至2:30数据构成，成交量和成交金额为双向计量。",
+  "category": "现货与期权",
+  "source": "https://tushare.pro/document/2?doc_id=285",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "合约代码，可通过 基础信息 获得", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "现货合约代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日", "default": true},
+    {"name": "close", "type": "float", "description": "收盘点(元/克)", "default": true},
+    {"name": "open", "type": "float", "description": "开盘点(元/克)", "default": true},
+    {"name": "high", "type": "float", "description": "最高点(元/克)", "default": true},
+    {"name": "low", "type": "float", "description": "最低点(元/克)", "default": true},
+    {"name": "price_avg", "type": "float", "description": "加权平均价(元/克)", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌点位(元/克)", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量(千克)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额(元)", "default": true},
+    {"name": "oi", "type": "float", "description": "市场持仓", "default": true},
+    {"name": "settle_vol", "type": "float", "description": "交收量", "default": true},
+    {"name": "settle_dire", "type": "str", "description": "持仓方向", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

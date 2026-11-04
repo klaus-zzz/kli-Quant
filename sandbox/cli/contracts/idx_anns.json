@@ -1,0 +1,29 @@
+{
+  "name": "idx_anns",
+  "description": "指数公告。接口：idx_anns 描述：获取指数公司披露的相关公告信息，包括中证指数、国证指数、恒生指数和华证指数的及时与历史公告信息，跟踪指数最新信息和发展方向。数据开始2018-06-01，每隔1小时更新一次。 限量：单次最大返回1000条数据，50频次/分钟，1000频次/天，可根据日期循环提取 积分：需要6000积分可以调取，具体请参阅 积分获取办法",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=460",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ann_date": {"type": "string", "description": "公告日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000},
+      "src": {"type": "string", "description": "信息来源（中证指数、国证指数、恒生指数、华证指数）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "title", "type": "str", "description": "标题", "default": true},
+    {"name": "url", "type": "str", "description": "链接", "default": true},
+    {"name": "source", "type": "str", "description": "来源", "default": true},
+    {"name": "type", "type": "str", "description": "类型(指数发布、指数修订、指数更名、其他）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

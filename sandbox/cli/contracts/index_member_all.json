@@ -1,0 +1,36 @@
+{
+  "name": "index_member_all",
+  "description": "申万行业成分构成(分级)。接口：index_member_all 描述：按三级分类提取申万行业成分，可提供某个分类的所有成分，也可按股票代码提取所属分类，参数灵活 限量：单次最大2000行，总量不限制 权限：用户需2000积分可调取，积分获取方法请参阅 积分获取办法",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=335",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "l1_code": {"type": "string", "description": "一级行业代码", "minLength": 1, "maxLength": 2000},
+      "l2_code": {"type": "string", "description": "二级行业代码", "minLength": 1, "maxLength": 2000},
+      "l3_code": {"type": "string", "description": "三级行业代码", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "is_new": {"type": "string", "description": "是否最新（默认为“Y是”）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "l1_code", "type": "str", "description": "一级行业代码", "default": true},
+    {"name": "l1_name", "type": "str", "description": "一级行业名称", "default": true},
+    {"name": "l2_code", "type": "str", "description": "二级行业代码", "default": true},
+    {"name": "l2_name", "type": "str", "description": "二级行业名称", "default": true},
+    {"name": "l3_code", "type": "str", "description": "三级行业代码", "default": true},
+    {"name": "l3_name", "type": "str", "description": "三级行业名称", "default": true},
+    {"name": "ts_code", "type": "str", "description": "成分股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "成分股票名称", "default": true},
+    {"name": "in_date", "type": "str", "description": "纳入日期", "default": true},
+    {"name": "out_date", "type": "str", "description": "剔除日期", "default": true},
+    {"name": "is_new", "type": "str", "description": "是否最新Y是N否", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}
