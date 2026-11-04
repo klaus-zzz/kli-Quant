@@ -13,8 +13,8 @@ from fastapi import APIRouter, Request
 from sandbox.cli.catalog import CONTRACTS, validate
 
 router = APIRouter()
-MAX_BYTES = 8 * 1024 * 1024
-TIMEOUT = 20
+MAX_BYTES = 20 * 1024 * 1024
+TIMEOUT = 60
 # 单进程开发服务的硬预算；无自动重试或自动翻页。
 _slots = asyncio.Semaphore(4)
 _calls: deque[float] = deque()

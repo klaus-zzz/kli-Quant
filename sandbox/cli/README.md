@@ -91,7 +91,7 @@ with Sandbox.create(
 `budget_exceeded`、`busy`。业务结果使用 HTTP 200 信封，调用方必须检查 `status`；
 axi 的外层 `success` 仅表示工具函数执行完成。
 
-上游地址由后端环境配置，单次总耗时 20 秒，解压后响应最多 8 MiB；单进程最多并发 4 次、
+上游地址由后端环境配置，单次总耗时 60 秒，解压后响应最多 20 MiB；单进程最多并发 4 次、
 每分钟最多 30 次真实请求，不自动重试、不自动翻页。CLI 等待后端最多 25 秒。
 达到文档行数上限、请求 `limit` 或上游报告 `has_more` 时返回 `incomplete`；未公布上限或未达到上限
 都不能证明全量，`limits.completeness` 会说明未知或可能截断。
