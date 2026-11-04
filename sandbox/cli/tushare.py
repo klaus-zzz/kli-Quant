@@ -30,7 +30,8 @@ def make_tool(contract):
             response = httpx.post(
                 f"{base.rstrip('/')}/api/tushare/{name}",
                 json={"params": params, "fields": fields},
-                timeout=25,
+                # 比后端 60 秒处理上限多留 5 秒返回余量。
+                timeout=65,
                 trust_env=False,
             )
             response.raise_for_status()

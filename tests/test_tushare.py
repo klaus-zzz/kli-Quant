@@ -285,13 +285,17 @@ assert 'tushare/daily' in [item.name for item in registry.search('股票日线',
 def fake_post(url, **kwargs):
     assert url == EXPECTED_BASE + '/api/tushare/daily'
     assert kwargs['json']['params'] == {'ts_code': '000001.SZ'}
+    # 客户端需等到后端处理完超时并返回结果，避免提前误报不可用。
+    assert kwargs['timeout'] > BACKEND_TIMEOUT
     return httpx.Response(200, json={'status': 'success'},
                           request=httpx.Request('POST', url))
 httpx.post = fake_post
 assert tool('tushare/daily')(ts_code='000001.SZ')['status'] == 'success'
 assert 'TUSHARE_TOKEN' not in os.environ
 """
-    script = "EXPECTED_BASE = " + repr(expected) + "\n" + script
+    script = (
+        f"EXPECTED_BASE = {expected!r}\nBACKEND_TIMEOUT = {tushare.TIMEOUT}\n" + script
+    )
     completed = subprocess.run(
         [sys.executable, "-c", script], capture_output=True, text=True, cwd=tmp_path
     )
