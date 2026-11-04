@@ -1,0 +1,34 @@
+{
+  "name": "new_share",
+  "description": "IPO新股列表。接口：new_share 描述：获取新股上市列表数据 限量：单次最大2000条，总量不限制 积分：用户需要至少120积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=123",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "start_date": {"type": "string", "description": "上网发行开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "上网发行结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "sub_code", "type": "str", "description": "申购代码", "default": true},
+    {"name": "name", "type": "str", "description": "名称", "default": true},
+    {"name": "ipo_date", "type": "str", "description": "上网发行日期", "default": true},
+    {"name": "issue_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "amount", "type": "float", "description": "发行总量（万股）", "default": true},
+    {"name": "market_amount", "type": "float", "description": "上网发行总量（万股）", "default": true},
+    {"name": "price", "type": "float", "description": "发行价格", "default": true},
+    {"name": "pe", "type": "float", "description": "市盈率", "default": true},
+    {"name": "limit_amount", "type": "float", "description": "个人申购上限（万股）", "default": true},
+    {"name": "funds", "type": "float", "description": "募集资金（亿元）", "default": true},
+    {"name": "ballot", "type": "float", "description": "中签率", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,39 @@
+{
+  "name": "cb_share",
+  "description": "可转债转股结果。接口：cb_share 描述：获取可转债转股结果 限量：单次最大2000，总量不限制 权限：用户需要至少2000积分才可以调取，但有流量控制，5000积分以上频次相对较高，积分越多权限越大，具体请参阅 积分获取办法",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=247",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "转债代码，支持多值输入", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code", "ann_date"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "债券代码", "default": true},
+    {"name": "bond_short_name", "type": "str", "description": "债券简称", "default": true},
+    {"name": "publish_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "统计截止日期", "default": true},
+    {"name": "issue_size", "type": "float", "description": "可转债发行总额", "default": true},
+    {"name": "convert_price_initial", "type": "float", "description": "初始转换价格", "default": true},
+    {"name": "convert_price", "type": "float", "description": "本次转换价格", "default": true},
+    {"name": "convert_val", "type": "float", "description": "本次转股金额", "default": true},
+    {"name": "convert_vol", "type": "float", "description": "本次转股数量", "default": true},
+    {"name": "convert_ratio", "type": "float", "description": "本次转股比例", "default": true},
+    {"name": "acc_convert_val", "type": "float", "description": "累计转股金额", "default": true},
+    {"name": "acc_convert_vol", "type": "float", "description": "累计转股数量", "default": true},
+    {"name": "acc_convert_ratio", "type": "float", "description": "累计转股比例", "default": true},
+    {"name": "remain_size", "type": "float", "description": "可转债剩余金额", "default": true},
+    {"name": "total_shares", "type": "float", "description": "转股后总股本", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

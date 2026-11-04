@@ -1,0 +1,35 @@
+{
+  "name": "ci_daily",
+  "description": "中信行业指数行情。接口：ci_daily 描述：获取中信行业指数日线行情；中信不再披露高开低成交量成交额字段 限量：单次最大4000条，可循环提取 积分：5000积分可调取，可通过指数代码和日期参数循环获取所有数据",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=308",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "行业代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "指数代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "open", "type": "float", "description": "开盘点位", "default": true},
+    {"name": "low", "type": "float", "description": "最低点位", "default": true},
+    {"name": "high", "type": "float", "description": "最高点位", "default": true},
+    {"name": "close", "type": "float", "description": "收盘点位", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨日收盘点位", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌点位", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量（万股）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额（万元）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

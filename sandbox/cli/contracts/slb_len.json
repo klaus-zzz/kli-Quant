@@ -1,0 +1,29 @@
+{
+  "name": "slb_len",
+  "description": "转融资交易汇总。接口：slb_len 描述：转融通融资汇总 限量：单次最大可以提取5000行数据，可循环获取所有历史 积分：2000积分每分钟请求200次，5000积分500次请求",
+  "category": "两融",
+  "source": "https://tushare.pro/document/2?doc_id=331",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ob", "type": "float", "description": "期初余额(亿元)", "default": true},
+    {"name": "auc_amount", "type": "float", "description": "竞价成交金额(亿元)", "default": true},
+    {"name": "repo_amount", "type": "float", "description": "再借成交金额(亿元)", "default": true},
+    {"name": "repay_amount", "type": "float", "description": "偿还金额(亿元)", "default": true},
+    {"name": "cb", "type": "float", "description": "期末余额(亿元)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

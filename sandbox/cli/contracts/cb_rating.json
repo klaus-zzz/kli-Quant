@@ -1,0 +1,29 @@
+{
+  "name": "cb_rating",
+  "description": "获取可转债评级历史记录。接口：cb_rating 描述：获取可转债评级历史记录 限量：单次最大3000条，可根据代码循环提取 积分：需要2000积分可以调取，具体请参阅 积分获取办法",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=458",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "转债代码，支持多值输入", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "转债代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "评级发布日期", "default": true},
+    {"name": "rating_date", "type": "str", "description": "评级日期", "default": true},
+    {"name": "rating_com_name", "type": "str", "description": "评级机构", "default": true},
+    {"name": "rating_way", "type": "str", "description": "评级方式", "default": true},
+    {"name": "rating_type", "type": "str", "description": "评级类别", "default": true},
+    {"name": "rating", "type": "str", "description": "信用等级", "default": true},
+    {"name": "rating_outlook", "type": "str", "description": "评级展望", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

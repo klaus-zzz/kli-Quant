@@ -1,0 +1,34 @@
+{
+  "name": "hm_detail",
+  "description": "游资每日明细。接口：hm_detail 描述：获取每日游资交易明细，数据开始于2022年8。游资分类名录，请点击 游资名录 限量：单次最多提取2000条记录，可循环调取，总量不限制 积分：用户积10000积分可调取使用，积分获取办法请参阅 积分获取办法 注：数据为当日部分数据，此处只未作为示例效果。",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=312",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "hm_name": {"type": "string", "description": "游资名称", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "ts_name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "buy_amount", "type": "float", "description": "买入金额（元）", "default": true},
+    {"name": "sell_amount", "type": "float", "description": "卖出金额（元）", "default": true},
+    {"name": "net_amount", "type": "float", "description": "净买卖（元）", "default": true},
+    {"name": "hm_name", "type": "str", "description": "游资名称", "default": true},
+    {"name": "hm_orgs", "type": "str", "description": "关联机构（一般为营业部或机构专用）", "default": true},
+    {"name": "tag", "type": "str", "description": "标签", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

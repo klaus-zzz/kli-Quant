@@ -1,0 +1,36 @@
+{
+  "name": "fut_holding",
+  "description": "每日成交持仓排名。接口：fut_holding 描述：获取每日成交持仓排名数据，注意\"上期所\"涵盖\"上海国际能源交易中心\"合约数据 限量：单次最大2000，总量不限制 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=139",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期 （trade_date/symbol至少输入一个参数）", "minLength": 1, "maxLength": 2000},
+      "symbol": {"type": "string", "description": "合约或产品代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["symbol"]}, {"required": ["trade_date"]}]
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "symbol", "type": "str", "description": "合约代码或类型", "default": true},
+    {"name": "broker", "type": "str", "description": "期货公司会员简称", "default": true},
+    {"name": "vol", "type": "int", "description": "成交量", "default": true},
+    {"name": "vol_chg", "type": "int", "description": "成交量变化", "default": true},
+    {"name": "long_hld", "type": "int", "description": "持买仓量", "default": true},
+    {"name": "long_chg", "type": "int", "description": "持买仓量变化", "default": true},
+    {"name": "short_hld", "type": "int", "description": "持卖仓量", "default": true},
+    {"name": "short_chg", "type": "int", "description": "持卖仓量变化", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": false}
+  ],
+  "corrections": ["条件必填：symbol、trade_date 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "top10_cb_holders",
+  "description": "可转债十大持有人。接口：top10_cb_holders 描述：获取可转债前十大持有人 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=459",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码，支持多值输入，如110059.SH,110060.SH", "minLength": 1, "maxLength": 2000},
+      "period": {"type": "string", "description": "报告期（YYYYMMDD格式，年中和年报日期，如20240630,20251231）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "报告期开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "报告期结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "转债代码", "default": true},
+    {"name": "end_date", "type": "str", "description": "报告期", "default": true},
+    {"name": "holder_rank", "type": "int", "description": "持有排名", "default": true},
+    {"name": "holder_name", "type": "str", "description": "持有人名称", "default": true},
+    {"name": "hold_amount", "type": "float", "description": "持有数量(万张)", "default": true},
+    {"name": "hold_ratio", "type": "float", "description": "持有比例(%)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

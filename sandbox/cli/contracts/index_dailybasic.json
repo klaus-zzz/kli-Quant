@@ -1,0 +1,36 @@
+{
+  "name": "index_dailybasic",
+  "description": "大盘指数每日指标。接口：index_dailybasic，可以通过 数据工具 调试和查看数据。 描述：目前只提供上证综指，深证成指，上证50，中证500，中证1000，中小板指，创业板50 ，创业板指，科创50的每日指标数据。 数据来源：Tushare社区统计计算 数据历史：从2004年1月开始提供 数据权限：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=128",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期 （格式：YYYYMMDD，比如20181018，下同）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "total_mv", "type": "float", "description": "当日总市值（元）", "default": true},
+    {"name": "float_mv", "type": "float", "description": "当日流通市值（元）", "default": true},
+    {"name": "total_share", "type": "float", "description": "当日总股本（股）", "default": true},
+    {"name": "float_share", "type": "float", "description": "当日流通股本（股）", "default": true},
+    {"name": "free_share", "type": "float", "description": "当日自由流通股本（股）", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率", "default": true},
+    {"name": "turnover_rate_f", "type": "float", "description": "换手率(基于自由流通股本)", "default": true},
+    {"name": "pe", "type": "float", "description": "市盈率", "default": true},
+    {"name": "pe_ttm", "type": "float", "description": "市盈率TTM（最新价除以最近4个季度的每股收益）", "default": true},
+    {"name": "pb", "type": "float", "description": "市净率", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

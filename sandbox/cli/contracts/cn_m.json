@@ -1,0 +1,33 @@
+{
+  "name": "cn_m",
+  "description": "货币供应量。接口：cn_m 描述：获取货币供应量之月度数据 限量：单次最大5000，一次可以提取全部数据 权限：用户积累600积分可以使用，具体请参阅 积分获取办法",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=242",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "m": {"type": "string", "description": "月度（202001表示，2020年1月）", "minLength": 1, "maxLength": 2000},
+      "start_m": {"type": "string", "description": "开始月度", "minLength": 1, "maxLength": 2000},
+      "end_m": {"type": "string", "description": "结束月度", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "month", "type": "str", "description": "月份YYYYMM", "default": true},
+    {"name": "m0", "type": "float", "description": "M0（亿元）", "default": true},
+    {"name": "m0_yoy", "type": "float", "description": "M0同比（%）", "default": true},
+    {"name": "m0_mom", "type": "float", "description": "M0环比（%）", "default": true},
+    {"name": "m1", "type": "float", "description": "M1（亿元）", "default": true},
+    {"name": "m1_yoy", "type": "float", "description": "M1同比（%）", "default": true},
+    {"name": "m1_mom", "type": "float", "description": "M1环比（%）", "default": true},
+    {"name": "m2", "type": "float", "description": "M2（亿元）", "default": true},
+    {"name": "m2_yoy", "type": "float", "description": "M2同比（%）", "default": true},
+    {"name": "m2_mom", "type": "float", "description": "M2环比（%）", "default": true}
+  ],
+  "corrections": ["fields 为官方 HTTP 协议顶层字段选择，统一从 params 移到工具 fields 参数"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

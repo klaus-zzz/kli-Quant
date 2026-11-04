@@ -1,0 +1,29 @@
+{
+  "name": "stk_holdernumber",
+  "description": "股东人数。接口：stk_holdernumber 描述：获取上市公司股东户数数据，数据不定期公布 限量：单次最大3000,总量不限制 积分：2000积分可调取，基础积分每分钟调取200次，5000积分以上频次相对较高。具体请参阅 积分获取办法",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=166",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS股票代码", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期", "minLength": 1, "maxLength": 2000},
+      "enddate": {"type": "string", "description": "截止日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "截止日期", "default": true},
+    {"name": "holder_num", "type": "int", "description": "股东户数", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

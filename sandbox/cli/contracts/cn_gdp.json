@@ -1,0 +1,32 @@
+{
+  "name": "cn_gdp",
+  "description": "GDP数据。接口：cn_gdp 描述：获取国民经济之GDP数据 限量：单次最大10000，一次可以提取全部数据 权限：用户积累600积分可以使用，具体请参阅 积分获取办法",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=227",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "q": {"type": "string", "description": "季度（2019Q1表示，2019年第一季度）", "minLength": 1, "maxLength": 2000},
+      "start_q": {"type": "string", "description": "开始季度", "minLength": 1, "maxLength": 2000},
+      "end_q": {"type": "string", "description": "结束季度", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "quarter", "type": "str", "description": "季度", "default": true},
+    {"name": "gdp", "type": "float", "description": "GDP累计值（亿元）", "default": true},
+    {"name": "gdp_yoy", "type": "float", "description": "当季同比增速（%）", "default": true},
+    {"name": "pi", "type": "float", "description": "第一产业累计值（亿元）", "default": true},
+    {"name": "pi_yoy", "type": "float", "description": "第一产业同比增速（%）", "default": true},
+    {"name": "si", "type": "float", "description": "第二产业累计值（亿元）", "default": true},
+    {"name": "si_yoy", "type": "float", "description": "第二产业同比增速（%）", "default": true},
+    {"name": "ti", "type": "float", "description": "第三产业累计值（亿元）", "default": true},
+    {"name": "ti_yoy", "type": "float", "description": "第三产业同比增速（%）", "default": true}
+  ],
+  "corrections": ["fields 为官方 HTTP 协议顶层字段选择，统一从 params 移到工具 fields 参数"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

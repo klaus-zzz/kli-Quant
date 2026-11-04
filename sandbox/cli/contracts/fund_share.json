@@ -1,0 +1,28 @@
+{
+  "name": "fund_share",
+  "description": "基金规模数据。接口：fund_share，可以通过 数据工具 调试和查看数据。 描述：获取基金规模数据，包含上海和深圳ETF基金 限量：单次最大提取2000行数据 积分：用户需要至少2000积分可以调取，5000积分以上频次较高，具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=207",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS基金代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "market": {"type": "string", "description": "市场代码（SH上交所 ，SZ深交所）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "基金代码，支持多只基金同时提取，用逗号分隔", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易（变动）日期，格式YYYYMMDD", "default": true},
+    {"name": "fd_share", "type": "float", "description": "基金份额（万）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "etf_index",
+  "description": "ETF基准指数列表。接口：etf_index 描述：获取ETF基准指数列表信息 限量：单次请求最大返回5000行数据（当前未超过2000个） 权限：用户积累8000积分可调取，具体请参阅 积分获取办法",
+  "category": "ETF",
+  "source": "https://tushare.pro/document/2?doc_id=386",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "指数代码", "minLength": 1, "maxLength": 2000},
+      "pub_date": {"type": "string", "description": "发布日期（格式：YYYYMMDD）", "minLength": 1, "maxLength": 2000},
+      "base_date": {"type": "string", "description": "指数基期（格式：YYYYMMDD）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "指数代码", "default": true},
+    {"name": "indx_name", "type": "str", "description": "指数全称", "default": true},
+    {"name": "indx_csname", "type": "str", "description": "指数简称", "default": true},
+    {"name": "pub_party_name", "type": "str", "description": "指数发布机构", "default": true},
+    {"name": "pub_date", "type": "str", "description": "指数发布日期", "default": true},
+    {"name": "base_date", "type": "str", "description": "指数基日", "default": true},
+    {"name": "bp", "type": "float", "description": "指数基点(点)", "default": true},
+    {"name": "adj_circle", "type": "str", "description": "指数成份证券调整周期", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

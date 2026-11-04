@@ -1,0 +1,38 @@
+{
+  "name": "dc_daily",
+  "description": "概念板块行情。接口：dc_daily 描述：获取概念板块、行业指数板块、地域板块行情数据，历史数据开始于2020年 限量：单次最大2000条数据，可根据日期参数循环获取 权限：用户积累6000积分可调取，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=382",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块代码（格式：xxxxx.DC)", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(格式：YYYYMMDD下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "idx_type": {"type": "string", "description": "板块类型： 概念板块、行业板块、地域板块", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "板块代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日", "default": true},
+    {"name": "close", "type": "float", "description": "收盘点位", "default": true},
+    {"name": "open", "type": "float", "description": "开盘点位", "default": true},
+    {"name": "high", "type": "float", "description": "最高点位", "default": true},
+    {"name": "low", "type": "float", "description": "最低点位", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌点位", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量(股)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额(元)", "default": true},
+    {"name": "swing", "type": "float", "description": "振幅", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率", "default": true},
+    {"name": "category", "type": "str", "description": "分类板块", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

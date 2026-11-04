@@ -1,0 +1,38 @@
+{
+  "name": "pledge_detail",
+  "description": "股权质押明细。接口：pledge_detail 描述：获取股票质押明细数据 限量：单次最大1000 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=111",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "holder_name", "type": "str", "description": "股东名称", "default": true},
+    {"name": "pledge_amount", "type": "float", "description": "质押数量（万股）", "default": true},
+    {"name": "start_date", "type": "str", "description": "质押开始日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "质押结束日期", "default": true},
+    {"name": "is_release", "type": "str", "description": "是否已解押", "default": true},
+    {"name": "release_date", "type": "str", "description": "解押日期", "default": true},
+    {"name": "pledgor", "type": "str", "description": "质押方", "default": true},
+    {"name": "holding_amount", "type": "float", "description": "持股总数（万股）", "default": true},
+    {"name": "pledged_amount", "type": "float", "description": "质押总数（万股）", "default": true},
+    {"name": "p_total_ratio", "type": "float", "description": "本次质押占总股本比例", "default": true},
+    {"name": "h_total_ratio", "type": "float", "description": "持股总数占总股本比例", "default": true},
+    {"name": "is_buyback", "type": "str", "description": "是否回购（0否 1是）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

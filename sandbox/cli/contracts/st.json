@@ -1,0 +1,30 @@
+{
+  "name": "st",
+  "description": "ST风险警示板股票。接口：st 描述：ST风险警示板股票列表 限量：单次最大1000，可根据股票代码循环获取历史数据 积分：6000积分可提取数据，具体请参阅 积分获取办法",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=423",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "pub_date": {"type": "string", "description": "发布日期", "minLength": 1, "maxLength": 2000},
+      "imp_date": {"type": "string", "description": "实施日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "pub_date", "type": "str", "description": "发布日期", "default": true},
+    {"name": "imp_date", "type": "str", "description": "实施日期", "default": true},
+    {"name": "st_type", "type": "str", "description": "类型", "default": true},
+    {"name": "st_reason", "type": "str", "description": "st变更原因", "default": true},
+    {"name": "st_explain", "type": "str", "description": "st变更详细原因", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

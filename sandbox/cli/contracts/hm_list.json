@@ -1,0 +1,24 @@
+{
+  "name": "hm_list",
+  "description": "游资名录。接口：hm_list 描述：获取游资分类名录信息 限量：单次最大1000条数据，目前总量未超过500 积分：5000积分可以调取，积分获取办法请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=311",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "name": {"type": "string", "description": "游资名称", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "name", "type": "str", "description": "游资名称", "default": true},
+    {"name": "desc", "type": "str", "description": "说明", "default": true},
+    {"name": "orgs", "type": "None", "description": "关联机构", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

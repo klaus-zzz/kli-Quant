@@ -1,0 +1,40 @@
+{
+  "name": "fut_basic",
+  "description": "期货合约信息表。接口：fut_basic 描述：获取期货合约列表数据 限量：单次最大10000 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=135",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "exchange": {"type": "string", "description": "交易所代码 CFFEX-中金所 DCE-大商所 CZCE-郑商所 SHFE-上期所 INE-上海国际能源交易中心 GFEX-广州期货交易所", "minLength": 1, "maxLength": 2000},
+      "fut_type": {"type": "string", "description": "合约类型 (1 普通合约 2主力与连续合约 默认取全部)", "minLength": 1, "maxLength": 2000},
+      "fut_code": {"type": "string", "description": "标准合约代码，如白银AG、AP鲜苹果等", "minLength": 1, "maxLength": 2000},
+      "list_date": {"type": "string", "description": "上市开始日期(格式YYYYMMDD，从某日开始以来所有合约）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["exchange"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "合约代码", "default": true},
+    {"name": "symbol", "type": "str", "description": "交易标识", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易市场", "default": true},
+    {"name": "name", "type": "str", "description": "中文简称", "default": true},
+    {"name": "fut_code", "type": "str", "description": "合约产品代码", "default": true},
+    {"name": "multiplier", "type": "float", "description": "合约乘数(只适用于国债期货、指数期货)", "default": true},
+    {"name": "trade_unit", "type": "str", "description": "交易计量单位", "default": true},
+    {"name": "per_unit", "type": "float", "description": "交易单位(每手)", "default": true},
+    {"name": "quote_unit", "type": "str", "description": "报价单位", "default": true},
+    {"name": "quote_unit_desc", "type": "str", "description": "最小报价单位说明", "default": true},
+    {"name": "d_mode_desc", "type": "str", "description": "交割方式说明", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "delist_date", "type": "str", "description": "最后交易日期", "default": true},
+    {"name": "d_month", "type": "str", "description": "交割月份", "default": true},
+    {"name": "last_ddate", "type": "str", "description": "最后交割日", "default": true},
+    {"name": "trade_time_desc", "type": "str", "description": "交易时间说明", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

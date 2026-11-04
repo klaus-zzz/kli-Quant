@@ -1,0 +1,35 @@
+{
+  "name": "ths_hot",
+  "description": "THS热榜。接口：ths_hot 描述：获取热榜数据，包括热股、概念板块、ETF、可转债、港美股等等，每日盘中提取4次，收盘后4次，最晚22点提取一次。 限量：单次最大2000条，可根据日期等参数循环获取全部数据 积分：用户积6000积分可调取使用，积分获取办法请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=320",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "market": {"type": "string", "description": "热榜类型(热股、ETF、可转债、行业板块、概念板块、期货、港股、热基、美股)", "minLength": 1, "maxLength": 2000},
+      "is_new": {"type": "string", "description": "是否最新（默认Y，如果为N则为盘中和盘后阶段采集，具体时间可参考rank_time字段， 状态N每2小时更新一次 ， 状态Y更新时间为22：30 ）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "data_type", "type": "str", "description": "数据类型", "default": true},
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "ts_name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "rank", "type": "int", "description": "排行", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅%", "default": true},
+    {"name": "current_price", "type": "float", "description": "当前价格", "default": true},
+    {"name": "concept", "type": "str", "description": "标签", "default": true},
+    {"name": "rank_reason", "type": "str", "description": "上榜解读", "default": true},
+    {"name": "hot", "type": "float", "description": "热度值", "default": true},
+    {"name": "rank_time", "type": "str", "description": "排行榜获取时间", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

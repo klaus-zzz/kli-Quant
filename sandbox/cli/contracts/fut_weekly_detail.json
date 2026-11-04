@@ -1,0 +1,42 @@
+{
+  "name": "fut_weekly_detail",
+  "description": "期货主要品种交易周报。接口：fut_weekly_detail 描述：获取期货交易所主要品种每周交易统计信息，数据从2010年3月开始 权限：600积分可调取，单次最大获取4000行数据，积分越高频次越高，5000积分以上正常调取不受限制 数据来源：中国证监会，本数据由Tushare社区成员CE完成规划和采集",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=216",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "week": {"type": "string", "description": "周期（每年第几周，e.g. 202001 表示2020第1周）", "minLength": 1, "maxLength": 2000},
+      "prd": {"type": "string", "description": "期货品种（支持多品种输入，逗号分隔）", "minLength": 1, "maxLength": 2000},
+      "start_week": {"type": "string", "description": "开始周期", "minLength": 1, "maxLength": 2000},
+      "end_week": {"type": "string", "description": "结束周期", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所（请参考 交易所说明 ）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "exchange", "type": "str", "description": "交易所代码", "default": true},
+    {"name": "prd", "type": "str", "description": "期货品种代码", "default": true},
+    {"name": "name", "type": "str", "description": "品种名称", "default": true},
+    {"name": "vol", "type": "int", "description": "成交量（手）", "default": true},
+    {"name": "vol_yoy", "type": "float", "description": "同比增减（%）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额（亿元）", "default": true},
+    {"name": "amout_yoy", "type": "float", "description": "同比增减（%）", "default": true},
+    {"name": "cumvol", "type": "int", "description": "年累计成交总量（手）", "default": true},
+    {"name": "cumvol_yoy", "type": "float", "description": "同比增减（%）", "default": true},
+    {"name": "cumamt", "type": "float", "description": "年累计成交金额（亿元）", "default": true},
+    {"name": "cumamt_yoy", "type": "float", "description": "同比增减（%）", "default": true},
+    {"name": "open_interest", "type": "int", "description": "持仓量（手）", "default": true},
+    {"name": "interest_wow", "type": "float", "description": "环比增减（%）", "default": true},
+    {"name": "mc_close", "type": "float", "description": "本周主力合约收盘价", "default": true},
+    {"name": "close_wow", "type": "float", "description": "环比涨跌（%）", "default": true},
+    {"name": "week", "type": "str", "description": "周期", "default": true},
+    {"name": "week_date", "type": "str", "description": "周日期", "default": true}
+  ],
+  "corrections": ["fields 为官方 HTTP 协议顶层字段选择，统一从 params 移到工具 fields 参数"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

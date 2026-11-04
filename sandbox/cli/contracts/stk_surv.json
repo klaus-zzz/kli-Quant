@@ -1,0 +1,34 @@
+{
+  "name": "stk_surv",
+  "description": "机构调研表。接口：stk_surv 描述：获取上市公司机构调研记录数据 限量：单次最大获取400条数据，可循环或分页提取 积分：用户积5000积分可使用",
+  "category": "特色数据",
+  "source": "https://tushare.pro/document/2?doc_id=275",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 400,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "调研日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "调研开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "调研结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "surv_date", "type": "str", "description": "调研日期", "default": true},
+    {"name": "fund_visitors", "type": "str", "description": "机构参与人员", "default": true},
+    {"name": "rece_place", "type": "str", "description": "接待地点", "default": true},
+    {"name": "rece_mode", "type": "str", "description": "接待方式", "default": true},
+    {"name": "rece_org", "type": "str", "description": "接待的公司", "default": true},
+    {"name": "org_type", "type": "str", "description": "接待公司类型", "default": true},
+    {"name": "comp_rece", "type": "str", "description": "上市公司接待人员", "default": true},
+    {"name": "content", "type": "None", "description": "调研内容", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

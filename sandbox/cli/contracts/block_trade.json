@@ -1,0 +1,32 @@
+{
+  "name": "block_trade",
+  "description": "大宗交易。接口：block_trade 描述：大宗交易 限量：单次最大1000条，总量不限制 积分：2000积分可调取，每分钟内限制次数，超过5000积分频次相对较高，具体请参阅 积分获取办法",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=161",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码（股票代码和日期至少输入一个参数）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["trade_date"]}, {"required": ["start_date"]}, {"required": ["end_date"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日历", "default": true},
+    {"name": "price", "type": "float", "description": "成交价", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量（万股）", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额", "default": true},
+    {"name": "buyer", "type": "str", "description": "买方营业部", "default": true},
+    {"name": "seller", "type": "str", "description": "卖方营业部", "default": true}
+  ],
+  "corrections": ["条件必填：ts_code、trade_date、start_date、end_date 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

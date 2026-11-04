@@ -1,0 +1,29 @@
+{
+  "name": "limit_step",
+  "description": "连板天梯。接口：limit_step 描述：数据开始于2023-11-13，获取每天连板个数晋级的股票，可以分析出每天连续涨停进阶个数，判断强势热度 限量：单次最大2000行数据，可根据股票代码或者日期循环提取全部 积分：8000积分以上每分钟500次，每天总量不限制，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=356",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD，下同）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "nums": {"type": "string", "description": "连板次数，支持多个输入，例如nums='2,3'", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "代码", "default": true},
+    {"name": "name", "type": "str", "description": "名称", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "nums", "type": "str", "description": "连板次数", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

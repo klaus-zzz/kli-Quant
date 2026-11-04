@@ -1,0 +1,35 @@
+{
+  "name": "fund_nav",
+  "description": "公募基金净值。接口：fund_nav，可以通过 数据工具 调试和查看数据。 描述：获取公募基金净值数据 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=119",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS基金代码 （二选一）", "minLength": 1, "maxLength": 2000},
+      "nav_date": {"type": "string", "description": "净值日期 （二选一）", "minLength": 1, "maxLength": 2000},
+      "market": {"type": "string", "description": "E场内 O场外", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "净值开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "净值结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["nav_date"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "nav_date", "type": "str", "description": "净值日期", "default": true},
+    {"name": "unit_nav", "type": "float", "description": "单位净值", "default": true},
+    {"name": "accum_nav", "type": "float", "description": "累计净值", "default": true},
+    {"name": "accum_div", "type": "float", "description": "累计分红", "default": true},
+    {"name": "net_asset", "type": "float", "description": "资产净值", "default": true},
+    {"name": "total_netasset", "type": "float", "description": "合计资产净值", "default": false},
+    {"name": "adj_nav", "type": "float", "description": "复权单位净值", "default": true}
+  ],
+  "corrections": ["条件必填：ts_code、nav_date 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

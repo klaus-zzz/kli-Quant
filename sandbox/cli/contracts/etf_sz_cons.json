@@ -1,0 +1,36 @@
+{
+  "name": "etf_sz_cons",
+  "description": "ETF每日持仓组合(深市）。接口：etf_sz_cons 描述：获取深交所场内所有ETF每日盘前披露的一篮子组合信息,包括成分股票数量、申赎现金折溢价比例等数据 限量：单次最大3000条，可根据代码或日期循环提取 积分：需要8000积分可以调取，具体请参阅 积分获取办法",
+  "category": "ETF",
+  "source": "https://tushare.pro/document/2?doc_id=472",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000},
+      "con_code": {"type": "string", "description": "成分股票代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "ETF代码", "default": true},
+    {"name": "con_code", "type": "str", "description": "成分代码", "default": true},
+    {"name": "con_name", "type": "str", "description": "成分名称", "default": true},
+    {"name": "qty", "type": "int", "description": "股票数量(股)", "default": true},
+    {"name": "sub_flag", "type": "str", "description": "现金替代标志", "default": true},
+    {"name": "cpr", "type": "float", "description": "申购现金替代保证金率（%）", "default": true},
+    {"name": "rdr", "type": "float", "description": "赎回现金替代保证金率（%）", "default": true},
+    {"name": "sub_cc", "type": "float", "description": "申购替代金额(单位：人民币元)", "default": true},
+    {"name": "red_cc", "type": "float", "description": "赎回替代金额(单位：人民币元)", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所代码HK港交所 SH上交所 SZ深交所 OTH其他", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

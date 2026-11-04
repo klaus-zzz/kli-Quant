@@ -1,0 +1,29 @@
+{
+  "name": "stk_rewards",
+  "description": "管理层薪酬和持股。接口：stk_rewards 描述：获取上市公司管理层薪酬和持股 积分：用户需要2000积分才可以调取，5000积分以上频次相对较高，具体请参阅 积分获取办法",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=194",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS股票代码，支持单个或多个代码输入", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "报告期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "截止日期", "default": true},
+    {"name": "name", "type": "str", "description": "姓名", "default": true},
+    {"name": "title", "type": "str", "description": "职务", "default": true},
+    {"name": "reward", "type": "float", "description": "报酬（元）", "default": true},
+    {"name": "hold_vol", "type": "float", "description": "持股数（股）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

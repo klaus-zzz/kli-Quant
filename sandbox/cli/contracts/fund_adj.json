@@ -1,0 +1,29 @@
+{
+  "name": "fund_adj",
+  "description": "基金复权因子。接口：fund_adj 描述：获取基金复权因子，用于计算基金复权行情 限量：单次最大提取2000行记录，可循环提取，数据总量不限制 积分：用户积2000积分可调取，超过5000积分以上频次相对较高。具体请参阅 积分获取办法",
+  "category": "ETF",
+  "source": "https://tushare.pro/document/2?doc_id=199",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS基金代码（支持多只基金输入）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（格式：yyyymmdd，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "offset": {"type": "string", "description": "开始行数", "minLength": 1, "maxLength": 2000},
+      "limit": {"type": "string", "description": "最大行数", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "ts基金代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "adj_factor", "type": "float", "description": "复权因子", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

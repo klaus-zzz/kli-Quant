@@ -1,0 +1,27 @@
+{
+  "name": "sf_month",
+  "description": "社融数据（月度）。接口：sf_month 描述：获取月度社会融资数据 限量：单次最大2000条数据，可循环提取 积分：需2000积分",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=310",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "m": {"type": "string", "description": "月份（YYYYMM，下同），支持多个月份同时输入，逗号分隔", "minLength": 1, "maxLength": 2000},
+      "start_m": {"type": "string", "description": "开始月份", "minLength": 1, "maxLength": 2000},
+      "end_m": {"type": "string", "description": "结束月份", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "month", "type": "str", "description": "月度", "default": true},
+    {"name": "inc_month", "type": "float", "description": "社融增量当月值（亿元）", "default": true},
+    {"name": "inc_cumval", "type": "float", "description": "社融增量累计值（亿元）", "default": true},
+    {"name": "stk_endval", "type": "float", "description": "社融存量期末值（万亿元）", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

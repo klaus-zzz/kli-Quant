@@ -1,0 +1,5 @@
+{
+  "nativeTools": [
+    {"module": "sandbox.cli.tushare", "name": "tushare"}
+  ]
+}

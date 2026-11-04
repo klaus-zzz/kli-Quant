@@ -1,0 +1,36 @@
+{
+  "name": "stk_managers",
+  "description": "上市公司管理层。接口：stk_managers 描述：获取上市公司管理层 积分：用户需要2000积分才可以调取，5000积分以上频次相对较高，具体请参阅 积分获取办法",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=193",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码，支持单个或多个股票输入", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "name", "type": "str", "description": "姓名", "default": true},
+    {"name": "gender", "type": "str", "description": "性别", "default": true},
+    {"name": "lev", "type": "str", "description": "岗位类别", "default": true},
+    {"name": "title", "type": "str", "description": "岗位", "default": true},
+    {"name": "edu", "type": "str", "description": "学历", "default": true},
+    {"name": "national", "type": "str", "description": "国籍", "default": true},
+    {"name": "birthday", "type": "str", "description": "出生年月", "default": true},
+    {"name": "begin_date", "type": "str", "description": "上任日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "离任日期", "default": true},
+    {"name": "resume", "type": "str", "description": "个人简历", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,34 @@
+{
+  "name": "top10_floatholders",
+  "description": "前十大流通股东。接口：top10_floatholders 描述：获取上市公司前十大流通股东数据 积分：需2000积分以上才可以调取本接口，5000积分以上频次会更高",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=62",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "period": {"type": "string", "description": "报告期（YYYYMMDD格式，一般为每个季度最后一天）", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "报告期开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "报告期结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["ts_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "报告期", "default": true},
+    {"name": "holder_name", "type": "str", "description": "股东名称", "default": true},
+    {"name": "hold_amount", "type": "float", "description": "持有数量（股）", "default": true},
+    {"name": "hold_ratio", "type": "float", "description": "占总股本比例(%)", "default": true},
+    {"name": "hold_float_ratio", "type": "float", "description": "占流通股本比例(%)", "default": true},
+    {"name": "hold_change", "type": "float", "description": "持股变动（0表示不变，空值表示 新进）", "default": true},
+    {"name": "holder_type", "type": "str", "description": "股东类型", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

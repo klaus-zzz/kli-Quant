@@ -1,0 +1,41 @@
+{
+  "name": "fut_daily",
+  "description": "期货日线行情。接口：fut_daily，可以通过 数据工具 调试和查看数据。 描述：期货日线行情数据，数据起始时间：1995-04-17。 限量：单次最大2000条，总量不限制 积分：用户需要至少2000积分才可以调取，未来可能调整积分，请尽量多的积累积分。具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=138",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "合约代码", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS合约代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨收盘价", "default": true},
+    {"name": "pre_settle", "type": "float", "description": "昨结算价", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "最高价", "default": true},
+    {"name": "low", "type": "float", "description": "最低价", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价", "default": true},
+    {"name": "settle", "type": "float", "description": "结算价", "default": true},
+    {"name": "change1", "type": "float", "description": "涨跌1 收盘价-昨结算价", "default": true},
+    {"name": "change2", "type": "float", "description": "涨跌2 结算价-昨结算价", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量(手)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交金额(万元)", "default": true},
+    {"name": "oi", "type": "float", "description": "持仓量(手)", "default": true},
+    {"name": "oi_chg", "type": "float", "description": "持仓量变化", "default": true},
+    {"name": "delv_settle", "type": "float", "description": "交割结算价", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

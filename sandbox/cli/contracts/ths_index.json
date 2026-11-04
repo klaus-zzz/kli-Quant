@@ -1,0 +1,29 @@
+{
+  "name": "ths_index",
+  "description": "概念和行业指数。接口：ths_index 描述：获取板块指数，包括概念、行业、特色指数。 权限：本接口需有6000积分，单次最大返回5000行数据，一次可提取全部数据，请勿循环提取。",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=259",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "指数代码", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "市场类型A-a股 HK-港股 US-美股", "minLength": 1, "maxLength": 2000},
+      "type": {"type": "string", "description": "指数类型 N-概念指数 I-行业指数 R-地域指数 S-特色指数 ST-风格指数 TH-主题指数 BB-宽基指数", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "代码", "default": true},
+    {"name": "name", "type": "str", "description": "名称", "default": true},
+    {"name": "count", "type": "int", "description": "成分个数", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "type", "type": "str", "description": "N概念指数S特色指数", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,52 @@
+{
+  "name": "us_etf_basic",
+  "description": "美股ETF列表。接口：us_etf_basic 描述：获取美股ETF基金基本信息，包含纽交所，纳斯达克交易所，及部分OTC市场的ETF基金数据。 限量：单次最大6000条，可根据代码或日期循环提取 积分：需要5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "港美基础",
+  "source": "https://tushare.pro/document/2?doc_id=504",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "基金代码", "minLength": 1, "maxLength": 2000},
+      "list_date": {"type": "string", "description": "上市日期", "minLength": 1, "maxLength": 2000},
+      "list_status": {"type": "string", "description": "上市状态 L上市 D退市 P待上市", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所 NASDAQ:纳斯达克交易所;NYSE:纽交所;NYSEARCA:纽交所(群岛);BZX:芝加哥期权;OTC。", "minLength": 1, "maxLength": 2000},
+      "mgr_name": {"type": "string", "description": "基金管理人名称", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["list_date", "list_status", "exchange", "mgr_name"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "代码", "default": true},
+    {"name": "name", "type": "str", "description": "中文名称", "default": true},
+    {"name": "enname", "type": "str", "description": "英文名称", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所 NASDAQ:纳斯达克交易所;NYSE:纽交所;NYSEARCA:纽交所(群岛);BZX:芝加哥期权;OTC。", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "delist_date", "type": "str", "description": "退市日期", "default": true},
+    {"name": "list_status", "type": "str", "description": "上市状态 L上市 D退市 P待上市", "default": true},
+    {"name": "type", "type": "str", "description": "基金类型 ETF", "default": true},
+    {"name": "setup_country", "type": "str", "description": "注册国家", "default": true},
+    {"name": "mgr_name", "type": "str", "description": "基金管理人名称", "default": true},
+    {"name": "custod_name", "type": "str", "description": "基金托管人名称", "default": true},
+    {"name": "invest_goal", "type": "str", "description": "投资目标", "default": true},
+    {"name": "fund_class_oper", "type": "str", "description": "基金运作模 一般开放式", "default": true},
+    {"name": "fund_type", "type": "str", "description": "基金投资类型", "default": true},
+    {"name": "invest_field", "type": "str", "description": "基金投资范围", "default": true},
+    {"name": "invest_strat", "type": "str", "description": "投资策略", "default": true},
+    {"name": "divi_type", "type": "str", "description": "基金分红方式 现金分红；红利再投资", "default": true},
+    {"name": "divi_freq", "type": "str", "description": "基金分红频率", "default": true},
+    {"name": "index_code", "type": "str", "description": "ETF基准指数代码", "default": true},
+    {"name": "index_name", "type": "str", "description": "ETF基准指数中文全称", "default": true},
+    {"name": "curr_type", "type": "str", "description": "交易货币", "default": true},
+    {"name": "is_lever", "type": "str", "description": "是否日内杠杆", "default": true},
+    {"name": "lever_mult", "type": "str", "description": "杠杆倍数", "default": true},
+    {"name": "lever_adjust_freq", "type": "str", "description": "杠杆调整频率", "default": true},
+    {"name": "min_pur_redem_unit", "type": "str", "description": "最小申赎单位 份", "default": true},
+    {"name": "min_pur_redem_cost", "type": "str", "description": "最小申赎单位费用 元", "default": true},
+    {"name": "fund_desc", "type": "str", "description": "基金简介", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

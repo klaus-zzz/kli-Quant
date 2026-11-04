@@ -1,0 +1,27 @@
+{
+  "name": "adj_factor",
+  "description": "复权因子。接口：adj_factor，可以通过 数据工具 调试和查看数据。 更新时间：盘前9点15~20分完成当日复权因子入库 描述：本接口由Tushare自行生产，获取股票复权因子，可提取单只股票全部历史复权因子，也可以提取单日全部股票的复权因子。 积分要求：2000积分起，5000以上可高频调取",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=28",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "adj_factor", "type": "float", "description": "复权因子", "default": true}
+  ],
+  "corrections": ["输出表头误写必选；依正文输出参数章节识别为输出字段"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

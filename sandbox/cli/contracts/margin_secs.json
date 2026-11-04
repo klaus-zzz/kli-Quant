@@ -1,0 +1,29 @@
+{
+  "name": "margin_secs",
+  "description": "融资融券标的（盘前更新）。接口：margin_secs 描述：获取沪深京三大交易所融资融券标的（包括ETF），每天盘前更新 限量：单次最大6000行数据，可根据股票代码、交易日期、交易所代码循环提取 积分：2000积分可调取，5000积分无总量限制，积分越高权限越大，具体参考 权限说明",
+  "category": "两融",
+  "source": "https://tushare.pro/document/2?doc_id=326",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "标的代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所（SSE上交所 SZSE深交所 BSE北交所）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "标的代码", "default": true},
+    {"name": "name", "type": "str", "description": "标的名称", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

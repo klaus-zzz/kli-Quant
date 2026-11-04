@@ -1,0 +1,26 @@
+{
+  "name": "hk_tradecal",
+  "description": "港股交易日历。接口：hk_tradecal 描述：获取交易日历 限量：单次最大2000 权限：用户积累2000积分才可调取",
+  "category": "港美基础",
+  "source": "https://tushare.pro/document/2?doc_id=250",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "is_open": {"type": "string", "description": "是否交易 '0'休市 '1'交易", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "cal_date", "type": "str", "description": "日历日期", "default": true},
+    {"name": "is_open", "type": "int", "description": "是否交易 '0'休市 '1'交易", "default": true},
+    {"name": "pretrade_date", "type": "str", "description": "上一个交易日", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

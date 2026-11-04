@@ -1,0 +1,31 @@
+{
+  "name": "mkt_idx_bmk",
+  "description": "公募基金业绩基准库。接口：mkt_idx_bmk 描述：获取官方发布的ETF业绩比较基准列表信息，分为一类库、二类库 限量：单次最大500条，单次可以提取全部列表 积分：需要5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=462",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 500,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "指数代码", "minLength": 1, "maxLength": 2000},
+      "bmk_type": {"type": "string", "description": "基准类型：策略指数、行业主题指数、行业主题指数、宽基指数", "minLength": 1, "maxLength": 2000},
+      "bmk_level": {"type": "string", "description": "基准分类： 一类库、二类库", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "symbol", "type": "str", "description": "代码", "default": true},
+    {"name": "name", "type": "str", "description": "指数简称", "default": true},
+    {"name": "fullname", "type": "str", "description": "指数名称", "default": true},
+    {"name": "bmk_level", "type": "str", "description": "基准库分层 一类库、二类库", "default": true},
+    {"name": "bmk_type", "type": "str", "description": "基准类型 策略、宽基、行业主题", "default": true},
+    {"name": "bmk_src", "type": "str", "description": "指数编制机构", "default": true},
+    {"name": "idx_type", "type": "str", "description": "指数类型 策略类指数；规模类指数；主题类指数；综合类指数；行业类指数；风格类指数", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

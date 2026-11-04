@@ -1,0 +1,39 @@
+{
+  "name": "forecast_vip",
+  "description": "业绩预告。接口：forecast，可以通过 数据工具 调试和查看数据。 描述：获取业绩预告数据 权限：用户需要至少2000积分才可以调取，每日20点~21点更新，单次3500行，具体请参阅 积分获取办法 提示：当前接口只能按单只股票获取其历史数据，如果需要获取某一季度全部上市公司数据，请使用forecast_vip接口（参数一致），需积攒5000积分。",
+  "category": "财务",
+  "source": "https://tushare.pro/document/2?doc_id=45",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3500,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码(二选一)", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期 (二选一)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000},
+      "period": {"type": "string", "description": "报告期(每个季度最后一天的日期，比如20171231表示年报，20170630半年报，20170930三季报)", "minLength": 1, "maxLength": 2000},
+      "type": {"type": "string", "description": "预告类型(预增/预减/扭亏/首亏/续亏/续盈/略增/略减)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["period"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "报告期", "default": true},
+    {"name": "type", "type": "str", "description": "业绩预告类型(预增/预减/扭亏/首亏/续亏/续盈/略增/略减)", "default": true},
+    {"name": "p_change_min", "type": "float", "description": "预告净利润变动幅度下限（%）", "default": true},
+    {"name": "p_change_max", "type": "float", "description": "预告净利润变动幅度上限（%）", "default": true},
+    {"name": "net_profit_min", "type": "float", "description": "预告净利润下限（万元）", "default": true},
+    {"name": "net_profit_max", "type": "float", "description": "预告净利润上限（万元）", "default": true},
+    {"name": "last_parent_net", "type": "float", "description": "上年同期归属母公司净利润", "default": true},
+    {"name": "first_ann_date", "type": "str", "description": "首次公告日", "default": true},
+    {"name": "summary", "type": "str", "description": "业绩预告摘要", "default": true},
+    {"name": "change_reason", "type": "str", "description": "业绩变动原因", "default": true}
+  ],
+  "corrections": ["普通接口必填 ts_code；VIP 允许按 period 查询整个报告期，不要求 ts_code", "条件必填：ts_code、period 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

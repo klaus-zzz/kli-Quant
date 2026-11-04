@@ -1,0 +1,45 @@
+{
+  "name": "opt_basic",
+  "description": "期权合约信息。接口：opt_basic 描述：获取期权合约信息 积分：用户需要至少5000积分可以调取，具体请参阅 积分获取办法",
+  "category": "现货与期权",
+  "source": "https://tushare.pro/document/2?doc_id=158",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS期权代码", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码 （包括上交所SSE等 交易所 ）", "minLength": 1, "maxLength": 2000},
+      "list_date": {"type": "string", "description": "上市交易日", "minLength": 1, "maxLength": 2000},
+      "opt_code": {"type": "string", "description": "标准合约代码，OP+期货合约TS_CODE，如棕榈油2207合约，输入OPP2207.DCE", "minLength": 1, "maxLength": 2000},
+      "call_put": {"type": "string", "description": "期权类型", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "symbol", "type": "str", "description": "交易代码", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易市场", "default": true},
+    {"name": "name", "type": "str", "description": "合约名称", "default": true},
+    {"name": "per_unit", "type": "str", "description": "合约单位", "default": true},
+    {"name": "opt_code", "type": "str", "description": "标的合约代码", "default": true},
+    {"name": "opt_type", "type": "str", "description": "合约类型", "default": true},
+    {"name": "call_put", "type": "str", "description": "期权类型", "default": true},
+    {"name": "exercise_type", "type": "str", "description": "行权方式", "default": true},
+    {"name": "exercise_price", "type": "float", "description": "行权价格，经过除权除息调整", "default": true},
+    {"name": "opt_multiplier", "type": "float", "description": "合约单位，经过除权除息调整", "default": true},
+    {"name": "s_month", "type": "str", "description": "结算月", "default": true},
+    {"name": "maturity_date", "type": "str", "description": "到期日", "default": true},
+    {"name": "list_price", "type": "float", "description": "挂牌基准价", "default": true},
+    {"name": "list_date", "type": "str", "description": "开始交易日期", "default": true},
+    {"name": "delist_date", "type": "str", "description": "最后交易日期", "default": true},
+    {"name": "last_edate", "type": "str", "description": "最后行权日期", "default": true},
+    {"name": "last_ddate", "type": "str", "description": "最后交割日期", "default": true},
+    {"name": "quote_unit", "type": "str", "description": "报价单位", "default": true},
+    {"name": "min_price_chg", "type": "str", "description": "最小价格波幅", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

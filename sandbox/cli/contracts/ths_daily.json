@@ -1,0 +1,38 @@
+{
+  "name": "ths_daily",
+  "description": "板块指数行情。接口：ths_daily 描述：获取板块指数行情，19点和21点两次更新 限量：单次最大3000行数据（需6000积分），可根据指数代码、日期参数循环提取",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=260",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块指数代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS指数代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日", "default": true},
+    {"name": "close", "type": "float", "description": "收盘点位", "default": true},
+    {"name": "open", "type": "float", "description": "开盘点位", "default": true},
+    {"name": "high", "type": "float", "description": "最高点位", "default": true},
+    {"name": "low", "type": "float", "description": "最低点位", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨日收盘点", "default": true},
+    {"name": "avg_price", "type": "float", "description": "平均价", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌点位", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量（手）", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率（%）", "default": true},
+    {"name": "total_mv", "type": "float", "description": "总市值（元）", "default": false},
+    {"name": "float_mv", "type": "float", "description": "流通市值（元）", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

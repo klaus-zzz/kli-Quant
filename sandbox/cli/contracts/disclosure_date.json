@@ -1,0 +1,31 @@
+{
+  "name": "disclosure_date",
+  "description": "财报披露计划。接口：disclosure_date 描述：获取财报披露计划日期 限量：单次最大6000，总量不限制 积分：用户需要至少2000积分才可以调取，积分越多权限越大，具体请参阅 积分获取办法",
+  "category": "财务",
+  "source": "https://tushare.pro/document/2?doc_id=162",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS股票代码", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "财报周期（每个季度最后一天的日期，比如20181231表示2018年年报，20180630表示中报)", "minLength": 1, "maxLength": 2000},
+      "pre_date": {"type": "string", "description": "计划披露日期", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "最新披露公告日", "minLength": 1, "maxLength": 2000},
+      "actual_date": {"type": "string", "description": "实际披露日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "最新披露公告日", "default": true},
+    {"name": "end_date", "type": "str", "description": "报告期", "default": true},
+    {"name": "pre_date", "type": "str", "description": "预计披露日期", "default": true},
+    {"name": "actual_date", "type": "str", "description": "实际披露日期", "default": true},
+    {"name": "modify_date", "type": "str", "description": "披露日期修正记录", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

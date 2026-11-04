@@ -1,0 +1,37 @@
+{
+  "name": "fx_daily",
+  "description": "外汇日线行情。接口：fx_daily 描述：获取外汇日线行情 限量：单次最大提取1000行记录，可多次提取，总量不限制 积分：用户需要至少2000积分才可以调取，但有流量控制，5000积分以上频次相对较高，积分越多权限越大，具体请参阅 积分获取办法 注：INDEX、COMMODIT（金银 2 个保留 .FXCM）、BUND、FX_BASKET在20230601之后用 无后缀的ts_code 查询日行情。",
+  "category": "外汇",
+  "source": "https://tushare.pro/document/2?doc_id=179",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（GMT，日期是格林尼治时间，比北京时间晚一天）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（GMT）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（GMT）", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易商，目前只有FXCM", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "外汇代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "bid_open", "type": "float", "description": "买入开盘价", "default": true},
+    {"name": "bid_close", "type": "float", "description": "买入收盘价", "default": true},
+    {"name": "bid_high", "type": "float", "description": "买入最高价", "default": true},
+    {"name": "bid_low", "type": "float", "description": "买入最低价", "default": true},
+    {"name": "ask_open", "type": "float", "description": "卖出开盘价", "default": true},
+    {"name": "ask_close", "type": "float", "description": "卖出收盘价", "default": true},
+    {"name": "ask_high", "type": "float", "description": "卖出最高价", "default": true},
+    {"name": "ask_low", "type": "float", "description": "卖出最低价", "default": true},
+    {"name": "tick_qty", "type": "int", "description": "报价笔数", "default": true},
+    {"name": "exchange", "type": "str", "description": "交易商", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

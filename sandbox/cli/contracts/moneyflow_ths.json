@@ -1,0 +1,37 @@
+{
+  "name": "moneyflow_ths",
+  "description": "个股资金流向（THS）。接口：moneyflow_ths 描述：获取同花顺个股资金流向数据，每日盘后更新 限量：单次最大6000，可根据日期或股票代码循环提取数据 积分：6000积分可调取，具体请参阅 积分获取办法",
+  "category": "资金流",
+  "source": "https://tushare.pro/document/2?doc_id=348",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "latest", "type": "float", "description": "最新价", "default": true},
+    {"name": "net_amount", "type": "float", "description": "资金净流入(万元)", "default": true},
+    {"name": "net_d5_amount", "type": "float", "description": "5日主力净额(万元)", "default": true},
+    {"name": "buy_lg_amount", "type": "float", "description": "今日大单净流入额(万元)", "default": true},
+    {"name": "buy_lg_amount_rate", "type": "float", "description": "今日大单净流入占比(%)", "default": true},
+    {"name": "buy_md_amount", "type": "float", "description": "今日中单净流入额(万元)", "default": true},
+    {"name": "buy_md_amount_rate", "type": "float", "description": "今日中单净流入占比(%)", "default": true},
+    {"name": "buy_sm_amount", "type": "float", "description": "今日小单净流入额(万元)", "default": true},
+    {"name": "buy_sm_amount_rate", "type": "float", "description": "今日小单净流入占比(%)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

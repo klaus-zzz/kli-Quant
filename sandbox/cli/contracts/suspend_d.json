@@ -1,0 +1,29 @@
+{
+  "name": "suspend_d",
+  "description": "每日停复牌信息。接口：suspend_d 更新时间：不定期 描述：开始时间2000-01-03，单次查询返回5000行。至少需要2000积分 可以调用，5000积分可以获得更高的频次，按日期方式获取股票每日停复牌信息。",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=214",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码(可输入多值)", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日日期", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "停复牌查询开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "停复牌查询结束日期", "minLength": 1, "maxLength": 2000},
+      "suspend_type": {"type": "string", "description": "停复牌类型：S-停牌,R-复牌", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "停复牌日期（覆盖从停牌到覆盖期间的连续日期）", "default": true},
+    {"name": "suspend_timing", "type": "str", "description": "日内停牌时间段（日内停牌才有值，否则为空值）", "default": true},
+    {"name": "suspend_type", "type": "str", "description": "停复牌类型：S-停牌，R-复牌", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

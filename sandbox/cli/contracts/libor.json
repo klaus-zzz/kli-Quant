@@ -1,0 +1,33 @@
+{
+  "name": "libor",
+  "description": "Libor拆借利率。接口：libor 描述：Libor拆借利率 限量：单次最大4000行数据，总量不限制，可通过设置开始和结束日期分段获取 积分：用户积累120积分可以调取，具体请参阅 积分获取办法 Libor（London Interbank Offered Rate ），即伦敦同业拆借利率，是指伦敦的第一流银行之间短期资金借贷的利率，是国际金融市场中大多数浮动利率的基础利率。作为银行从市场上筹集资金进行转贷的融资成本，贷款协议中议定的LIBOR通常是由几家指定的参考银行，在规定的时间（一般是伦敦时间上午11：00）报价的平均利率。",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=152",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 4000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "date": {"type": "string", "description": "日期 (日期输入格式：YYYYMMDD，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "curr_type": {"type": "string", "description": "货币代码 (USD美元 EUR欧元 JPY日元 GBP英镑 CHF瑞郎，默认是USD)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "date", "type": "str", "description": "日期", "default": true},
+    {"name": "curr_type", "type": "str", "description": "货币", "default": true},
+    {"name": "on", "type": "float", "description": "隔夜", "default": true},
+    {"name": "1w", "type": "float", "description": "1周", "default": true},
+    {"name": "1m", "type": "float", "description": "1个月", "default": true},
+    {"name": "2m", "type": "float", "description": "2个月", "default": true},
+    {"name": "3m", "type": "float", "description": "3个月", "default": true},
+    {"name": "6m", "type": "float", "description": "6个月", "default": true},
+    {"name": "12m", "type": "float", "description": "12个月", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

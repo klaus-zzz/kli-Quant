@@ -13,6 +13,9 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
-def test_only_health_route() -> None:
-    """防止初始化阶段误带旧业务接口或框架默认文档入口。"""
-    assert {route.path for route in app.routes} == {"/api/health"}
+def test_public_routes() -> None:
+    """只开放健康检查和受白名单约束的数据入口。"""
+    assert set(app.openapi()["paths"]) == {
+        "/api/health",
+        "/api/tushare/{name}",
+    }

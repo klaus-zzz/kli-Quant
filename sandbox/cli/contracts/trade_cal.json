@@ -1,0 +1,28 @@
+{
+  "name": "trade_cal",
+  "description": "交易日历。接口：trade_cal，可以通过 数据工具 调试和查看数据。 描述：获取各大交易所交易日历数据,默认提取的是上交所。 三大交易所的交易日历都是一样的，北交所交易日历参考上交所和深交所。 积分：需2000积分",
+  "category": "股票基础",
+  "source": "https://tushare.pro/document/2?doc_id=26",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "exchange": {"type": "string", "description": "交易所 SSE上交所,SZSE深交所,CFFEX 中金所,SHFE 上期所,CZCE 郑商所,DCE 大商所,INE 上能源", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期 （格式：YYYYMMDD 下同）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "is_open": {"type": "string", "description": "是否交易 '0'休市 '1'交易", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "exchange", "type": "str", "description": "交易所 SSE上交所 SZSE深交所", "default": true},
+    {"name": "cal_date", "type": "str", "description": "日历日期", "default": true},
+    {"name": "is_open", "type": "str", "description": "是否交易 0休市 1交易", "default": true},
+    {"name": "pretrade_date", "type": "str", "description": "上一个交易日", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

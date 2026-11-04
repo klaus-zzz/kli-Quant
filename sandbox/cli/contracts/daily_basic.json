@@ -1,0 +1,44 @@
+{
+  "name": "daily_basic",
+  "description": "每日指标。接口：daily_basic，可以通过 数据工具 调试和查看数据。 更新时间：交易日每日15点～17点之间 描述：获取全部股票每日重要的基本面指标，可用于选股分析、报表展示等。单次请求最大返回6000条数据，可按日线循环提取全部历史。 积分：至少2000积分才可以调取，5000积分无总量限制，具体请参阅 积分获取办法",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=32",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 6000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码（二选一）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期 （二选一）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期(YYYYMMDD)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["trade_date"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "close", "type": "float", "description": "当日收盘价", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率（%） (成交量/无限售流通股数)", "default": true},
+    {"name": "turnover_rate_f", "type": "float", "description": "换手率（%）（自由流通股）(成交量/自由流通股数)", "default": true},
+    {"name": "volume_ratio", "type": "float", "description": "量比 VOL/MA", "default": true},
+    {"name": "pe", "type": "float", "description": "市盈率（总市值/净利润， 亏损的PE为空）", "default": true},
+    {"name": "pe_ttm", "type": "float", "description": "市盈率（ 总市值/净利润TTM，亏损的PE为空）", "default": true},
+    {"name": "pb", "type": "float", "description": "市净率（总市值/(净资产-其他权益工具)）", "default": true},
+    {"name": "ps", "type": "float", "description": "市销率 (总市值/营业收入(最新年报))", "default": true},
+    {"name": "ps_ttm", "type": "float", "description": "市销率（TTM）(总市值/营业收入TTM)", "default": true},
+    {"name": "dv_ratio", "type": "float", "description": "股息率 （%），除息日发生在去年期间的派现", "default": true},
+    {"name": "dv_ttm", "type": "float", "description": "股息率（TTM）（%），除息日在近12个月且分红报告期在12个月以内的派现", "default": true},
+    {"name": "total_share", "type": "float", "description": "总股本 （万股）", "default": true},
+    {"name": "float_share", "type": "float", "description": "流通股本 （万股）", "default": true},
+    {"name": "free_share", "type": "float", "description": "自由流通股本 （万股）", "default": true},
+    {"name": "total_mv", "type": "float", "description": "总市值 （万元）", "default": true},
+    {"name": "circ_mv", "type": "float", "description": "流通市值（万元）", "default": true},
+    {"name": "limit_status", "type": "int", "description": "收盘涨跌状态：0-平盘，1-上涨(不含涨停)，2-涨停(不含一字涨停)，3-一字涨停，4-下跌(不含跌停)，5-跌停(不含一字跌停)，6-一字跌停", "default": false}
+  ],
+  "corrections": ["条件必填：ts_code、trade_date 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

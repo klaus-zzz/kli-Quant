@@ -1,0 +1,35 @@
+{
+  "name": "fund_daily",
+  "description": "ETF日线行情。接口：fund_daily 描述：开始于2000-01-03，获取ETF行情每日收盘后成交数据，历史超过10年 限量：单次最大5000行记录，可以根据ETF代码和日期循环获取历史，总量不限制 积分：需要至少5000积分才可以调取，8000积分频次更高，具体请参阅 积分获取办法",
+  "category": "ETF",
+  "source": "https://tushare.pro/document/2?doc_id=127",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "基金代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "open", "type": "float", "description": "开盘价(元)", "default": true},
+    {"name": "high", "type": "float", "description": "最高价(元)", "default": true},
+    {"name": "low", "type": "float", "description": "最低价(元)", "default": true},
+    {"name": "close", "type": "float", "description": "收盘价(元)", "default": true},
+    {"name": "pre_close", "type": "float", "description": "昨收盘价(元)", "default": true},
+    {"name": "change", "type": "float", "description": "涨跌额(元)", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅(%)", "default": true},
+    {"name": "vol", "type": "float", "description": "成交量(手)", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额(千元)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

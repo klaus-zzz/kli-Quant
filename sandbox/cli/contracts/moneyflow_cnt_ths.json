@@ -1,0 +1,36 @@
+{
+  "name": "moneyflow_cnt_ths",
+  "description": "同花顺概念板块资金流向（THS）。接口：moneyflow_cnt_ths 描述：获取同花顺概念板块每日资金流向 限量：单次最大可调取5000条数据，可以根据日期和代码循环提取全部数据 积分：6000积分可以调取，具体请参阅 积分获取办法",
+  "category": "资金流",
+  "source": "https://tushare.pro/document/2?doc_id=371",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "板块代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期(格式：YYYYMMDD，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "板块代码", "default": true},
+    {"name": "name", "type": "str", "description": "板块名称", "default": true},
+    {"name": "lead_stock", "type": "str", "description": "领涨股票名称", "default": true},
+    {"name": "close_price", "type": "float", "description": "最新价", "default": true},
+    {"name": "pct_change", "type": "float", "description": "行业涨跌幅", "default": true},
+    {"name": "industry_index", "type": "float", "description": "板块指数点位", "default": true},
+    {"name": "company_num", "type": "int", "description": "公司数量", "default": true},
+    {"name": "pct_change_stock", "type": "float", "description": "领涨股涨跌幅", "default": true},
+    {"name": "net_buy_amount", "type": "float", "description": "流入资金(亿元)", "default": true},
+    {"name": "net_sell_amount", "type": "float", "description": "流出资金(亿元)", "default": true},
+    {"name": "net_amount", "type": "float", "description": "净额(亿元)", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

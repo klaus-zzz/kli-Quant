@@ -1,0 +1,31 @@
+{
+  "name": "index_classify",
+  "description": "申万行业分类。接口：index_classify 描述：获取申万行业分类，可以获取申万2014年版本（28个一级分类，104个二级分类，227个三级分类）和2021年本版（31个一级分类，134个二级分类，346个三级分类）列表信息。默认返回2014年版本，查询2021年本版 需要带上src参数。 权限：用户需2000积分可以调取，具体请参阅 积分获取办法 ",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=181",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "index_code": {"type": "string", "description": "指数代码", "minLength": 1, "maxLength": 2000},
+      "level": {"type": "string", "description": "行业分级（L1/L2/L3）", "minLength": 1, "maxLength": 2000},
+      "parent_code": {"type": "string", "description": "父级代码（一级为0）", "minLength": 1, "maxLength": 2000},
+      "src": {"type": "string", "description": "指数来源（SW2014：申万2014年版本，SW2021：申万2021年版本）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "index_code", "type": "str", "description": "指数代码", "default": true},
+    {"name": "industry_name", "type": "str", "description": "行业名称", "default": true},
+    {"name": "parent_code", "type": "str", "description": "父级代码", "default": true},
+    {"name": "level", "type": "str", "description": "行业层级", "default": true},
+    {"name": "industry_code", "type": "str", "description": "行业代码", "default": true},
+    {"name": "is_pub", "type": "str", "description": "是否发布了指数", "default": true},
+    {"name": "src", "type": "str", "description": "行业分类（SW申万）", "default": false}
+  ],
+  "corrections": ["正文 scr 是拼写错误；使用输入表中的 src 参数"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

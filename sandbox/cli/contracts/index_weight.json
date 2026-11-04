@@ -1,0 +1,28 @@
+{
+  "name": "index_weight",
+  "description": "指数成分和权重。接口：index_weight 描述：获取各类指数成分和权重， 月度数据 ，建议",
+  "category": "指数统计",
+  "source": "https://tushare.pro/document/2?doc_id=96",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "index_code": {"type": "string", "description": "指数代码，来源 指数基础信息接口", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（格式YYYYMMDD，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["index_code"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "index_code", "type": "str", "description": "指数代码", "default": true},
+    {"name": "con_code", "type": "str", "description": "成分代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "weight", "type": "float", "description": "权重", "default": true}
+  ],
+  "corrections": ["输入 end_date 的类型 None 按参数语义修正为 str", "输出表头误写必选；依正文输出参数章节识别为输出字段"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

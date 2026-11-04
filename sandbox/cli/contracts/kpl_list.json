@@ -1,0 +1,49 @@
+{
+  "name": "kpl_list",
+  "description": "开盘啦榜单数据。接口：kpl_list 描述：获取涨停、跌停、炸板等榜单数据，交易日6点更新前一个交易日，周六更新周五的数据。 限量：单次最大8000条数据，可根据日期循环获取历史数据 积分：5000积分每分钟可以请求200次每天总量1万次，8000积分以上每分钟500次每天总量不限制，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=347",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 8000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "tag": {"type": "string", "description": "板单类型（涨停/炸板/跌停/自然涨停/竞价，默认为涨停)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "代码", "default": true},
+    {"name": "name", "type": "str", "description": "名称", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易时间", "default": true},
+    {"name": "lu_time", "type": "str", "description": "涨停时间", "default": true},
+    {"name": "ld_time", "type": "str", "description": "跌停时间", "default": true},
+    {"name": "open_time", "type": "str", "description": "开板时间", "default": true},
+    {"name": "last_time", "type": "str", "description": "最后涨停时间", "default": true},
+    {"name": "lu_desc", "type": "str", "description": "涨停原因", "default": true},
+    {"name": "tag", "type": "str", "description": "标签", "default": true},
+    {"name": "theme", "type": "str", "description": "板块", "default": true},
+    {"name": "net_change", "type": "float", "description": "主力净额(元)", "default": true},
+    {"name": "bid_amount", "type": "float", "description": "竞价成交额(元)", "default": true},
+    {"name": "status", "type": "str", "description": "状态（N连板）", "default": true},
+    {"name": "bid_change", "type": "float", "description": "竞价净额", "default": true},
+    {"name": "bid_turnover", "type": "float", "description": "竞价换手%", "default": true},
+    {"name": "lu_bid_vol", "type": "float", "description": "涨停委买额", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "涨跌幅%", "default": true},
+    {"name": "bid_pct_chg", "type": "float", "description": "竞价涨幅%", "default": true},
+    {"name": "rt_pct_chg", "type": "float", "description": "实时涨幅%", "default": true},
+    {"name": "limit_order", "type": "float", "description": "封单", "default": true},
+    {"name": "amount", "type": "float", "description": "成交额", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率%", "default": true},
+    {"name": "free_float", "type": "float", "description": "实际流通", "default": true},
+    {"name": "lu_limit_order", "type": "float", "description": "最大封单", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

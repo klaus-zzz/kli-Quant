@@ -1,0 +1,38 @@
+{
+  "name": "bc_otcqt",
+  "description": "柜台流通式债券报价。接口：bc_otcqt 描述：柜台流通式债券报价 限量：单次最大2000条，可多次提取，总量不限制 积分：用户需要至少500积分可以试用调取，2000积分以上频次相对较高，积分越多权限越大，具体请参阅 积分获取办法",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=322",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "bank": {"type": "string", "description": "报价机构", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "报价日期", "default": false},
+    {"name": "qt_time", "type": "str", "description": "报价时间", "default": false},
+    {"name": "bank", "type": "str", "description": "报价机构", "default": false},
+    {"name": "ts_code", "type": "str", "description": "债券编码", "default": false},
+    {"name": "name", "type": "str", "description": "债券简称", "default": false},
+    {"name": "maturity", "type": "str", "description": "期限", "default": false},
+    {"name": "remain_maturity", "type": "str", "description": "剩余期限", "default": false},
+    {"name": "bond_type", "type": "str", "description": "债券类型", "default": false},
+    {"name": "coupon_rate", "type": "float", "description": "票面利率（%）", "default": false},
+    {"name": "buy_price", "type": "float", "description": "投资者买入全价", "default": false},
+    {"name": "sell_price", "type": "float", "description": "投资者卖出全价", "default": false},
+    {"name": "buy_yield", "type": "float", "description": "投资者买入到期收益率（%）", "default": false},
+    {"name": "sell_yield", "type": "float", "description": "投资者卖出到期收益率（%）", "default": false}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

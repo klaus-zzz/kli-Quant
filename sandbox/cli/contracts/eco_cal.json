@@ -1,0 +1,34 @@
+{
+  "name": "eco_cal",
+  "description": "财经日历。接口：eco_cal 描述：获取全球财经日历、包括经济事件数据更新 限量：单次最大获取100行数据 积分：2000积分可调取",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=233",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 100,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "date": {"type": "string", "description": "日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "currency": {"type": "string", "description": "货币代码", "minLength": 1, "maxLength": 2000},
+      "country": {"type": "string", "description": "国家（比如：中国、美国）", "minLength": 1, "maxLength": 2000},
+      "event": {"type": "string", "description": "事件 （支持模糊匹配： *非农*）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "date", "type": "str", "description": "日期", "default": true},
+    {"name": "time", "type": "str", "description": "时间", "default": true},
+    {"name": "currency", "type": "str", "description": "货币代码", "default": true},
+    {"name": "country", "type": "str", "description": "国家", "default": true},
+    {"name": "event", "type": "str", "description": "经济事件", "default": true},
+    {"name": "value", "type": "str", "description": "今值", "default": true},
+    {"name": "pre_value", "type": "str", "description": "前值", "default": true},
+    {"name": "fore_value", "type": "str", "description": "预测值", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

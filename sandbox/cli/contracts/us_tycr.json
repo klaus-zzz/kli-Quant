@@ -1,0 +1,37 @@
+{
+  "name": "us_tycr",
+  "description": "国债收益率曲线利率（日频）。接口：us_tycr 描述：获取美国每日国债收益率曲线利率 限量：单次最大可获取2000条数据 权限：用户积累120积分可以使用，积分越高频次越高。具体请参阅 积分获取办法",
+  "category": "宏观利率",
+  "source": "https://tushare.pro/document/2?doc_id=219",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "date": {"type": "string", "description": "日期 （YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "date", "type": "str", "description": "日期", "default": true},
+    {"name": "m1", "type": "float", "description": "1月期", "default": true},
+    {"name": "m2", "type": "float", "description": "2月期", "default": true},
+    {"name": "m3", "type": "float", "description": "3月期", "default": true},
+    {"name": "m4", "type": "float", "description": "4月期（数据从20221019开始）", "default": true},
+    {"name": "m6", "type": "float", "description": "6月期", "default": true},
+    {"name": "y1", "type": "float", "description": "1年期", "default": true},
+    {"name": "y2", "type": "float", "description": "2年期", "default": true},
+    {"name": "y3", "type": "float", "description": "3年期", "default": true},
+    {"name": "y5", "type": "float", "description": "5年期", "default": true},
+    {"name": "y7", "type": "float", "description": "7年期", "default": true},
+    {"name": "y10", "type": "float", "description": "10年期", "default": true},
+    {"name": "y20", "type": "float", "description": "20年期", "default": true},
+    {"name": "y30", "type": "float", "description": "30年期", "default": true}
+  ],
+  "corrections": ["fields 为官方 HTTP 协议顶层字段选择，统一从 params 移到工具 fields 参数"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

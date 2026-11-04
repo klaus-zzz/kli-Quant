@@ -1,0 +1,39 @@
+{
+  "name": "dc_index",
+  "description": "概念板块。接口：dc_index 描述：获取每个交易日的概念板块数据，支持按日期查询 限量：单次最大可获取5000条数据，历史数据可根据日期循环获取 权限：用户积累6000积分可调取，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=362",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 5000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "指数代码（支持多个代码同时输入，用逗号分隔）", "minLength": 1, "maxLength": 2000},
+      "name": {"type": "string", "description": "板块名称（例如：人形机器人）", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "idx_type": {"type": "string", "description": "板块类型(行业板块、概念板块、地域板块)", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["idx_type"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "概念代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "name", "type": "str", "description": "概念名称", "default": true},
+    {"name": "leading", "type": "str", "description": "领涨股票名称", "default": true},
+    {"name": "leading_code", "type": "str", "description": "领涨股票代码", "default": true},
+    {"name": "pct_change", "type": "float", "description": "涨跌幅", "default": true},
+    {"name": "leading_pct", "type": "float", "description": "领涨股票涨跌幅", "default": true},
+    {"name": "total_mv", "type": "float", "description": "总市值（万元）", "default": true},
+    {"name": "turnover_rate", "type": "float", "description": "换手率", "default": true},
+    {"name": "up_num", "type": "int", "description": "上涨家数", "default": true},
+    {"name": "down_num", "type": "int", "description": "下降家数", "default": true},
+    {"name": "idx_type", "type": "str", "description": "板块类型(行业板块、概念板块、地域板块)", "default": true},
+    {"name": "level", "type": "str", "description": "行业层级", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

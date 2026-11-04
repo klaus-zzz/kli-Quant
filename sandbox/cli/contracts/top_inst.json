@@ -1,0 +1,32 @@
+{
+  "name": "top_inst",
+  "description": "龙虎榜机构明细。接口：top_inst 描述：龙虎榜机构成交明细 限量：单次请求最大返回10000行数据，可根据参数循环获取全部历史 积分：用户需要至少5000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "板块榜单",
+  "source": "https://tushare.pro/document/2?doc_id=107",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 10000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["trade_date"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "exalter", "type": "str", "description": "营业部名称", "default": true},
+    {"name": "side", "type": "str", "description": "买卖类型0：买入金额最大的前5名， 1：卖出金额最大的前5名", "default": true},
+    {"name": "buy", "type": "float", "description": "买入额（元）", "default": true},
+    {"name": "buy_rate", "type": "float", "description": "买入占总成交比例", "default": true},
+    {"name": "sell", "type": "float", "description": "卖出额（元）", "default": true},
+    {"name": "sell_rate", "type": "float", "description": "卖出占总成交比例", "default": true},
+    {"name": "net_buy", "type": "float", "description": "净成交额（元）", "default": true},
+    {"name": "reason", "type": "str", "description": "上榜理由", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "stk_high_shock",
+  "description": "个股严重异常波动。接口：stk_high_shock 描述：根据证券交易所交易规则的有关规定，交易所每日发布股票交易严重异常波动情况 限量：单次最大1000条，可根据代码或日期循环提取 积分：需要6000积分可以调取，具体请参阅 积分获取办法",
+  "category": "股东与公司",
+  "source": "https://tushare.pro/document/2?doc_id=452",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码（可以通过stock_basic获取）示例:000001.SZ", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（YYYYMMDD格式）示例:20260312", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期（YYYYMMDD格式）示例:20260312", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期（YYYYMMDD格式）示例:20260312", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "name", "type": "str", "description": "股票名称", "default": true},
+    {"name": "trade_market", "type": "str", "description": "交易所", "default": true},
+    {"name": "reason", "type": "str", "description": "异常说明", "default": true},
+    {"name": "period", "type": "str", "description": "异常期间", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

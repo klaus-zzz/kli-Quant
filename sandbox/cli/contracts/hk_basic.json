@@ -1,0 +1,34 @@
+{
+  "name": "hk_basic",
+  "description": "港股列表。接口：hk_basic 描述：获取港股列表信息 数量：单次可提取全部在交易的港股列表数据 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "港美基础",
+  "source": "https://tushare.pro/document/2?doc_id=191",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "list_status": {"type": "string", "description": "上市状态 L上市 D退市 P暂停上市 ，默认L", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS代码", "default": true},
+    {"name": "name", "type": "str", "description": "股票简称", "default": true},
+    {"name": "fullname", "type": "str", "description": "公司全称", "default": true},
+    {"name": "enname", "type": "str", "description": "英文名称", "default": true},
+    {"name": "cn_spell", "type": "str", "description": "拼音", "default": true},
+    {"name": "market", "type": "str", "description": "市场类别", "default": true},
+    {"name": "list_status", "type": "str", "description": "上市状态", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "delist_date", "type": "str", "description": "退市日期", "default": true},
+    {"name": "trade_unit", "type": "float", "description": "交易单位", "default": true},
+    {"name": "isin", "type": "str", "description": "ISIN代码", "default": true},
+    {"name": "curr_type", "type": "str", "description": "货币代码", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

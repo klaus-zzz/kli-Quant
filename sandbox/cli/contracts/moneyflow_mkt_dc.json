@@ -1,0 +1,38 @@
+{
+  "name": "moneyflow_mkt_dc",
+  "description": "大盘资金流向（DC）。接口：moneyflow_mkt_dc 描述：获取东方财富大盘资金流向数据，每日盘后更新 限量：单次最大3000条，可根据日期或日期区间循环获取 积分：120积分可试用，6000积分可正式调取，具体请参阅 积分获取办法",
+  "category": "资金流",
+  "source": "https://tushare.pro/document/2?doc_id=345",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 3000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期(YYYYMMDD格式，下同）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "close_sh", "type": "float", "description": "上证收盘价（点）", "default": true},
+    {"name": "pct_change_sh", "type": "float", "description": "上证涨跌幅(%)", "default": true},
+    {"name": "close_sz", "type": "float", "description": "深证收盘价（点）", "default": true},
+    {"name": "pct_change_sz", "type": "float", "description": "深证涨跌幅(%)", "default": true},
+    {"name": "net_amount", "type": "float", "description": "今日主力净流入 净额（元）", "default": true},
+    {"name": "net_amount_rate", "type": "float", "description": "今日主力净流入净占比%", "default": true},
+    {"name": "buy_elg_amount", "type": "float", "description": "今日超大单净流入 净额（元）", "default": true},
+    {"name": "buy_elg_amount_rate", "type": "float", "description": "今日超大单净流入 净占比%", "default": true},
+    {"name": "buy_lg_amount", "type": "float", "description": "今日大单净流入 净额（元）", "default": true},
+    {"name": "buy_lg_amount_rate", "type": "float", "description": "今日大单净流入 净占比%", "default": true},
+    {"name": "buy_md_amount", "type": "float", "description": "今日中单净流入 净额（元）", "default": true},
+    {"name": "buy_md_amount_rate", "type": "float", "description": "今日中单净流入 净占比%", "default": true},
+    {"name": "buy_sm_amount", "type": "float", "description": "今日小单净流入 净额（元）", "default": true},
+    {"name": "buy_sm_amount_rate", "type": "float", "description": "今日小单净流入 净占比%", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

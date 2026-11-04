@@ -1,0 +1,35 @@
+{
+  "name": "fund_portfolio",
+  "description": "公募基金持仓数据。接口：fund_portfolio 描述：获取公募基金持仓数据，季度更新 积分：5000积分以上每分钟请求200次，8000积分以上每分钟请求500次，具体请参阅 积分获取办法",
+  "category": "基金",
+  "source": "https://tushare.pro/document/2?doc_id=121",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "基金代码 (ts_code,ann_date,period至少输入一个参数)", "minLength": 1, "maxLength": 2000},
+      "symbol": {"type": "string", "description": "股票代码", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "period": {"type": "string", "description": "季度（每个季度最后一天的日期，比如20131231表示2013年年报）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "报告期开始日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "报告期结束日期（YYYYMMDD格式）", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["ann_date"]}, {"required": ["period"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "TS基金代码", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告日期", "default": true},
+    {"name": "end_date", "type": "str", "description": "截止日期", "default": true},
+    {"name": "symbol", "type": "str", "description": "股票代码", "default": true},
+    {"name": "mkv", "type": "float", "description": "持有股票市值(元)", "default": true},
+    {"name": "amount", "type": "float", "description": "持有股票数量（股）", "default": true},
+    {"name": "stk_mkv_ratio", "type": "float", "description": "占股票市值比", "default": true},
+    {"name": "stk_float_ratio", "type": "float", "description": "占流通股本比例", "default": true}
+  ],
+  "corrections": ["条件必填：ts_code、ann_date、period 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

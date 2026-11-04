@@ -1,0 +1,35 @@
+{
+  "name": "cb_call",
+  "description": "可转债赎回信息。接口：cb_call，可以通过 数据工具 调试和查看数据。 描述：获取可转债到期赎回、强制赎回等信息。数据来源于公开披露渠道，供个人和机构研究使用，请不要用于数据商业目的。 限量：单次最大2000条数据，可以根据日期循环提取，本接口需5000积分。",
+  "category": "债券与日历",
+  "source": "https://tushare.pro/document/2?doc_id=269",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 2000,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "转债代码，支持多值输入", "minLength": 1, "maxLength": 2000},
+      "ann_date": {"type": "string", "description": "公告日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "公告开始日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "公告结束日期", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "转债代码", "default": true},
+    {"name": "call_type", "type": "str", "description": "赎回类型：到赎、强赎", "default": true},
+    {"name": "is_call", "type": "str", "description": "是否赎回：已满足强赎条件、公告提示强赎、公告实施强赎、公告到期赎回、公告不强赎", "default": true},
+    {"name": "ann_date", "type": "str", "description": "公告/提示日期", "default": true},
+    {"name": "call_date", "type": "str", "description": "赎回日期", "default": true},
+    {"name": "call_price", "type": "float", "description": "赎回价格(含税，元/张)", "default": true},
+    {"name": "call_price_tax", "type": "float", "description": "赎回价格(扣税，元/张)", "default": true},
+    {"name": "call_vol", "type": "float", "description": "赎回债券数量(张)", "default": true},
+    {"name": "call_amount", "type": "float", "description": "赎回金额(万元)", "default": true},
+    {"name": "payment_date", "type": "str", "description": "行权后款项到账日", "default": true},
+    {"name": "call_reg_date", "type": "str", "description": "赎回登记日", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

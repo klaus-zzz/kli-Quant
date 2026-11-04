@@ -1,0 +1,31 @@
+{
+  "name": "us_basic",
+  "description": "美股列表。接口：us_basic 描述：获取美股列表信息 限量：单次最大6000，可分页提取。覆盖的证券类型：ADR-美国存托凭证；GDR-全球存托凭证；EQ-普通股；PF-优先股（本次新增）。 注：美股代码存在代码复用，变更，多市场交易等，可能存在数据重复情况，需要加入上市状态判断数据情况 积分：120积分可以试用，5000积分有正式权限",
+  "category": "港美基础",
+  "source": "https://tushare.pro/document/2?doc_id=252",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "股票代码；示例/说明：AAPL（苹果）", "minLength": 1, "maxLength": 2000},
+      "classify": {"type": "string", "description": "股票分类；示例/说明：ADR-美国存托凭证；GDR-全球存托凭证；EQ-普通股；PF-优先股", "minLength": 1, "maxLength": 2000},
+      "list_stauts": {"type": "string", "description": "上市状态；示例/说明：L上市D退市P暂停上市", "minLength": 1, "maxLength": 2000},
+      "offset": {"type": "string", "description": "开始行数；示例/说明：1：第一行", "minLength": 1, "maxLength": 2000},
+      "limit": {"type": "string", "description": "每页最大行数；示例/说明：500：每页500行", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "美股代码", "default": true},
+    {"name": "name", "type": "str", "description": "中文名称", "default": true},
+    {"name": "enname", "type": "str", "description": "英文名称", "default": false},
+    {"name": "classify", "type": "str", "description": "分类:ADR-美国存托凭证；GDR-全球存托凭证；EQ-普通股；PF-优先股", "default": true},
+    {"name": "list_date", "type": "str", "description": "上市日期", "default": true},
+    {"name": "delist_date", "type": "str", "description": "退市日期", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

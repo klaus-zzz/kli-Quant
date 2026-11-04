@@ -1,0 +1,46 @@
+{
+  "name": "stk_week_month_adj",
+  "description": "股票周/月线行情(复权--每日更新)。接口：stk_week_month_adj 描述：股票周/月线行情(复权--每日更新),每天17点 和22点会更新 限量：单次最大6000,可使用交易日期循环提取，总量不限制 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "股票行情",
+  "source": "https://tushare.pro/document/2?doc_id=365",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": null,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "ts_code": {"type": "string", "description": "TS代码", "minLength": 1, "maxLength": 2000},
+      "trade_date": {"type": "string", "description": "交易日期（格式：YYYYMMDD，每周或每月最后一天的日期）", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始交易日期", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束交易日期", "minLength": 1, "maxLength": 2000},
+      "freq": {"type": "string", "description": "频率week周，month月", "minLength": 1, "maxLength": 2000}
+    },
+    "required": ["freq"],
+    "additionalProperties": false
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "股票代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期（每周五或者月末日期）", "default": true},
+    {"name": "end_date", "type": "str", "description": "计算截至日期", "default": true},
+    {"name": "freq", "type": "str", "description": "频率(周week,月month)", "default": true},
+    {"name": "open", "type": "float", "description": "(周/月)开盘价", "default": true},
+    {"name": "high", "type": "float", "description": "(周/月)最高价", "default": true},
+    {"name": "low", "type": "float", "description": "(周/月)最低价", "default": true},
+    {"name": "close", "type": "float", "description": "(周/月)收盘价", "default": true},
+    {"name": "pre_close", "type": "float", "description": "上一(周/月)收盘价【除权价，前复权】", "default": true},
+    {"name": "open_qfq", "type": "float", "description": "前复权(周/月)开盘价", "default": true},
+    {"name": "high_qfq", "type": "float", "description": "前复权(周/月)最高价", "default": true},
+    {"name": "low_qfq", "type": "float", "description": "前复权(周/月)最低价", "default": true},
+    {"name": "close_qfq", "type": "float", "description": "前复权(周/月)收盘价", "default": true},
+    {"name": "open_hfq", "type": "float", "description": "后复权(周/月)开盘价", "default": true},
+    {"name": "high_hfq", "type": "float", "description": "后复权(周/月)最高价", "default": true},
+    {"name": "low_hfq", "type": "float", "description": "后复权(周/月)最低价", "default": true},
+    {"name": "close_hfq", "type": "float", "description": "后复权(周/月)收盘价", "default": true},
+    {"name": "vol", "type": "float", "description": "(周/月)成交量", "default": true},
+    {"name": "amount", "type": "float", "description": "(周/月)成交额", "default": true},
+    {"name": "change", "type": "float", "description": "(周/月)涨跌额", "default": true},
+    {"name": "pct_chg", "type": "float", "description": "(周/月)涨跌幅 【基于除权后的昨收计算的涨跌幅：（今收-除权昨收）/除权昨收 】", "default": true}
+  ],
+  "corrections": [],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}

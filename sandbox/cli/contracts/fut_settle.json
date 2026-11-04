@@ -1,0 +1,38 @@
+{
+  "name": "fut_settle",
+  "description": "结算参数。接口：fut_settle 描述：获取每日结算参数数据，包括交易和交割费率等 限量：单次最大返回1600行数据，可根据日期循环，总量不限制 积分：用户需要至少2000积分才可以调取，具体请参阅 积分获取办法",
+  "category": "期货",
+  "source": "https://tushare.pro/document/2?doc_id=141",
+  "verified_on": "2026-11-04",
+  "permission": "points",
+  "row_limit": 1600,
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "trade_date": {"type": "string", "description": "交易日期 （trade_date/ts_code至少需要输入一个参数）", "minLength": 1, "maxLength": 2000},
+      "ts_code": {"type": "string", "description": "合约代码", "minLength": 1, "maxLength": 2000},
+      "start_date": {"type": "string", "description": "开始日期(YYYYMMDD格式，下同)", "minLength": 1, "maxLength": 2000},
+      "end_date": {"type": "string", "description": "结束日期", "minLength": 1, "maxLength": 2000},
+      "exchange": {"type": "string", "description": "交易所代码", "minLength": 1, "maxLength": 2000}
+    },
+    "required": [],
+    "additionalProperties": false,
+    "anyOf": [{"required": ["ts_code"]}, {"required": ["trade_date"]}]
+  },
+  "output_fields": [
+    {"name": "ts_code", "type": "str", "description": "合约代码", "default": true},
+    {"name": "trade_date", "type": "str", "description": "交易日期", "default": true},
+    {"name": "settle", "type": "float", "description": "结算价", "default": true},
+    {"name": "trading_fee_rate", "type": "float", "description": "交易手续费率", "default": true},
+    {"name": "trading_fee", "type": "float", "description": "交易手续费", "default": true},
+    {"name": "delivery_fee", "type": "float", "description": "交割手续费", "default": true},
+    {"name": "b_hedging_margin_rate", "type": "float", "description": "买套保交易保证金率", "default": true},
+    {"name": "s_hedging_margin_rate", "type": "float", "description": "卖套保交易保证金率", "default": true},
+    {"name": "long_margin_rate", "type": "float", "description": "买投机交易保证金率", "default": true},
+    {"name": "short_margin_rate", "type": "float", "description": "卖投机交易保证金率", "default": true},
+    {"name": "offset_today_fee", "type": "float", "description": "平今仓手续率", "default": false},
+    {"name": "exchange", "type": "str", "description": "交易所", "default": false}
+  ],
+  "corrections": ["条件必填：ts_code、trade_date 至少提供一个；优先遵循正文条件说明"],
+  "units": "字段描述中的单位保留原样；未注明的单位不作推断。"
+}
