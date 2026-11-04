@@ -1,0 +1,32 @@
+/* 单列空应用只突出项目名称、开发阶段和真实连接状态。 */
+:root {
+  font-family: system-ui, sans-serif;
+  color: #202020;
+  background: #fafafa;
+  line-height: 1.6;
+  font-synthesis: none;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 720px;
+  margin: 12vh auto;
+  padding: 0 24px;
+}
+
+.project-name {
+  font-weight: 650;
+}
+
+h1 {
+  margin-top: 48px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.scope {
+  color: #666;
+}

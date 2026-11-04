@@ -1,0 +1,23 @@
+[project]
+name = "kli-quant"
+version = "0.1.0"
+description = "kli-Quant 开发骨架"
+requires-python = "==3.12.*"
+dependencies = ["fastapi", "uvicorn[standard]"]
+
+[dependency-groups]
+dev = ["httpx", "pytest", "ruff"]
+
+[tool.uv]
+# 直接运行 backend 模块，本阶段不构建分发包。
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

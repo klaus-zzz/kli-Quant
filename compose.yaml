@@ -1,0 +1,57 @@
+# 仅供本地开发；避免与旧开发容器及其他项目共享资源名称。
+name: kli-quant-skeleton
+
+services:
+  backend:
+    image: ghcr.io/astral-sh/uv:0.13.7-python3.12-trixie-slim
+    working_dir: /app
+    command: >-
+      sh -c "uv sync --locked &&
+      uv run --no-sync uvicorn backend.main:app --host 0.0.0.0 --port 18100
+      --reload --reload-dir backend"
+    environment:
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+      UV_PYTHON_INSTALL_DIR: /opt/python
+      UV_CACHE_DIR: /tmp/uv-cache
+    volumes:
+      - .:/app
+      - backend-venv:/opt/venv
+      - backend-python:/opt/python
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-18100}:18100"
+    networks:
+      docker:
+        aliases: [kli-quant-skeleton-backend]
+    healthcheck:
+      test: ["CMD", "/opt/venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18100/api/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      start_period: 120s
+      retries: 12
+
+  frontend:
+    image: node:24.22.2-bookworm-slim
+    working_dir: /app/frontend
+    command: sh -c "npm ci && npm run dev"
+    environment:
+      BACKEND_PROXY_TARGET: http://kli-quant-skeleton-backend:18100
+    volumes:
+      - .:/app
+      - frontend-node-modules:/app/frontend/node_modules
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-15173}:15173"
+    networks: [docker]
+    depends_on:
+      backend:
+        condition: service_healthy
+
+# 依赖放入独立卷，不与宿主机的虚拟环境或 node_modules 混用。
+volumes:
+  backend-venv:
+  backend-python:
+  frontend-node-modules:
+
+networks:
+  docker:
+    external: true
+    name: docker
