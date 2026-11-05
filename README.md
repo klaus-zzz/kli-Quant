@@ -9,10 +9,11 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 | --- | --- |
 | `backend/` | 健康检查、受控 Tushare 入口、研究状态及证据归档 |
 | `frontend/` | React 空应用和 Vite 开发代理 |
+| `fetcher/` | 独立原文抓取服务、镜像、依赖和专属测试 |
 | `sandbox/cli/` | 离线契约、187 个 axi 工具及调用说明 |
 | `tests/` | 健康接口回归与浏览器检查 |
 | `compose.yaml` | 前后端与隔离抓取服务的开发配置 |
-| `AGENTS.md` | 公共规则及四个目录规则索引 |
+| `AGENTS.md` | 公共规则及目录规则索引 |
 
 研究接口支持多跳证据、固定归档和结果校验，原文抓取与解析使用
 [Scrapling](https://github.com/D4Vinci/Scrapling) 和
@@ -83,6 +84,7 @@ npm --prefix frontend run dev
 
 ```bash
 uv run pytest
+uv run --directory fetcher pytest
 uv run ruff check .
 uv run ruff format --check .
 npm --prefix frontend run check
@@ -111,7 +113,8 @@ npm run test:e2e
 自定义前端端口时，设置 `PLAYWRIGHT_BASE_URL`。回归覆盖实际连通、HTTP 错误及无效响应；
 还应手工核对请求等待状态、断网、窄屏展示，以及修改前后端源码后的热更新。
 `/api/health` 返回 `{"status":"ok"}` 只代表当前后端进程能够响应，不表示外部服务就绪。
-CI 执行依赖锁校验、后端回归、格式检查、前端构建及 Compose 配置校验。
+CI 分别校验后端与抓取器的锁文件和回归测试，并检查格式、前端构建及 Compose 配置。
+抓取服务的部署配置和验证方式见 [fetcher 说明](fetcher/README.md)。
 
 ## 许可
 

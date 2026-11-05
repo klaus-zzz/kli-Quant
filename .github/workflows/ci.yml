@@ -37,6 +37,9 @@ jobs:
       # 锁文件安装、针对性回归、格式和构建是每次提交的最小检查。
       - run: uv sync --locked
       - run: uv run pytest
+      # 抓取器使用独立环境和锁文件，后端测试不再安装抓取依赖。
+      - run: uv sync --locked && uv run pytest
+        working-directory: fetcher
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: npm ci

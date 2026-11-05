@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from backend.research import sources
+from fetcher import sources
 
 
 @pytest.mark.parametrize(
