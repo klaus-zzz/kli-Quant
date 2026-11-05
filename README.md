@@ -11,19 +11,20 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 | `frontend/` | React 空应用和 Vite 开发代理 |
 | `sandbox/cli/` | 离线契约、187 个 axi 工具及调用说明 |
 | `tests/` | 健康接口回归与浏览器检查 |
-| `compose.yaml` | 唯一开发 Compose，只启动前后端 |
+| `compose.yaml` | 前后端与隔离抓取服务的开发配置 |
 | `AGENTS.md` | 公共规则及四个目录规则索引 |
 
 研究接口支持多跳证据、固定归档和结果校验，原文抓取与解析使用
 [Scrapling](https://github.com/D4Vinci/Scrapling) 和
 [curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)。
+抓取仅访问公网，使用 [nftables](https://www.nftables.org/) 隔离网络出口。
 当前尚未接入真实执行器与身份认证，详见 [研究接口说明](docs/research-api.md)。
 
 ## 运行时基线
 
 - Python **3.12.15**：由 `.python-version` 锁定，项目限定 3.12 系列，依赖由 `uv.lock` 锁定。
 - uv **0.13.7**；Node.js **24.22.2**，前端依赖由 `package-lock.json` 锁定。
-- Docker Engine 与 Compose v2；开发使用外部网络 `docker`。
+- Linux Docker Engine 与 Compose ≥2.33.1；开发使用外部网络 `docker`。
 
 兼容性核对：OmniAgent `v1`（1.0.0a84）声明 Python ≥3.11，
 `kli-axi` 0.0.13 声明 ≥3.12，其模块和命令为 `axi`；

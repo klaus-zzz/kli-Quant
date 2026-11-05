@@ -25,12 +25,41 @@ services:
     networks:
       docker:
         aliases: ["${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-backend"]
+      research: {}
     healthcheck:
       test: ["CMD", "/opt/venv/bin/python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18100/api/health', timeout=2)"]
       interval: 5s
       timeout: 3s
       start_period: 120s
       retries: 12
+
+  # 抓取器不加入共享中间件网络，不挂载 .env，也不发布宿主端口。
+  research-fetcher:
+    build: ./deploy/research-fetcher
+    working_dir: /app
+    environment:
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+      UV_PYTHON_DOWNLOADS: never
+      UV_CACHE_DIR: /tmp/uv-cache
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - ./backend:/app/backend:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./uv.lock:/app/uv.lock:ro
+      - ./.python-version:/app/.python-version:ro
+      - fetcher-venv:/opt/venv
+    networks:
+      research: {}
+      fetcher-egress:
+        gw_priority: 1
+    read_only: true
+    tmpfs: ["/tmp:rw,nosuid,nodev,size=2g"]
+    cap_drop: [ALL]
+    # 仅启动脚本使用这些权限，启动应用前全部撤销。
+    cap_add: [NET_ADMIN, SETUID, SETGID, SETPCAP, CHOWN]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 128
+    mem_limit: 2g
 
   frontend:
     image: node:24.22.2-bookworm-slim
@@ -55,8 +84,12 @@ volumes:
   backend-venv:
   backend-python:
   frontend-node-modules:
+  fetcher-venv:
 
 networks:
+  research:
+    internal: true
+  fetcher-egress: {}
   docker:
     external: true
     name: docker

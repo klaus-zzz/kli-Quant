@@ -1,5 +1,6 @@
 """URL 格式、协议与固定原文解析，不连接真实站点。"""
 
+import ipaddress
 import socket
 from types import SimpleNamespace
 
@@ -7,6 +8,20 @@ import pytest
 
 from backend.research import sources
 from backend.research.models import ResearchError
+
+
+@pytest.fixture(autouse=True)
+def public_dns(monkeypatch):
+    """域名固定为测试公网地址；字面 IP 保留其真实分类。"""
+
+    def lookup(host, *args, **kwargs):
+        try:
+            address = str(ipaddress.ip_address(host))
+        except ValueError:
+            address = "93.184.216.34"
+        return [(socket.AF_INET, 1, 6, "", (address, 80))]
+
+    monkeypatch.setattr(socket, "getaddrinfo", lookup)
 
 
 @pytest.mark.parametrize(
@@ -21,8 +36,8 @@ from backend.research.models import ResearchError
         "https://unresolved.example/",
     ],
 )
-def test_url_validation_does_not_resolve_or_classify_addresses(monkeypatch, url):
-    """域名与各类 IP 均只做格式检查，解析交给实际下载库。"""
+def test_url_normalization_does_not_resolve(monkeypatch, url):
+    """格式规范化不查询 DNS；公网检查在实际下载前独立执行。"""
 
     def unexpected_dns(*args, **kwargs):
         pytest.fail("URL 校验不应进行 DNS 预解析")
@@ -37,6 +52,13 @@ def test_url_validation_does_not_resolve_or_classify_addresses(monkeypatch, url)
         "file:///etc/passwd",
         "http://user:pass@example.com",
         "https://example.com:8443/",
+        "http://example.com:0/",
+        "http://example.com\\@127.0.0.1/",
+        "http://[fe80::1%25eth0]/",
+        "http://2130706433/",
+        "http://0x7f000001/",
+        "http://127.1/",
+        "http://0177.0.0.1/",
         "https://example.com/\r\nHost:localhost",
     ],
 )
@@ -66,14 +88,14 @@ def test_scrapling_parses_fixed_blocks():
     ],
 )
 def test_redirect_rechecks_url_constraints(monkeypatch, target, error):
-    """不检查 IP 分类，但跳转后的协议、凭据和端口仍须校验。"""
+    """跳转后的协议、凭据和端口须在连接前再次校验。"""
     calls = []
 
-    def fetch(url, **kwargs):
+    def fetch(url, address, **kwargs):
         calls.append(url)
         return SimpleNamespace(status=302, headers={"location": target})
 
-    monkeypatch.setattr(sources.Fetcher, "get", fetch)
+    monkeypatch.setattr(sources, "fetch_pinned", fetch)
     result = sources.fetch_source("http://public.example")
     assert result["error"] == error
     assert len(calls) == 1
@@ -86,22 +108,21 @@ def test_hostname_and_fragment_normalized():
     )
 
 
-def test_redirect_to_internal_ip_is_allowed(monkeypatch):
-    """按当前网络取舍，内网跳转不会被应用层地址分类拦截。"""
+def test_redirect_to_internal_ip_is_rejected(monkeypatch):
+    """公网响应不能诱导抓取器建立第二个内网连接。"""
     calls = []
 
-    def fetch(url, **kwargs):
+    def fetch(url, address, **kwargs):
         calls.append(url)
         if len(calls) == 1:
             return SimpleNamespace(status=302, headers={"location": "http://10.0.0.1/"})
         kwargs["content_callback"](b"Internal source")
         return SimpleNamespace(status=200, headers={"content-type": "text/plain"})
 
-    monkeypatch.setattr(sources.Fetcher, "get", fetch)
+    monkeypatch.setattr(sources, "fetch_pinned", fetch)
     document = sources.fetch_source("https://example.com/")
-    assert document["status"] == "available"
-    assert document["canonical_url"] == "http://10.0.0.1/"
-    assert calls == ["https://example.com/", "http://10.0.0.1/"]
+    assert document["error"] == "unsafe_address"
+    assert calls == ["https://example.com/"]
 
 
 def test_redirects_share_remaining_time(monkeypatch):
@@ -109,7 +130,7 @@ def test_redirects_share_remaining_time(monkeypatch):
     now, budgets = [0], []
     monkeypatch.setattr(sources.time, "monotonic", lambda: now[0])
 
-    def fetch(url, **kwargs):
+    def fetch(url, address, **kwargs):
         budgets.append(kwargs["timeout"])
         now[0] += 6
         if len(budgets) == 1:
@@ -117,7 +138,7 @@ def test_redirects_share_remaining_time(monkeypatch):
         kwargs["content_callback"](b"hello")
         return SimpleNamespace(status=200, headers={"content-type": "text/plain"})
 
-    monkeypatch.setattr(sources.Fetcher, "get", fetch)
+    monkeypatch.setattr(sources, "fetch_pinned", fetch)
     assert sources.download("https://example.com/") == (
         "https://example.com/final",
         b"hello",

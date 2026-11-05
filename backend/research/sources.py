@@ -2,22 +2,26 @@
 
 import base64
 import hashlib
+import ipaddress
+import re
+import socket
 import time
 from datetime import UTC, datetime
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
-from curl_cffi import CurlECode, CurlError
-from scrapling.fetchers import Fetcher
+from curl_cffi import CurlECode, CurlError, CurlOpt
+from scrapling.fetchers import FetcherSession
 from scrapling.parser import Selector
 
 from backend.research.models import ResearchError
+from backend.research.network_policy import is_public
 
 MAX_BYTES = 4 * 1024 * 1024
 TIMEOUT = 20
 
 
 def normalize_url(url):
-    """只校验协议、凭据和端口并规范化 URL，不预解析或分类 IP 地址。"""
+    """统一 URL 解释，拒绝凭据、作用域和易被不同解析器歧义处理的形式。"""
     parts = urlsplit(url)
     if (
         parts.scheme not in {"http", "https"}
@@ -25,14 +29,57 @@ def normalize_url(url):
         or parts.username is not None
         or parts.password is not None
         or any(ord(c) < 33 for c in url)
+        or "\\" in url
     ):
         raise ResearchError("unsafe_url", 422)
-    port = parts.port or (443 if parts.scheme == "https" else 80)
+    port = (
+        parts.port
+        if parts.port is not None
+        else (443 if parts.scheme == "https" else 80)
+    )
     if port != (443 if parts.scheme == "https" else 80):
         raise ResearchError("unsafe_port", 422)
     host = parts.hostname.encode("idna").decode("ascii")
+    if not re.fullmatch(r"[a-zA-Z0-9.:-]+", host):
+        raise ResearchError("unsafe_url", 422)
+    try:
+        host = str(ipaddress.ip_address(host))
+    except ValueError:
+        # 拒绝十进制整数、十六进制和缩写 IP，避免系统 DNS 与 curl 解释不一致。
+        if re.fullmatch(
+            r"(?:0x[0-9a-fA-F]+|[0-9]+)(?:\.(?:0x[0-9a-fA-F]+|[0-9]+))*", host
+        ):
+            raise ResearchError("unsafe_url", 422)
     authority = f"[{host}]" if ":" in host else host
     return urlunsplit((parts.scheme, authority, parts.path or "/", parts.query, ""))
+
+
+def resolve_public(url):
+    """检查全部 A/AAAA 结果；选择一个已验证 IP，下载层不再解析来源域名。"""
+    parts = urlsplit(url)
+    port = parts.port or (443 if parts.scheme == "https" else 80)
+    records = socket.getaddrinfo(parts.hostname, port, type=socket.SOCK_STREAM)
+    addresses = list(dict.fromkeys(record[4][0] for record in records))
+    if not addresses or any(not is_public(ip) for ip in addresses):
+        raise ResearchError("unsafe_address", 422)
+    return addresses[0]
+
+
+def fetch_pinned(url, address, **kwargs):
+    """固定单次连接 IP，同时由原 URL 决定 Host、SNI 和证书验证域名。"""
+    port = urlsplit(url).port or (443 if url.startswith("https:") else 80)
+    target = f"[{address}]" if ":" in address else address
+    with FetcherSession() as session:
+        # Scrapling 未公开 curl_options；此适配点随固定版本的真实 TLS 回归维护。
+        session._curl_session.curl_options = {
+            CurlOpt.RESOLVE: [f"*:{port}:{target}"],
+            CurlOpt.PROXY: "",
+            CurlOpt.NOPROXY: "*",
+            CurlOpt.PROTOCOLS_STR: "http,https",
+            CurlOpt.FRESH_CONNECT: 1,
+            CurlOpt.FORBID_REUSE: 1,
+        }
+        return session.get(url, **kwargs)
 
 
 def download(url):
@@ -40,6 +87,7 @@ def download(url):
     deadline = time.monotonic() + TIMEOUT
     for _ in range(5):
         url = normalize_url(url)
+        address = resolve_public(url)
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ResearchError("fetch_timeout")
@@ -55,8 +103,9 @@ def download(url):
             return len(chunk)
 
         try:
-            response = Fetcher.get(
+            response = fetch_pinned(
                 url,
+                address,
                 follow_redirects=False,
                 retries=1,
                 timeout=remaining,

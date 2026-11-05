@@ -176,7 +176,7 @@ class ResearchService:
         return ref, self.archive.read(ref)
 
     def collect_source(self, owner, run_id, url):
-        from backend.research.sources import fetch_source
+        from backend.research.fetch_client import fetch_source
 
         self.reserve_call(owner, run_id)
         document = fetch_source(url)
