@@ -130,6 +130,15 @@ async def query(name: str, request: Request):
         validate(name, params, fields)
     except (ValueError, TypeError):
         return result(name, {}, "invalid_request", message="接口、参数或字段选择无效")
+    return await execute_query(name, params, fields)
+
+
+async def execute_query(name, params, fields=""):
+    """HTTP 和研究快照共用白名单、凭据及请求限制，避免旁路调用。"""
+    try:
+        validate(name, params, fields)
+    except (ValueError, TypeError):
+        return result(name, {}, "invalid_request", message="接口、参数或字段选择无效")
     token = os.environ.get("TUSHARE_TOKEN", "")
     if not token:
         return result(name, params, "not_configured", message="后端未配置数据源凭据")
