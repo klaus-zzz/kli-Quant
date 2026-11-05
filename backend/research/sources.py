@@ -1,15 +1,15 @@
-"""原文受控抓取：固定公网连接目标，解析器不持有网络能力。"""
+"""原文受控抓取：Scrapling 负责 HTTP，项目保留地址与资源预算检查。"""
 
 import base64
 import hashlib
-import http.client
 import ipaddress
 import socket
-import ssl
 import time
 from datetime import UTC, datetime
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
+from curl_cffi import CurlECode, CurlError
+from scrapling.fetchers import Fetcher
 from scrapling.parser import Selector
 
 from backend.research.models import ResearchError
@@ -19,7 +19,7 @@ TIMEOUT = 20
 
 
 def public_target(url):
-    """验证全部 DNS 结果，再固定一个已验证的 IP 防止二次解析绕过。"""
+    """允许任意公网域名；每跳检查全部 DNS 结果并返回规范化 URL。"""
     parts = urlsplit(url)
     if (
         parts.scheme not in {"http", "https"}
@@ -41,80 +41,71 @@ def public_target(url):
     ):
         raise ResearchError("unsafe_address", 422)
     authority = f"[{host}]" if ":" in host else host
-    normalized = urlunsplit(
-        (parts.scheme, authority, parts.path or "/", parts.query, "")
-    )
-    return normalized, host, port, ips[0]
-
-
-class PinnedConnection(http.client.HTTPConnection):
-    """只连接已审查的 IP；HTTPS 证书和 SNI 仍使用原域名。"""
-
-    def __init__(self, host, port, ip, tls, timeout):
-        super().__init__(host, port, timeout=timeout)
-        self.ip, self.tls = ip, tls
-
-    def connect(self):
-        self.sock = socket.create_connection((self.ip, self.port), timeout=self.timeout)
-        if self.tls:
-            self.sock = ssl.create_default_context().wrap_socket(
-                self.sock, server_hostname=self.host
-            )
+    return urlunsplit((parts.scheme, authority, parts.path or "/", parts.query, ""))
 
 
 def download(url):
     """重定向逐跳复查，限制总时长和原文大小，不加载脚本或子资源。"""
     deadline = time.monotonic() + TIMEOUT
     for _ in range(5):
-        url, host, port, ip = public_target(url)
+        url = public_target(url)
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ResearchError("fetch_timeout")
-        parts = urlsplit(url)
-        path = urlunsplit(("", "", parts.path, parts.query, ""))
-        conn = PinnedConnection(host, port, ip, parts.scheme == "https", remaining)
+        raw = bytearray()
+
+        def collect(chunk):
+            """传输中超限立即终止，不等整个响应进入内存。"""
+            if time.monotonic() >= deadline:
+                raise ResearchError("fetch_timeout")
+            if len(raw) + len(chunk) > MAX_BYTES:
+                raise ResearchError("source_too_large")
+            raw.extend(chunk)
+            return len(chunk)
+
         try:
-            conn.request(
-                "GET",
-                path,
+            # shortcut: 接受库二次 DNS 解析的风险；需消除此风险时补出站隔离。
+            response = Fetcher.get(
+                url,
+                follow_redirects=False,
+                retries=1,
+                timeout=remaining,
+                proxies={"all": ""},
+                verify=True,
+                impersonate=None,
+                stealthy_headers=False,
+                accept_encoding="identity",
+                content_callback=collect,
+                selector_config={"adaptive": False, "huge_tree": False},
                 headers={
-                    "Accept-Encoding": "identity",
                     "User-Agent": "kli-Quant-research/0.1",
                     "Accept": "text/html,text/plain",
                 },
             )
-            response = conn.getresponse()
-            if response.status in {301, 302, 303, 307, 308}:
-                location = response.getheader("Location")
-                if not location:
-                    raise ResearchError("invalid_redirect")
-                url = urljoin(url, location)
-                continue
-            if response.status != 200:
-                raise ResearchError("fetch_http_error")
-            content_type = response.getheader("Content-Type", "").split(";")[0].lower()
-            if content_type not in {"text/html", "text/plain", "application/xhtml+xml"}:
-                raise ResearchError("unsupported_content_type")
-            if response.getheader("Content-Encoding", "identity") != "identity":
-                raise ResearchError("unsupported_encoding")
-            raw = bytearray()
-            while not response.isclosed():
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    raise ResearchError("fetch_timeout")
-                # 小块读取并重新设置剩余超时，防止慢速响应无限占用连接。
-                response.fp.raw._sock.settimeout(remaining)
-                chunk = response.read1(min(65536, MAX_BYTES + 1 - len(raw)))
-                if not chunk:
-                    break
-                raw.extend(chunk)
-                if len(raw) > MAX_BYTES:
-                    raise ResearchError("source_too_large")
-            if response.length not in {None, 0}:
-                raise ResearchError("incomplete_source")
-            return url, bytes(raw), content_type
-        finally:
-            conn.close()
+        except CurlError as exc:
+            codes = {
+                CurlECode.OPERATION_TIMEDOUT: "fetch_timeout",
+                CurlECode.PARTIAL_FILE: "incomplete_source",
+            }
+            raise ResearchError(codes.get(exc.code, "fetch_failed")) from None
+        if time.monotonic() >= deadline:
+            raise ResearchError("fetch_timeout")
+        if response.status in {301, 302, 303, 307, 308}:
+            location = response.headers.get("location")
+            if not location:
+                raise ResearchError("invalid_redirect")
+            url = urljoin(url, location)
+            continue
+        if response.status != 200:
+            raise ResearchError("fetch_http_error")
+        content_type = (
+            response.headers.get("content-type", "").split(";")[0].strip().lower()
+        )
+        if content_type not in {"text/html", "text/plain", "application/xhtml+xml"}:
+            raise ResearchError("unsupported_content_type")
+        if response.headers.get("content-encoding", "identity").lower() != "identity":
+            raise ResearchError("unsupported_encoding")
+        return url, bytes(raw), content_type
     raise ResearchError("too_many_redirects")
 
 
@@ -172,7 +163,7 @@ def fetch_source(url):
         )
     except ResearchError as exc:
         document["error"] = exc.code
-    except (OSError, ValueError, http.client.HTTPException):
+    except (OSError, ValueError):
         document["error"] = "fetch_failed"
     document["fetched_at"] = datetime.now(UTC).isoformat()
     return document

@@ -1,6 +1,7 @@
 """公网边界与固定原文解析，不连接真实站点。"""
 
 import socket
+from types import SimpleNamespace
 
 import pytest
 
@@ -78,84 +79,44 @@ def test_redirect_rechecks_private_target(monkeypatch):
     )
     calls = []
 
-    class Connection:
-        def __init__(self, *args):
-            calls.append(args)
+    def fetch(url, **kwargs):
+        calls.append(url)
+        return SimpleNamespace(status=302, headers={"location": "http://internal/"})
 
-        def request(self, *args, **kwargs):
-            pass
-
-        def getresponse(self):
-            return type(
-                "Response",
-                (),
-                {"status": 302, "getheader": lambda *a: "http://internal/"},
-            )()
-
-        def close(self):
-            pass
-
-    monkeypatch.setattr(sources, "PinnedConnection", Connection)
+    monkeypatch.setattr(sources.Fetcher, "get", fetch)
     result = sources.fetch_source("http://public.example")
     assert result["error"] == "unsafe_address"
     assert len(calls) == 1
 
 
-def test_pinned_connection_does_not_resolve_hostname(monkeypatch):
-    calls = []
+def test_any_public_hostname_is_accepted(monkeypatch):
+    """允许任意公网来源，不维护站点白名单；去掉片段并规范化域名。"""
     monkeypatch.setattr(
-        socket, "create_connection", lambda target, **kw: calls.append(target)
+        socket, "getaddrinfo", lambda *a, **k: [(2, 1, 6, "", ("8.8.8.8", 443))]
     )
-    connection = sources.PinnedConnection("public.example", 80, "8.8.8.8", False, 2)
-    connection.connect()
-    assert calls == [("8.8.8.8", 80)]
-
-
-@pytest.mark.parametrize("truncated", [False, True])
-def test_response_closed_on_last_chunk(monkeypatch, truncated):
-    """HTTPResponse 读到最后一块会关闭 fp，不能在下轮再访问 fp.raw。"""
-    from types import SimpleNamespace
-
-    monkeypatch.setattr(
-        sources, "public_target", lambda url: (url, "example.com", 80, "8.8.8.8")
+    assert sources.public_target("https://Any-Source.example/page#part") == (
+        "https://any-source.example/page"
     )
 
-    class Response:
-        status = 200
-        length = 10
 
-        def __init__(self):
-            self.fp = SimpleNamespace(
-                raw=SimpleNamespace(_sock=SimpleNamespace(settimeout=lambda _: None))
-            )
+def test_redirects_share_remaining_time(monkeypatch):
+    """跳转不能重新获得完整预算，最终归档 URL 与原始字节仍准确。"""
+    now, budgets = [0], []
+    monkeypatch.setattr(sources.time, "monotonic", lambda: now[0])
+    monkeypatch.setattr(sources, "public_target", lambda url: url)
 
-        def getheader(self, key, default=None):
-            return "text/plain" if key == "Content-Type" else default
+    def fetch(url, **kwargs):
+        budgets.append(kwargs["timeout"])
+        now[0] += 6
+        if len(budgets) == 1:
+            return SimpleNamespace(status=302, headers={"location": "/final"})
+        kwargs["content_callback"](b"hello")
+        return SimpleNamespace(status=200, headers={"content-type": "text/plain"})
 
-        def read1(self, size):
-            self.fp = None
-            self.length = 5 if truncated else 0
-            return b"hello"
-
-        def isclosed(self):
-            return self.fp is None
-
-    class Connection:
-        def __init__(self, *args):
-            pass
-
-        def request(self, *args, **kwargs):
-            pass
-
-        def getresponse(self):
-            return Response()
-
-        def close(self):
-            pass
-
-    monkeypatch.setattr(sources, "PinnedConnection", Connection)
-    if truncated:
-        with pytest.raises(ResearchError, match="incomplete_source"):
-            sources.download("http://example.com/")
-    else:
-        assert sources.download("http://example.com/")[1] == b"hello"
+    monkeypatch.setattr(sources.Fetcher, "get", fetch)
+    assert sources.download("https://example.com/") == (
+        "https://example.com/final",
+        b"hello",
+        "text/plain",
+    )
+    assert budgets == [sources.TIMEOUT, sources.TIMEOUT - 6]

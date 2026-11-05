@@ -39,11 +39,13 @@ failed / validation_failed，不发布正式结果。
 
 PostgreSQL 保存执行、证据、判断和结果索引；SeaweedFS S3 保存不可覆盖的对象。
 对象引用含 evidence_id、run_id、sha256；只有经过归属检查才能读对象。
-原文使用受控 HTTP 下载和 Scrapling 解析，归档原始字节、文本段落、规范化 URL、
+原文使用 Scrapling 静态 HTTP 抓取和解析，归档原始字节、文本段落、规范化 URL、
 抓取时间及页面声明的发布时间。引用采用固定段落编号；转载独立性默认 unknown。
 仅支持 HTML/纯文本，动态页面、PDF、抓取失败和未知时间明确保留限制。
-拒绝私网、回环、链路本地地址，DNS 所有结果须为公网；连接固定到已检查的 IP，
-TLS 仍验证原域名。每次重定向重新检查，不继承宿主代理。
+允许任意公网 HTTP(S) 来源，仅开放标准 80/443 端口。每次请求前检查所有 DNS
+结果，拒绝私网、回环、链路本地地址；重定向逐跳重新检查，不继承宿主代理。
+连接由 Scrapling 再次解析域名，不固定 IP，因此地址检查不能完全防止 DNS
+重绑定。这是当前已接受的限制，不能据此宣称内网访问已被完全隔离；TLS 仍验证原域名。
 代理 DNS 若将公网域名映射为 `198.18.*` 或私网 IPv6，抓取会返回 unsafe_address；
 开发/部署网络须提供真实公网解析。可在隔离验收容器中为已核实的目标设置临时
 hosts 映射，但不能将这种验证配置扩展为允许任意私网访问。
@@ -107,48 +109,33 @@ uv run pytest tests/test_research_service.py
 `kli-quant-test-` 开头。CI 使用独立 PostgreSQL 容器；S3 真实验证须单独配置。
 测试结束只清理本次测试库、角色、bucket、开发容器和依赖卷，不删除共享服务数据卷。
 
-Scrapling 使用固定版本 0.5.1 的纯解析器，BSD-3-Clause 许可，
-依据 [官方安装与解析说明](https://github.com/D4Vinci/Scrapling#installation)。
-具体使用 `scrapling.parser.Selector` 的 XPath 查询和文本提取方法，提取 HTML
-段落、标题及 `article:published_time` 元信息；关闭自适应定位。HTTP 下载由本项目
-负责公网地址校验、重定向复查、超时和大小限制，不调用 Scrapling 的网络抓取接口。
-不安装其浏览器、MCP 或代理轮换组件；站点拒绝访问时记录失败，不尝试绕过认证。
+### Scrapling 原文抓取
 
-### Scrapling 抓取替换验收
+使用 [Scrapling](https://github.com/D4Vinci/Scrapling) 0.5.1（BSD-3-Clause）
+的 `Fetcher.get` 下载，由 `Selector` 的 XPath 和文本方法提取段落、标题及
+`article:published_time` 元信息。底层 [curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)
+固定为已验证的 0.17.0，负责 HTTP/TLS、响应读取和截断检查；项目不再自写连接类。
 
-替换下载层必须同时满足：固定到已检查的 IP 并保持原域名 TLS 校验、逐跳检查
-重定向、不继承环境代理、限制下载大小及耗时、拒绝响应截断。不能只检查 URL
-后再让抓取库自行解析，也不能通过关闭证书验证来连接 IP。
+依照[官方静态抓取接口](https://scrapling.readthedocs.io/en/latest/fetching/static.html)，
+关闭自动重试、自动重定向、浏览器伪装和自适应定位；`proxies={"all": ""}` 禁用环境
+代理，保持 HTTPS 证书验证。项目逐跳验证 URL，最多发起 5 次请求，共享 20 秒
+请求预算，每个响应最多 4 MiB；读取回调在超限时立即中止。系统 DNS 预检查无法
+被此超时直接中断，返回后会扣除其耗时；此预算不是整个函数的严格墙钟上限。
+只接受 HTML/纯文本及未压缩的原文字节，异常映射为稳定错误码，不归档截断内容。
 
-Scrapling 0.5.1 + curl_cffi 0.17.0 的实际验证结果：
+允许任意符合上述条件的网址，不维护站点白名单。当前接受库二次解析域名的风险，
+没有访问 Scrapling 私有会话属性，也没有关闭 TLS 校验；若需消除此风险，应补充
+网络出站隔离或支持固定 IP 的公开接口。
 
-| 能力 | 结果 |
-| --- | --- |
-| HTTP 下载与解析 | 可用 |
-| 关闭自动重定向、拒绝私网重定向 | 可用；关闭后仍需业务层逐跳检查 |
-| 关闭重试并限制单次请求总耗时 | 可用，持续滴流仍会超时；多跳仍需共享剩余预算 |
-| 读取回调限制响应大小、拒绝响应截断 | 可用 |
-| 禁用环境代理 | `proxies={"all": ""}` 可用，不能只依赖默认设置 |
-| 固定已检查的 IP | 不满足：`Fetcher.get` 和 `FetcherSession` 均拒绝 `curl_options` |
+安装 `scrapling[fetchers]` 会带入 Playwright、Patchright 等 Python 包，这是上游
+抓取扩展的依赖；本项目只调用静态抓取，不下载或启动浏览器，不启用 MCP、代理轮换
+和浏览器渲染。站点拒绝访问时记录失败，不尝试绕过认证。
 
-底层 curl_cffi 的公开 `Session(curl_options=..., trust_env=False)` 可以完成固定
-IP 与代理隔离，但 Scrapling 没有暴露该配置入口。本次保留原下载层，没有引入
-访问 `_curl_session` 等私有属性的版本绑定适配，也没有放松地址检查。
-固定 IP 条件未通过，因此没有进一步声称 HTTPS 原域名校验已完成替换验收。
-
-可选测试 `tests/test_scrapling_fetcher.py` 使用本地 HTTP 源站验证真实网络行为，
-不请求生产接口，也不启动浏览器。复现命令：
+`tests/test_scrapling_fetcher.py` 通过本地 HTTP/HTTPS 源站验证业务调用、固定原文、
+重定向、大小限制、持续滴流超时、代理隔离、截断和证书/域名校验，不访问生产接口。
+这些测试随普通回归运行，不再作为可选能力探测或保留固定 IP 的预期失败用例：
 
 ```bash
-uv run --with 'scrapling[fetchers]==0.5.1' --with 'curl-cffi==0.17.0' \
-  pytest -q -rx tests/test_scrapling_fetcher.py
+uv sync --locked
+uv run pytest tests/test_research_sources.py tests/test_scrapling_fetcher.py
 ```
-
-基础依赖不含 `fetchers` 扩展，普通测试会跳过此模块。仅验证环境临时安装
-扩展及其浏览器相关 Python 包，不下载浏览器二进制，也不加入生产依赖。
-标为 `xfail` 的用例表示替换条件尚未满足；上游接口改变后若用例通过，严格模式
-会要求重新审查这一限制，不能把预期失败当作功能已经验收。
-
-接口参考：[Scrapling 静态抓取](https://scrapling.readthedocs.io/en/latest/fetching/static.html)
-及其底层 [curl_cffi 会话配置](https://curl-cffi.readthedocs.io/en/latest/api.html)。
-版本行为以指定版本的实际测试为准，在线文档可能随上游更新。

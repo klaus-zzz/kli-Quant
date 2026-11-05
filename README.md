@@ -15,11 +15,11 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 | `AGENTS.md` | 公共规则及四个目录规则索引 |
 
 研究接口包含多跳证据关系、PostgreSQL 业务索引、SeaweedFS S3 固定归档和结果校验。
-原文由受控 HTTP 下载，使用 [Scrapling](https://github.com/D4Vinci/Scrapling)
-0.5.1（BSD-3-Clause）的 HTML 解析器提取段落、标题和页面声明的发布时间；
-未使用其网络抓取、浏览器或自适应定位能力，动态网页和 PDF 暂不支持。
-已实测其静态抓取接口；0.5.1 的公开接口无法配置固定连接 IP，暂不替换现有下载层。
-验收条件、复现命令及依赖成本见[抓取替换验收](docs/research-api.md#scrapling-抓取替换验收)。
+原文使用 [Scrapling](https://github.com/D4Vinci/Scrapling) 0.5.1（BSD-3-Clause）
+静态 HTTP 抓取与 HTML 解析，底层使用 [curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)
+0.17.0；项目保留地址、重定向、大小和耗时检查，允许任意公网 HTTP(S) 来源。
+不固定连接 IP，接受检查后由库再次解析域名的剩余风险；浏览器渲染和 PDF 暂不支持。
+实际使用范围、依赖成本及验证命令见[原文抓取说明](docs/research-api.md#scrapling-原文抓取)。
 接口、迁移、执行器契约和历史数据限制见 [研究接口说明](docs/research-api.md)。
 真实执行器及可信身份尚未接线，研究提交明确返回 503；不产生无人处理的任务。
 后续 Agent 使用 OmniAgent `v1`，沙箱使用已有内网 CubeSandbox。
