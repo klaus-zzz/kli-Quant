@@ -43,4 +43,7 @@ jobs:
         working-directory: frontend
       - run: npm run check && npm run build
         working-directory: frontend
-      - run: docker compose config --quiet
+      # 干净检出没有私有 .env，配置检查只使用不含凭据的示例。
+      - run: |
+          cp .env.example .env
+          docker compose config --quiet
