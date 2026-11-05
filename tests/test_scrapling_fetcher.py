@@ -17,7 +17,7 @@ BODY = b"<html><body><article><p>Fixed evidence.</p></article></body></html>"
 
 @pytest.fixture
 def origin(monkeypatch):
-    """只为本地源站放行随机测试端口，其余 URL 仍走生产校验。"""
+    """将不存在的测试域名绑定本地源站，仅夹具放行随机端口和测试地址。"""
     requests = []
 
     class Handler(BaseHTTPRequestHandler):
@@ -78,13 +78,19 @@ def origin(monkeypatch):
                 pass
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-    base = f"http://127.0.0.1:{server.server_port}"
+    base = f"http://source.invalid:{server.server_port}"
     check = sources.normalize_url
+    resolve = sources.resolve_public
 
     def allow_test_origin(url):
         return url if url == base or url.startswith(base + "/") else check(url)
 
     monkeypatch.setattr(sources, "normalize_url", allow_test_origin)
+    monkeypatch.setattr(
+        sources,
+        "resolve_public",
+        lambda url: "127.0.0.1" if url.startswith(base) else resolve(url),
+    )
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     yield base, requests, server
@@ -102,6 +108,7 @@ def test_download_preserves_archivable_bytes_and_final_url(origin):
     assert document["content_sha256"] == hashlib.sha256(BODY).hexdigest()
     assert document["blocks"] == [{"locator": "p:1", "text": "Fixed evidence."}]
     assert [path for path, _ in requests] == ["/redirect", "/final"]
+    assert all(host == base.removeprefix("http://") for _, host in requests)
 
 
 def test_download_plain_text(origin):
@@ -109,6 +116,31 @@ def test_download_plain_text(origin):
     assert sources.fetch_source(base + "/plain")["blocks"] == [
         {"locator": "p:1", "text": "Plain evidence."}
     ]
+
+
+def test_ipv6_connection_binding(origin, monkeypatch):
+    """IPv6 绑定同样不解析不存在的域名，HTTP Host 保留来源域名。"""
+    _, requests, http_server = origin
+
+    class IPv6Server(ThreadingHTTPServer):
+        address_family = socket.AF_INET6
+
+    try:
+        server = IPv6Server(("::1", 0), http_server.RequestHandlerClass)
+    except OSError:
+        pytest.skip("测试环境未启用 IPv6 回环")
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    monkeypatch.setattr(sources, "normalize_url", lambda url: url)
+    monkeypatch.setattr(sources, "resolve_public", lambda url: "::1")
+    try:
+        url = f"http://ipv6.invalid:{server.server_port}/"
+        assert sources.fetch_source(url)["status"] == "available"
+        assert requests == [("/", f"ipv6.invalid:{server.server_port}")]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
 
 
 @pytest.mark.parametrize(
@@ -185,7 +217,7 @@ def test_https_verifies_certificate_and_original_hostname(
 
     _, requests, http_server = origin
     key = ec.generate_private_key(ec.SECP256R1())
-    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "localhost")])
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "source.invalid")])
     now = datetime.now(UTC)
     certificate = (
         x509.CertificateBuilder()
@@ -195,7 +227,9 @@ def test_https_verifies_certificate_and_original_hostname(
         .serial_number(x509.random_serial_number())
         .not_valid_before(now - timedelta(days=1))
         .not_valid_after(now + timedelta(days=1))
-        .add_extension(x509.SubjectAlternativeName([x509.DNSName("localhost")]), False)
+        .add_extension(
+            x509.SubjectAlternativeName([x509.DNSName("source.invalid")]), False
+        )
         .sign(key, hashes.SHA256())
     )
     cert_file, key_file = tmp_path / "cert.pem", tmp_path / "key.pem"
@@ -217,22 +251,24 @@ def test_https_verifies_certificate_and_original_hostname(
     thread.start()
     # 仅放行下面构造的随机测试端口，不改生产 URL 校验。
     monkeypatch.setattr(sources, "normalize_url", lambda url: url)
-    url = f"https://localhost:{server.server_port}/"
-    real_fetch = sources.Fetcher.get
+    monkeypatch.setattr(sources, "resolve_public", lambda url: "127.0.0.1")
+    url = f"https://source.invalid:{server.server_port}/"
+    real_fetch = sources.fetch_pinned
 
-    def fetch_with_test_ca(url, **kwargs):
+    def fetch_with_test_ca(url, address, **kwargs):
         assert kwargs["verify"] is True
         kwargs["verify"] = str(cert_file)
-        return real_fetch(url, **kwargs)
+        return real_fetch(url, address, **kwargs)
 
     try:
         assert sources.fetch_source(url)["error"] == "fetch_failed"
-        monkeypatch.setattr(sources.Fetcher, "get", fetch_with_test_ca)
+        monkeypatch.setattr(sources, "fetch_pinned", fetch_with_test_ca)
         assert sources.fetch_source(url)["status"] == "available"
-        wrong_host = url.replace("localhost", "127.0.0.1")
+        wrong_host = url.replace("source.invalid", "wrong.invalid")
         assert sources.fetch_source(wrong_host)["error"] == "fetch_failed"
         assert len(requests) == 1
-        assert "localhost" in names
+        assert "source.invalid" in names
+        assert requests[0][1] == f"source.invalid:{server.server_port}"
     finally:
         server.shutdown()
         server.server_close()
