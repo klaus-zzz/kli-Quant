@@ -1,22 +1,23 @@
 # kli-Quant
 
-面向金融业务的开发项目，提供 FastAPI 健康检查和 187 个 Tushare 数据工具。
+面向金融业务的开发项目，提供 FastAPI 健康检查、187 个 Tushare 数据工具和研究业务接口。
 React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，不展示模拟研究结果。
 
 ## 范围与目录
 
 | 路径 | 当前职责 |
 | --- | --- |
-| `backend/` | 健康检查与受控 Tushare HTTP 入口 |
+| `backend/` | 健康检查、受控 Tushare 入口、研究状态及证据归档 |
 | `frontend/` | React 空应用和 Vite 开发代理 |
 | `sandbox/cli/` | 离线契约、187 个 axi 工具及调用说明 |
 | `tests/` | 健康接口回归与浏览器检查 |
 | `compose.yaml` | 唯一开发 Compose，只启动前后端 |
 | `AGENTS.md` | 公共规则及四个目录规则索引 |
 
-尚未实现多跳研究、Agent 对话、数据库业务表、对象归档、登录和支付。
-后续 Agent 使用 OmniAgent `v1`，数据库使用 PostgreSQL，归档使用 SeaweedFS S3，
-沙箱使用已有内网 CubeSandbox；本阶段不连接或启动这些服务，不构建沙箱镜像，不部署生产。
+研究接口支持多跳证据、固定归档和结果校验，原文抓取与解析使用
+[Scrapling](https://github.com/D4Vinci/Scrapling) 和
+[curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)。
+当前尚未接入真实执行器与身份认证，详见 [研究接口说明](docs/research-api.md)。
 
 ## 运行时基线
 

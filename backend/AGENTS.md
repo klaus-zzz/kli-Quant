@@ -3,6 +3,7 @@
 - 本目录只提供 FastAPI 服务；入口为 `backend.main:app`。
 - `GET /api/health` 只表示进程可响应，不探测数据库或其他外部服务。
 - Tushare 通过受控 POST 入口调用，共用离线契约白名单；凭据仅由后端读取，不回显上游错误原文。
-- 不引入金融表、研究接口、后台任务或 Agent 客户端。
+- 研究索引使用 PostgreSQL 参数化 SQL 和版本化迁移，原文与固定产物使用 SeaweedFS S3；不得信任模型自报归属、预算或执行成功。
+- 未接入可信身份或执行器时研究接口明确返回未就绪；不在本目录重建 Agent 框架。
 - Python 使用四空格缩进；依赖在根 `pyproject.toml` 管理，由 uv 更新锁文件。
 - 在仓库根执行 `uv run pytest`、`uv run ruff check .`、`uv run ruff format --check .`。

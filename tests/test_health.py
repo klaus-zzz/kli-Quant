@@ -14,8 +14,12 @@ def test_health() -> None:
 
 
 def test_public_routes() -> None:
-    """只开放健康检查和受白名单约束的数据入口。"""
+    """公开路由固定；研究管理功能不作为无认证管理 API 暴露。"""
     assert set(app.openapi()["paths"]) == {
         "/api/health",
         "/api/tushare/{name}",
+        "/api/research/runs",
+        "/api/research/runs/{run_id}",
+        "/api/research/runs/{run_id}/cancel",
+        "/api/research/runs/{run_id}/result",
     }

@@ -10,6 +10,20 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # 专用临时库验证事务与竞态，用户名密码只用于 CI 容器。
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: kli_quant_test_ci
+          POSTGRES_PASSWORD: test-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kli_quant_test_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      RESEARCH_TEST_DATABASE_URL: postgresql://postgres:test-only@127.0.0.1:5432/kli_quant_test_ci
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -29,4 +43,7 @@ jobs:
         working-directory: frontend
       - run: npm run check && npm run build
         working-directory: frontend
-      - run: docker compose config --quiet
+      # 干净检出没有私有 .env，配置检查只使用不含凭据的示例。
+      - run: |
+          cp .env.example .env
+          docker compose config --quiet
