@@ -10,7 +10,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from backend.research import sources
+from fetcher import sources
 
 BODY = b"<html><body><article><p>Fixed evidence.</p></article></body></html>"
 

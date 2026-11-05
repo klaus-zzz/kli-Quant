@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.research.sources import fetch_source
+from fetcher.sources import fetch_source
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 

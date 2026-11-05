@@ -39,26 +39,9 @@
 
 ## 原文抓取
 
-使用 [Scrapling](https://github.com/D4Vinci/Scrapling) 的静态 HTTP 抓取和 HTML
-解析，底层 HTTP/TLS 由 [curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)
-处理，版本见 [pyproject.toml](../pyproject.toml)。保存原始字节、文本段落、URL、
-抓取时间和可确认的发布时间；引用定位到固定段落。
-
-仅支持公网 HTTP(S) 的标准 80/443 端口。每次抓取及每级重定向检查全部
-IPv4/IPv6 解析结果，任一结果属于私网、回环、链路本地、元数据或特殊用途地址
-即拒绝；不提供内网白名单。通过 curl 的
-[RESOLVE](https://curl.se/libcurl/c/CURLOPT_RESOLVE.html) 固定已验证 IP，
-保留原域名的 Host、SNI 和 TLS 校验，避免校验后再次解析。Scrapling 自动重试关闭，
-调用方重新抓取时重新解析；最多 5 次请求，共享 20 秒请求预算，单个响应上限 4 MiB。
-系统 DNS 查询使用系统解析器的超时，查询结束后仍检查剩余请求预算。
-仅支持 HTML/纯文本；不启动浏览器，暂不支持动态页面和 PDF。
-
-根 Compose 的 `research-fetcher` 单独运行抓取，不加载后端凭据、不加入中间件网络。
-启动时用 [nftables](https://www.nftables.org/) 设置默认拒绝的出口策略，仅放行
-Docker DNS、已有连接的响应和公网 80/443；随后切换普通用户并撤销全部网络权限。
-规则安装失败则不启动服务。后端仅调用该内部服务，失败时返回 `fetcher_unavailable`，
-不回退到直接下载。抓取与内部调用均不继承代理环境变量，出口隔离由防火墙执行。
-开发需 Linux 容器及 nftables 支持；独立启动后端时也必须提供该隔离服务。
+原文由独立的 [fetcher 服务](../fetcher/README.md) 抓取，后端负责保存证据。
+支持公网 HTML/纯文本，保留原始字节、摘要、固定段落及时间信息；不支持动态页面和 PDF。
+抓取依赖、网络隔离策略及专属测试集中在 `fetcher/`。
 
 ## 接入与配置
 
@@ -70,16 +53,14 @@ Docker DNS、已有连接的响应和公网 80/443；随后切换普通用户并
 `RESEARCH_S3_ACCESS_KEY`、`RESEARCH_S3_SECRET_KEY`，模板见 [.env.example](../.env.example)。
 数据库迁移需显式执行，S3 bucket 需预先创建。
 
+`RESEARCH_FETCHER_URL` 是可信抓取服务的完整接口地址，例如
+`http://my-fetcher:18101/fetch`；服务名、端口或路径变更时修改此项即可。
+根 Compose 提供开发默认值；独立运行后端需显式设置，缺少配置或服务故障均不回退直连。
+
 ```bash
 uv sync --locked
 uv run python -m backend.research.migrate up
 uv run pytest
-```
-
-出口策略可在已启动的隔离开发抓取容器中验收：
-
-```bash
-docker compose exec -T --user 65532:65532 -e RESEARCH_TEST_EGRESS=1 research-fetcher python - < tests/test_fetcher_egress.py
 ```
 
 迁移 `down` 会删除研究索引但保留 S3 对象，回退前须停用研究入口并备份。

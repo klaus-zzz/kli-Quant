@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from backend.research import sources
-from backend.research.models import ResearchError
+from fetcher import sources
+from fetcher.sources import FetchError
 
 
 @pytest.fixture(autouse=True)
@@ -63,7 +63,7 @@ def test_url_normalization_does_not_resolve(monkeypatch, url):
     ],
 )
 def test_unsafe_urls_rejected(url):
-    with pytest.raises((ResearchError, ValueError)):
+    with pytest.raises((FetchError, ValueError)):
         sources.normalize_url(url)
 
 

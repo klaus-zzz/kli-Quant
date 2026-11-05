@@ -17,6 +17,7 @@ services:
       UV_PYTHON_INSTALL_DIR: /opt/python
       UV_CACHE_DIR: /tmp/uv-cache
       UV_HTTP_TIMEOUT: "180"
+      RESEARCH_FETCHER_URL: "${RESEARCH_FETCHER_URL:-http://research-fetcher:18101/fetch}"
     volumes:
       - .:/app
       - backend-venv:/opt/venv
@@ -36,7 +37,7 @@ services:
 
   # 抓取器不加入共享中间件网络，不挂载 .env，也不发布宿主端口。
   research-fetcher:
-    build: ./deploy/research-fetcher
+    build: ./fetcher
     working_dir: /app
     environment:
       UV_PROJECT_ENVIRONMENT: /opt/venv
@@ -47,10 +48,7 @@ services:
       UV_HTTP_TIMEOUT: "180"
       PYTHONDONTWRITEBYTECODE: "1"
     volumes:
-      - ./backend:/app/backend:ro
-      - ./pyproject.toml:/app/pyproject.toml:ro
-      - ./uv.lock:/app/uv.lock:ro
-      - ./.python-version:/app/.python-version:ro
+      - ./fetcher:/app/fetcher:ro
       - fetcher-venv:/opt/venv
     networks:
       research: {}

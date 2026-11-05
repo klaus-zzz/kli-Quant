@@ -1,0 +1,33 @@
+[project]
+name = "kli-quant-fetcher"
+version = "0.1.0"
+description = "独立公网原文抓取服务"
+requires-python = "==3.12.*"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "scrapling[fetchers]==0.5.1",
+    "curl-cffi==0.17.0",
+]
+
+[dependency-groups]
+dev = ["httpx", "pytest", "ruff", "cryptography"]
+
+[tool.uv]
+# 直接运行源码，抓取器不引用后端项目依赖。
+package = false
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".."]
+
+[tool.ruff]
+target-version = "py312"
+src = [".."]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

@@ -13,11 +13,18 @@ from curl_cffi import CurlECode, CurlError, CurlOpt
 from scrapling.fetchers import FetcherSession
 from scrapling.parser import Selector
 
-from backend.research.models import ResearchError
-from backend.research.network_policy import is_public
+from fetcher.network_policy import is_public
 
 MAX_BYTES = 4 * 1024 * 1024
 TIMEOUT = 20
+
+
+class FetchError(Exception):
+    """稳定抓取错误分类，不依赖研究业务异常或暴露底层网络信息。"""
+
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
 
 
 def normalize_url(url):
@@ -31,17 +38,17 @@ def normalize_url(url):
         or any(ord(c) < 33 for c in url)
         or "\\" in url
     ):
-        raise ResearchError("unsafe_url", 422)
+        raise FetchError("unsafe_url")
     port = (
         parts.port
         if parts.port is not None
         else (443 if parts.scheme == "https" else 80)
     )
     if port != (443 if parts.scheme == "https" else 80):
-        raise ResearchError("unsafe_port", 422)
+        raise FetchError("unsafe_port")
     host = parts.hostname.encode("idna").decode("ascii")
     if not re.fullmatch(r"[a-zA-Z0-9.:-]+", host):
-        raise ResearchError("unsafe_url", 422)
+        raise FetchError("unsafe_url")
     try:
         host = str(ipaddress.ip_address(host))
     except ValueError:
@@ -49,7 +56,7 @@ def normalize_url(url):
         if re.fullmatch(
             r"(?:0x[0-9a-fA-F]+|[0-9]+)(?:\.(?:0x[0-9a-fA-F]+|[0-9]+))*", host
         ):
-            raise ResearchError("unsafe_url", 422)
+            raise FetchError("unsafe_url")
     authority = f"[{host}]" if ":" in host else host
     return urlunsplit((parts.scheme, authority, parts.path or "/", parts.query, ""))
 
@@ -61,7 +68,7 @@ def resolve_public(url):
     records = socket.getaddrinfo(parts.hostname, port, type=socket.SOCK_STREAM)
     addresses = list(dict.fromkeys(record[4][0] for record in records))
     if not addresses or any(not is_public(ip) for ip in addresses):
-        raise ResearchError("unsafe_address", 422)
+        raise FetchError("unsafe_address")
     return addresses[0]
 
 
@@ -90,15 +97,15 @@ def download(url):
         address = resolve_public(url)
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            raise ResearchError("fetch_timeout")
+            raise FetchError("fetch_timeout")
         raw = bytearray()
 
         def collect(chunk):
             """传输中超限立即终止，不等整个响应进入内存。"""
             if time.monotonic() >= deadline:
-                raise ResearchError("fetch_timeout")
+                raise FetchError("fetch_timeout")
             if len(raw) + len(chunk) > MAX_BYTES:
-                raise ResearchError("source_too_large")
+                raise FetchError("source_too_large")
             raw.extend(chunk)
             return len(chunk)
 
@@ -126,26 +133,26 @@ def download(url):
                 CurlECode.OPERATION_TIMEDOUT: "fetch_timeout",
                 CurlECode.PARTIAL_FILE: "incomplete_source",
             }
-            raise ResearchError(codes.get(exc.code, "fetch_failed")) from None
+            raise FetchError(codes.get(exc.code, "fetch_failed")) from None
         if time.monotonic() >= deadline:
-            raise ResearchError("fetch_timeout")
+            raise FetchError("fetch_timeout")
         if response.status in {301, 302, 303, 307, 308}:
             location = response.headers.get("location")
             if not location:
-                raise ResearchError("invalid_redirect")
+                raise FetchError("invalid_redirect")
             url = urljoin(url, location)
             continue
         if response.status != 200:
-            raise ResearchError("fetch_http_error")
+            raise FetchError("fetch_http_error")
         content_type = (
             response.headers.get("content-type", "").split(";")[0].strip().lower()
         )
         if content_type not in {"text/html", "text/plain", "application/xhtml+xml"}:
-            raise ResearchError("unsupported_content_type")
+            raise FetchError("unsupported_content_type")
         if response.headers.get("content-encoding", "identity").lower() != "identity":
-            raise ResearchError("unsupported_encoding")
+            raise FetchError("unsupported_encoding")
         return url, bytes(raw), content_type
-    raise ResearchError("too_many_redirects")
+    raise FetchError("too_many_redirects")
 
 
 def extract(raw, content_type):
@@ -200,7 +207,7 @@ def fetch_source(url):
                 ],
             }
         )
-    except ResearchError as exc:
+    except FetchError as exc:
         document["error"] = exc.code
     except (OSError, ValueError):
         document["error"] = "fetch_failed"

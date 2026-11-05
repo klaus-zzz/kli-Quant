@@ -21,6 +21,7 @@
 | --- | --- | --- |
 | `backend/` | [后端规则](backend/AGENTS.md) | FastAPI 进程和 HTTP 接口 |
 | `frontend/` | [前端规则](frontend/AGENTS.md) | React 空应用及开发代理 |
+| `fetcher/` | [抓取器规则](fetcher/AGENTS.md) | 独立抓取服务、依赖和专属测试 |
 | `sandbox/` | [沙箱规则](sandbox/AGENTS.md) | 沙箱目录边界和 CLI 说明 |
 | `tests/` | [测试规则](tests/AGENTS.md) | 后端回归与浏览器验收 |
 
