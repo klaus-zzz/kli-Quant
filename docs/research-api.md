@@ -109,4 +109,46 @@ uv run pytest tests/test_research_service.py
 
 Scrapling 使用固定版本 0.5.1 的纯解析器，BSD-3-Clause 许可，
 依据 [官方安装与解析说明](https://github.com/D4Vinci/Scrapling#installation)。
+具体使用 `scrapling.parser.Selector` 的 XPath 查询和文本提取方法，提取 HTML
+段落、标题及 `article:published_time` 元信息；关闭自适应定位。HTTP 下载由本项目
+负责公网地址校验、重定向复查、超时和大小限制，不调用 Scrapling 的网络抓取接口。
 不安装其浏览器、MCP 或代理轮换组件；站点拒绝访问时记录失败，不尝试绕过认证。
+
+### Scrapling 抓取替换验收
+
+替换下载层必须同时满足：固定到已检查的 IP 并保持原域名 TLS 校验、逐跳检查
+重定向、不继承环境代理、限制下载大小及耗时、拒绝响应截断。不能只检查 URL
+后再让抓取库自行解析，也不能通过关闭证书验证来连接 IP。
+
+Scrapling 0.5.1 + curl_cffi 0.17.0 的实际验证结果：
+
+| 能力 | 结果 |
+| --- | --- |
+| HTTP 下载与解析 | 可用 |
+| 关闭自动重定向、拒绝私网重定向 | 可用；关闭后仍需业务层逐跳检查 |
+| 关闭重试并限制单次请求总耗时 | 可用，持续滴流仍会超时；多跳仍需共享剩余预算 |
+| 读取回调限制响应大小、拒绝响应截断 | 可用 |
+| 禁用环境代理 | `proxies={"all": ""}` 可用，不能只依赖默认设置 |
+| 固定已检查的 IP | 不满足：`Fetcher.get` 和 `FetcherSession` 均拒绝 `curl_options` |
+
+底层 curl_cffi 的公开 `Session(curl_options=..., trust_env=False)` 可以完成固定
+IP 与代理隔离，但 Scrapling 没有暴露该配置入口。本次保留原下载层，没有引入
+访问 `_curl_session` 等私有属性的版本绑定适配，也没有放松地址检查。
+固定 IP 条件未通过，因此没有进一步声称 HTTPS 原域名校验已完成替换验收。
+
+可选测试 `tests/test_scrapling_fetcher.py` 使用本地 HTTP 源站验证真实网络行为，
+不请求生产接口，也不启动浏览器。复现命令：
+
+```bash
+uv run --with 'scrapling[fetchers]==0.5.1' --with 'curl-cffi==0.17.0' \
+  pytest -q -rx tests/test_scrapling_fetcher.py
+```
+
+基础依赖不含 `fetchers` 扩展，普通测试会跳过此模块。仅验证环境临时安装
+扩展及其浏览器相关 Python 包，不下载浏览器二进制，也不加入生产依赖。
+标为 `xfail` 的用例表示替换条件尚未满足；上游接口改变后若用例通过，严格模式
+会要求重新审查这一限制，不能把预期失败当作功能已经验收。
+
+接口参考：[Scrapling 静态抓取](https://scrapling.readthedocs.io/en/latest/fetching/static.html)
+及其底层 [curl_cffi 会话配置](https://curl-cffi.readthedocs.io/en/latest/api.html)。
+版本行为以指定版本的实际测试为准，在线文档可能随上游更新。
