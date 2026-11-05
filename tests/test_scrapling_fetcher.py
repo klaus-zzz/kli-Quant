@@ -17,7 +17,7 @@ BODY = b"<html><body><article><p>Fixed evidence.</p></article></body></html>"
 
 @pytest.fixture
 def origin(monkeypatch):
-    """只为本地测试源站放行地址检查，其余 URL 仍走生产校验。"""
+    """只为本地源站放行随机测试端口，其余 URL 仍走生产校验。"""
     requests = []
 
     class Handler(BaseHTTPRequestHandler):
@@ -35,7 +35,7 @@ def origin(monkeypatch):
             requests.append((self.path, self.headers["Host"]))
             redirects = {
                 "/redirect": "/final",
-                "/private": "http://127.0.0.1/private",
+                "/bad-scheme": "file:///etc/passwd",
                 "/loop": "/loop",
                 "/missing-location": None,
             }
@@ -79,12 +79,12 @@ def origin(monkeypatch):
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     base = f"http://127.0.0.1:{server.server_port}"
-    check = sources.public_target
+    check = sources.normalize_url
 
     def allow_test_origin(url):
         return url if url == base or url.startswith(base + "/") else check(url)
 
-    monkeypatch.setattr(sources, "public_target", allow_test_origin)
+    monkeypatch.setattr(sources, "normalize_url", allow_test_origin)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     yield base, requests, server
@@ -114,7 +114,7 @@ def test_download_plain_text(origin):
 @pytest.mark.parametrize(
     "path,error,count",
     [
-        ("/private", "unsafe_address", 1),
+        ("/bad-scheme", "unsafe_url", 1),
         ("/loop", "too_many_redirects", 5),
         ("/missing-location", "invalid_redirect", 1),
         ("/truncated", "incomplete_source", 1),
@@ -215,8 +215,8 @@ def test_https_verifies_certificate_and_original_hostname(
     server.socket = context.wrap_socket(server.socket, server_side=True)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
-    # 仅放行下面构造的本地测试 URL，不改生产地址检查。
-    monkeypatch.setattr(sources, "public_target", lambda url: url)
+    # 仅放行下面构造的随机测试端口，不改生产 URL 校验。
+    monkeypatch.setattr(sources, "normalize_url", lambda url: url)
     url = f"https://localhost:{server.server_port}/"
     real_fetch = sources.Fetcher.get
 

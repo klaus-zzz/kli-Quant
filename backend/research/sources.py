@@ -1,9 +1,7 @@
-"""原文受控抓取：Scrapling 负责 HTTP，项目保留地址与资源预算检查。"""
+"""原文受控抓取：Scrapling 负责解析与 HTTP，项目保留 URL 和资源预算检查。"""
 
 import base64
 import hashlib
-import ipaddress
-import socket
 import time
 from datetime import UTC, datetime
 from urllib.parse import urljoin, urlsplit, urlunsplit
@@ -18,8 +16,8 @@ MAX_BYTES = 4 * 1024 * 1024
 TIMEOUT = 20
 
 
-def public_target(url):
-    """允许任意公网域名；每跳检查全部 DNS 结果并返回规范化 URL。"""
+def normalize_url(url):
+    """只校验协议、凭据和端口并规范化 URL，不预解析或分类 IP 地址。"""
     parts = urlsplit(url)
     if (
         parts.scheme not in {"http", "https"}
@@ -33,13 +31,6 @@ def public_target(url):
     if port != (443 if parts.scheme == "https" else 80):
         raise ResearchError("unsafe_port", 422)
     host = parts.hostname.encode("idna").decode("ascii")
-    addresses = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
-    ips = [item[4][0] for item in addresses]
-    parsed = [ipaddress.ip_address(ip) for ip in ips]
-    if not ips or any(
-        not ip.is_global or ip.is_multicast or ip.is_reserved for ip in parsed
-    ):
-        raise ResearchError("unsafe_address", 422)
     authority = f"[{host}]" if ":" in host else host
     return urlunsplit((parts.scheme, authority, parts.path or "/", parts.query, ""))
 
@@ -48,7 +39,7 @@ def download(url):
     """重定向逐跳复查，限制总时长和原文大小，不加载脚本或子资源。"""
     deadline = time.monotonic() + TIMEOUT
     for _ in range(5):
-        url = public_target(url)
+        url = normalize_url(url)
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ResearchError("fetch_timeout")
@@ -64,7 +55,6 @@ def download(url):
             return len(chunk)
 
         try:
-            # shortcut: 接受库二次 DNS 解析的风险；需消除此风险时补出站隔离。
             response = Fetcher.get(
                 url,
                 follow_redirects=False,
