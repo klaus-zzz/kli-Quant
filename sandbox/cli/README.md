@@ -49,20 +49,15 @@ CLI 的 `.env` 不提交版本库，里面只填写后端地址：
 KLI_QUANT_BACKEND_URL=http://127.0.0.1:18100
 ```
 
-后续接入 CubeSandbox 时，建议由创建沙箱的服务读取自身配置，再注入到沙箱。
-以下为接入示例，当前仓库尚未实现或验证完整沙箱接入：
+CubeSandbox 控制端读取集中配置，再注入到新沙箱；可复用创建入口：
 
 ```python
-import os
-from cubesandbox import Sandbox
+from sandbox.create_sandbox import AXI, checked_command, temporary_sandbox
 
 # 配置来自创建沙箱的服务，地址无需写入 CLI 或模板镜像。
-with Sandbox.create(
-    template=os.environ["CUBE_TEMPLATE_ID"],
-    envs={"KLI_QUANT_BACKEND_URL": os.environ["KLI_QUANT_BACKEND_URL"]},
-) as sandbox:
+with temporary_sandbox() as sandbox:
     # 创建时注入的变量会被 commands.run 启动的 CLI 继承。
-    sandbox.commands.run("axi list tushare")
+    checked_command(sandbox, f"{AXI} list tushare")
 ```
 
 前提是沙箱已安装 CLI 依赖并配置 `AXI_CONFIG` 和模块路径。
@@ -120,3 +115,107 @@ uv run ruff format --check .
 权限、限流、超时、空数据、大小和行数截断。真实验收应单独运行上述 CLI / PTC，
 小范围抽样股票基础、行情、财务、指数、基金、宏观及 VIP，记录实际状态与行数；
 不要把契约结构测试当作全部接口真实可用的证明。
+
+## 专属模板与控制端
+
+构建上下文为仓库根目录；`sandbox/Dockerfile.dockerignore` 仅放行 CLI Python、
+契约 JSON 与锁文件。直接使用官方基础镜像 `ghcr.io/tencentcloud/cubesandbox-base:2026.16`，
+保留 envd 2026.16、tini 和原始 ENTRYPOINT/CMD；新模板装入本仓库工具，不使用旧模板 ID。
+Dockerfile 的 FROM 使用明确版本标签，不追加 digest。
+
+官方 base 不含 Python，由 uv 0.13.7 下载 Python 3.12.15 到 `/opt/kli-quant/python`，
+CLI 依赖安装到 `/opt/kli-quant/venv`。
+axi 的绝对路径为 `/opt/kli-quant/venv/bin/axi`，PTC 使用同目录的 `python`。
+CLI 包路径通过该环境的 `.pth` 文件注册，无需注入服务端禁止的 `PYTHONPATH`，
+也不依赖 envd 继承镜像环境或命令的工作目录。
+`kli-axi` 提供框架及 `axi` 命令；本仓库的 `sandbox.cli.tushare` 是另外复制的工具模块，
+因此仍需要注册其包路径。Python 版本和 187 个工具的数量在构建后验收。
+基础镜像没有 Jupyter 服务，本模板不提供 `run_code`；Python PTC 经 `commands.run` 执行。
+参考 [官方镜像启动契约](https://cubesandbox.com/guide/tutorials/bring-your-own-image.html)
+和 [官方 Python SDK](https://cubesandbox.com/guide/tutorials/sdk/python)。
+
+0.1.1 使用旧派生镜像，0.1.2 起直接使用官方 base。以下为 0.1.2 的发布命令；
+后续修改须递增版本，不覆盖已发布标签。
+
+```bash
+# 从仓库根目录构建；选择尚未发布的标签，禁止覆盖共享模板或已发布镜像。
+docker build --platform linux/amd64 -f sandbox/Dockerfile \
+  -t iruiiii/omniagent-sandbox:kli-quant-0.1.2 .
+# 目标开发资源获准且本地验收通过后才推送。
+docker push --platform linux/amd64 iruiiii/omniagent-sandbox:kli-quant-0.1.2
+```
+
+当前集群为 x86_64，CubeMaster/cubemastercli v0.7.3，实例类型 cubebox。
+计算节点须先通过安装包自带的虚拟化预检，确认 `/dev/kvm` 可用；管理页面正常不代表
+沙箱可运行。预检的 `CUBE_DATA_PATH` 应指向实际 XFS 数据盘路径。
+在已有集群管理机执行以下命令；保留 envd 探针，不传入后端地址或管理凭据：
+
+```bash
+cubemastercli tpl create-from-image \
+  --image iruiiii/omniagent-sandbox:kli-quant-0.1.2 \
+  --alias kli-quant-0-1-2 --instance-type cubebox \
+  --cpu 2000 --memory 2048 --writable-layer-size 1G \
+  --expose-port 49983 --probe 49983 --probe-path /health
+cubemastercli tpl list -o wide
+```
+
+若管理机访问镜像仓库失败，仅通过 `docker save` / `docker load` 载入镜像并不足以解决。
+当前 v0.7.3 的[原生导出器默认启用](https://github.com/TencentCloud/CubeSandbox/blob/4411c96ba8658a959de34693f54f4918db2a432f/CubeTemplateCenter/pkg/image/native.go)，
+会直接访问镜像仓库，绕过 Docker 本地缓存。可将上述 `--image` 改为经确认的代理镜像地址，
+例如 `docker.agentfixit.ai/iruiiii/omniagent-sandbox:kli-quant-0.1.2`；构建前核对代理返回的
+镜像 digest 与发布版本一致。显式使用代理地址无需更改导出模式或重启服务。
+不能把载入镜像或创建任务成功视为模板 READY。
+
+等待模板 READY 后，将新 ID 写入 `/workspace/deploy/kli-quant/.env` 的
+`CUBESANDBOX_TEMPLATE_ID`。控制端所需配置如下（值留空表示必须自行填写）：
+
+```dotenv
+CUBESANDBOX_API_URL=
+CUBESANDBOX_DOMAIN=
+CUBESANDBOX_TEMPLATE_ID=
+E2B_API_KEY=
+KLI_QUANT_BACKEND_URL=
+# 控制端无法解析沙箱通配域名时，填写 CubeProxy 节点 IP。
+CUBE_PROXY_NODE_IP=
+```
+
+此配置文件也可能含 Agent 凭据，不能复制进镜像；根 `.env.example` 只维护后端配置。
+控制端 SDK 固定 `cubesandbox==0.7.3`，通过 uv 的独立 `sandbox` 依赖组安装：
+
+```bash
+uv sync --locked --group sandbox
+uv run --locked --group sandbox python -m sandbox.create_sandbox
+# 只在明确指向测试后端、其上游为 HTTP 替身时启用业务探针。
+uv run --locked --group sandbox python -m sandbox.create_sandbox --check-tools
+```
+
+默认从上述集中配置加载，进程环境优先；`--env-file` 可指定测试专用配置。
+入口校验必填项，只把 `KLI_QUANT_BACKEND_URL`、`AXI_CONFIG` 传给
+`Sandbox.create(envs=...)`。默认验收健康接口和 187 个离线工具的注册、搜索、描述。
+创建时同时通过 `network.allow_out` 放行后端 URL 的主机：IPv4 使用 `/32`，IPv6 使用
+`/128`，域名保持原值；规则仅作用于该实例，不修改集群策略。地址改变后，新实例的放行目标同步改变。
+`--check-tools` 另外执行 `daily` 的 CLI 与 PTC 请求，并检查业务信封状态；
+此开关会请求所配置的后端，不能用于未获授权的真实 Tushare 调用。
+成功或失败都会删除临时实例；实例 TTL 为 300 秒，清理失败会向控制端报错。
+
+原始场景复验：准备两个独立测试后端 A/B，使用同一模板分别运行上述命令，
+每次仅在控制端更改 `KLI_QUANT_BACKEND_URL`。核对 A/B 请求日志与模板 digest，
+无需手动 export 到沙箱，也无需重建镜像。旧实例仍保留创建时的地址。
+
+依赖更新先更新根 `uv.lock`，同步 `sandbox/requirements.in` 的直接依赖版本，
+再从根锁文件导出约束并重生成带哈希的 CLI 锁文件：
+
+```bash
+uv export --locked --no-dev --no-emit-project --no-hashes \
+  --output-file /tmp/kli-quant-sandbox-constraints.txt
+uv pip compile sandbox/requirements.in --python-version 3.12 \
+  --constraint /tmp/kli-quant-sandbox-constraints.txt --generate-hashes \
+  --output-file sandbox/requirements.lock
+rm /tmp/kli-quant-sandbox-constraints.txt
+uv run pytest tests/test_sandbox.py tests/test_tushare.py
+```
+
+排查时先区分失败阶段：模板未 READY 查集群构建任务；命令不通查 envd 的
+`:49983/health`、CubeSandbox 域名解析和代理；导入失败查镜像内 `.pth`、独立解释器与 `AXI_CONFIG` 路径；
+后端不可达查沙箱路由与后端端口来源规则。非零退出码会导致验收失败，不能只看 SDK
+调用是否抛异常。普通单测不访问真实集群或付费数据源。

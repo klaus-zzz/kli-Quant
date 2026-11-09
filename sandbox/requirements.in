@@ -1,0 +1,5 @@
+# CLI 的直接依赖沿用根 uv.lock 已验证版本。
+kli-axi==0.0.13
+httpx==0.28.1
+pydantic==2.14.2
+python-dotenv==1.2.4
