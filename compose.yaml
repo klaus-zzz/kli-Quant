@@ -5,9 +5,11 @@ services:
   backend:
     image: ghcr.io/astral-sh/uv:0.13.7-python3.12-trixie-slim
     working_dir: /app
+    # 先关闭 Gateway 再回收已登记沙箱，不能被 Docker 默认的短宽限期打断。
+    stop_grace_period: 60s
     command: >-
-      sh -c "uv sync --locked &&
-      uv run --no-sync uvicorn backend.main:app --host 0.0.0.0 --port 18100
+      sh -c "uv sync --locked --group sandbox &&
+      exec uv run --no-sync uvicorn backend.main:app --host 0.0.0.0 --port 18100
       --reload --reload-dir backend"
     # 数据源配置从根 .env 加载，仅供后端使用。
     env_file:
@@ -18,10 +20,17 @@ services:
       UV_CACHE_DIR: /tmp/uv-cache
       UV_HTTP_TIMEOUT: "180"
       RESEARCH_FETCHER_URL: "${RESEARCH_FETCHER_URL:-http://research-fetcher:18101/fetch}"
+      KLI_QUANT_AGENT_ENV_FILE: "${KLI_QUANT_AGENT_ENV_FILE:-}"
+      RESEARCH_DATABASE_URL: "${RESEARCH_DATABASE_URL:-}"
+      RESEARCH_S3_ENDPOINT: "${RESEARCH_S3_ENDPOINT:-}"
+      RESEARCH_S3_BUCKET: "${RESEARCH_S3_BUCKET:-}"
+      RESEARCH_S3_ACCESS_KEY: "${RESEARCH_S3_ACCESS_KEY:-}"
+      RESEARCH_S3_SECRET_KEY: "${RESEARCH_S3_SECRET_KEY:-}"
     volumes:
       - .:/app
       - backend-venv:/opt/venv
       - backend-python:/opt/python
+      - ${KLI_QUANT_AGENT_CONFIG_DIR:-/workspace/deploy/kli-quant}:/agent-config:ro
     ports:
       - "${BACKEND_PORT:-18100}:18100"
     networks:
@@ -62,6 +71,30 @@ services:
     security_opt: ["no-new-privileges:true"]
     pids_limit: 128
     mem_limit: 2g
+
+  # 独立开发 Agent；外部镜像只复用已核对版本，不构建或启动生产实例。
+  agent:
+    profiles: [agent]
+    image: aidong-backend.tencentcloudcr.com/aidong/omniagent:1.0.0a84
+    pull_policy: never
+    working_dir: /app
+    command: [serve, --port, "8090"]
+    env_file:
+      - path: ${KLI_QUANT_AGENT_CONFIG_DIR:-/workspace/deploy/kli-quant}/.env
+        required: false
+    environment:
+      # 管理身份只接本项目的窄范围适配入口，不给 Agent 集群创建权限。
+      CUBESANDBOX_API_URL: http://${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-backend:18100/api/agent/cube
+      E2B_API_KEY: ${KLI_QUANT_CONTROL_TOKEN:-}
+      E2B_SANDBOX_URL: http://${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-backend:18100/api/agent/cube/envd
+      SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
+    volumes:
+      - ${KLI_QUANT_AGENT_CONFIG_DIR:-/workspace/deploy/kli-quant}/.omniagent:/app/.omniagent:ro
+      - ${KLI_QUANT_AGENT_CONFIG_DIR:-/workspace/deploy/kli-quant}/certs/cube-root-ca.crt:/usr/local/share/ca-certificates/cube-root-ca.crt:ro
+    dns: ["${CUBESANDBOX_DNS:-172.20.0.53}"]
+    networks:
+      docker:
+        aliases: ["${COMPOSE_PROJECT_NAME:-kli-quant-skeleton}-agent"]
 
   frontend:
     image: node:24.22.2-bookworm-slim

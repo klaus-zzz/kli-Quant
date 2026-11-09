@@ -277,7 +277,11 @@ import httpx
 load_native_tool_modules()
 from sandbox.cli import tushare
 tushare.__file__ = str(Path.cwd() / 'cli' / 'tushare.py')
-assert set(registry.list_names()) == {'tushare/' + n for n in CONTRACTS}
+assert {n for n in registry.list_names() if n.startswith('tushare/')} == {
+    'tushare/' + n for n in CONTRACTS}
+assert {n for n in registry.list_names() if n.startswith('research/')} == {
+    'research/' + n for n in ('context', 'submit', 'status', 'cancel', 'result',
+                             'source', 'evidence', 'execute', 'publish')}
 meta = registry.get('tushare/daily')
 assert 'trade_date' in meta.input_schema['properties']
 assert '成交量' in meta.description
@@ -352,7 +356,7 @@ def test_concurrency_limit(monkeypatch):
             return {"type": "http.request", "body": b"{}", "more_body": False}
 
         def request():
-            return Request({"type": "http", "method": "POST"}, receive)
+            return Request({"type": "http", "method": "POST", "app": app}, receive)
 
         monkeypatch.setattr(tushare, "fetch", fake_fetch)
         monkeypatch.setattr(tushare, "_slots", asyncio.Semaphore(4))

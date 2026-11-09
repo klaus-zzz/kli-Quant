@@ -130,6 +130,24 @@ async def query(name: str, request: Request):
         validate(name, params, fields)
     except (ValueError, TypeError):
         return result(name, {}, "invalid_request", message="接口、参数或字段选择无效")
+    runtime = getattr(request.app.state, "agent", None)
+    if runtime is not None:
+        # Agent 模式所有数据调用都扣当前研究预算并冻结证据，不能旁路普通入口。
+        from starlette.concurrency import run_in_threadpool
+
+        from backend.research.models import ResearchError
+
+        binding = await run_in_threadpool(runtime.authorize_research, request)
+        if binding.get("run_id") is None:
+            raise ResearchError("research_identity_required", 403)
+        owner, run_id = binding["session_id"], binding["run_id"]
+        ref = await runtime.research.collect_dataset(
+            owner, run_id, name, params, fields
+        )
+        _, document = await run_in_threadpool(
+            runtime.research.read_evidence, owner, run_id, ref["evidence_id"]
+        )
+        return {**document["response"], "evidence": ref}
     return await execute_query(name, params, fields)
 
 
