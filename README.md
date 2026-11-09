@@ -11,6 +11,8 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 | `frontend/` | React 空应用和 Vite 开发代理 |
 | `fetcher/` | 独立原文抓取服务、镜像、依赖和专属测试 |
 | `sandbox/cli/` | 离线契约、187 个 axi 工具及调用说明 |
+| `sandbox/Dockerfile` | 专属 CubeSandbox 模板及隔离 CLI 依赖 |
+| `sandbox/create_sandbox.py` | 可信控制端的临时沙箱创建与验收 |
 | `tests/` | 健康接口回归与浏览器检查 |
 | `compose.yaml` | 前后端与隔离抓取服务的开发配置 |
 | `AGENTS.md` | 公共规则及目录规则索引 |
@@ -34,6 +36,9 @@ OmniAgent 沙箱定义基于 Python 3.12.11，现有 CubeSandbox 派生镜像
 因此选择 3.12.15 作为统一开发基线。这里只核对运行时约束，未验证后续服务的完整集成。
 本项目使用 `kli-axi==0.0.13` 注册金融工具，尚不安装 OmniAgent，也不复制其源码。
 工具契约、调用方式和安全边界见 [Tushare 工具说明](sandbox/cli/README.md)。
+专属模板使用 [CubeSandbox](https://github.com/TencentCloud/CubeSandbox) 的 envd 执行命令，
+控制端通过官方 Python SDK 创建实例并动态注入后端地址，见同一说明中的模板章节。
+该入口不接入 Agent；镜像构建成功不代表集群模板注册、网络和业务调用均已通过。
 
 ## 开发容器启动（推荐）
 

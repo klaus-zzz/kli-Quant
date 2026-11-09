@@ -1,0 +1,10 @@
+# 默认拒绝整个仓库，仅开放构建必需的 CLI 文件。
+**
+!sandbox/
+!sandbox/requirements.lock
+!sandbox/cli/
+!sandbox/cli/*.py
+!sandbox/cli/axi.json
+!sandbox/cli/restricted.json
+!sandbox/cli/contracts/
+!sandbox/cli/contracts/*.json

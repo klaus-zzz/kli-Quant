@@ -15,6 +15,8 @@ dependencies = [
 
 [dependency-groups]
 dev = ["httpx", "pytest", "ruff"]
+# 管理 SDK 仅供可信控制端使用，不进入 CLI 模板镜像。
+sandbox = ["cubesandbox==0.7.3"]
 
 [tool.uv]
 # 直接运行 backend 模块，本阶段不构建分发包。
