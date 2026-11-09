@@ -35,6 +35,9 @@ OmniAgent 沙箱定义基于 Python 3.12.11，现有 CubeSandbox 派生镜像
 `iruiiii/omniagent-sandbox:quant-0.1.5` 实测 Python 3.12.15。
 因此选择 3.12.15 作为统一开发基线。这里只核对运行时约束，未验证后续服务的完整集成。
 本项目使用 `kli-axi==0.0.13` 注册金融工具，尚不安装 OmniAgent，也不复制其源码。
+工具框架来自 [kli-axi](https://github.com/klaus-zzz/kli-axi)（基于 [AXI](https://github.com/deku0818/axi)）；
+采用其 `754fb05` 版 `axi-use` 及 PTC 参考作为业务 Agent 的工具使用技能，
+`axi-creator` 的适用规则整理在 [沙箱开发规则](sandbox/AGENTS.md)，用于维护原生工具接入。
 工具契约、调用方式和安全边界见 [Tushare 工具说明](sandbox/cli/README.md)。
 专属模板使用 [CubeSandbox](https://github.com/TencentCloud/CubeSandbox) 的 envd 执行命令，
 控制端通过官方 Python SDK 创建实例并动态注入后端地址，见同一说明中的模板章节。
