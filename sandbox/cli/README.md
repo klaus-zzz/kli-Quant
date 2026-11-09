@@ -134,7 +134,8 @@ CLI 包路径通过该环境的 `.pth` 文件注册，无需注入服务端禁�
 参考 [官方镜像启动契约](https://cubesandbox.com/guide/tutorials/bring-your-own-image.html)
 和 [官方 Python SDK](https://cubesandbox.com/guide/tutorials/sdk/python)。
 
-已发布的 0.1.1 使用旧派生镜像；以下 0.1.2 为官方 base 版本的待发布示例，不覆盖旧标签。
+0.1.1 使用旧派生镜像，0.1.2 起直接使用官方 base。以下为 0.1.2 的发布命令；
+后续修改须递增版本，不覆盖已发布标签。
 
 ```bash
 # 从仓库根目录构建；选择尚未发布的标签，禁止覆盖共享模板或已发布镜像。
