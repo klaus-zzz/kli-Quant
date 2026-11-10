@@ -580,32 +580,40 @@ textarea:focus-visible {
   scrollbar-width: thin;
 }
 .empty-home {
-  padding-top: 9vh;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 .empty-home > [data-icon] svg {
-  width: 42px;
-  height: 48px;
-  margin-bottom: 25px;
+  width: 32px;
+  height: 36px;
 }
 .empty-home h1 {
   font-size: 28px;
-  margin-bottom: 15px;
+  line-height: 1.4;
 }
+/* 示例是输入框的辅助入口，宽屏并排，窄屏保持完整文字和点击面积。 */
 .prompt-list {
-  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
 }
 .prompt-list button {
   text-align: left;
-  width: 100%;
-  padding: 16px 0;
+  padding: 10px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
-  line-height: 1.8;
+  gap: 9px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
 }
-.prompt-list button > :last-child {
-  margin-left: auto;
+.prompt-list button:hover:not(:disabled) {
+  background: var(--ground);
+  color: var(--ink);
 }
 .empty-panel {
   font-size: 13px;
@@ -847,11 +855,19 @@ dialog p {
   .panel-content {
     padding: 20px 24px;
   }
-  .empty-home {
-    padding-top: 5vh;
-  }
   .empty-home h1 {
-    font-size: 26px;
+    font-size: 24px;
+  }
+  .empty-home {
+    gap: 12px;
+  }
+  .empty-home > [data-icon] svg {
+    width: 28px;
+    height: 32px;
+  }
+  .prompt-list {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -872,15 +888,27 @@ dialog p {
     transition: none;
   }
 }
-/* 新对话把欢迎语、示例和输入框收拢；进入对话后恢复底部输入区。 */
+/* 首页以输入为中心；短窗口允许整组滚动，已有对话仍独立滚动消息。 */
 .conversation:has(.empty-home) {
-  justify-content: center;
+  justify-content: safe center;
+  overflow-y: auto;
+  padding-block: 24px clamp(24px, 9vh, 100px);
 }
 .conversation:has(.empty-home) .conversation-scroll {
-  flex: 0 1 auto;
+  flex: none;
+  overflow: visible;
 }
-.conversation:has(.empty-home) .empty-home {
+.conversation:has(.empty-home) .thread,
+.conversation:has(.empty-home) .composer-area {
+  max-width: 800px;
+}
+.conversation:has(.empty-home) .thread {
   padding-top: 0;
+  padding-bottom: 24px;
+}
+.conversation:has(.empty-home) .composer-area {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .empty-panel {
   max-width: 240px;

@@ -188,6 +188,26 @@ async function setup(page: Page) {
   return state;
 }
 
+// 首页示例只填入草稿，重排后仍支持编辑发送，并在首条回复后退出首页。
+for (const width of [390, 1440]) {
+  test(`首页示例填入后可编辑发送（${width}px）`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 780 });
+    const state = await setup(page);
+    await page.getByRole("button", { name: "切换任务侧栏" }).click();
+    const prompt = "把会议记录整理成行动清单";
+    await page.getByRole("button", { name: prompt, exact: true }).click();
+    const input = page.getByLabel("消息", { exact: true });
+    await expect(input).toHaveValue(prompt);
+    await expect(input).toBeFocused();
+    expect(state.messages).toHaveLength(0);
+    await input.fill(`${prompt}，按负责人分组。`);
+    await page.getByRole("button", { name: "发送消息", exact: true }).click();
+    await expect(page.getByText("普通聊天回复", { exact: true })).toBeVisible();
+    await expect(page.getByLabel("对话示例")).toHaveCount(0);
+    expect(state.messages[0].text).toBe(`${prompt}，按负责人分组。`);
+  });
+}
+
 test("研究期间聊天、刷新恢复、重复快照不重复回复", async ({ page }) => {
   const state = await setup(page);
   await page

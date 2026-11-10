@@ -213,28 +213,6 @@ export default function Workspace({
               <div className="empty-home">
                 <Icon name="brand" />
                 <h1>今天，想完成什么？</h1>
-                <div className="prompt-list">
-                  {(
-                    [
-                      ["file", "把会议记录整理成行动清单"],
-                      ["code", "帮我读懂这个接口的调用流程"],
-                      ["globe", "美联储降息如何传导至 A 股？"],
-                    ] as const
-                  ).map(([icon, prompt]) => (
-                    <button
-                      key={prompt}
-                      disabled={sending || !!pending}
-                      onClick={() => {
-                        setText(prompt);
-                        input.current?.focus();
-                      }}
-                    >
-                      <Icon name={icon} />
-                      {prompt}
-                      <Icon name="arrowUpRight" />
-                    </button>
-                  ))}
-                </div>
               </div>
             )}
             {snapshot?.deliveries.map((delivery) => (
@@ -343,6 +321,30 @@ export default function Workspace({
               </p>
             )}
           </form>
+          {/* 示例放在输入区之后，选择时只填入内容，仍由用户确认发送。 */}
+          {!snapshot?.deliveries.length && (
+            <div className="prompt-list" aria-label="对话示例">
+              {(
+                [
+                  ["file", "把会议记录整理成行动清单"],
+                  ["code", "帮我读懂这个接口的调用流程"],
+                  ["globe", "美联储降息如何传导至 A 股？"],
+                ] as const
+              ).map(([icon, prompt]) => (
+                <button
+                  key={prompt}
+                  disabled={sending || !!pending}
+                  onClick={() => {
+                    setText(prompt);
+                    input.current?.focus();
+                  }}
+                >
+                  <Icon name={icon} />
+                  <span>{prompt}</span>
+                </button>
+              ))}
+            </div>
+          )}
           <div className="connection" role="status">
             <span title={updated ? `最后更新 ${updated}` : undefined}>
               {status}
