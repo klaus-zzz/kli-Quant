@@ -14,9 +14,14 @@
 | GET `/api/research/runs/{run_id}` | 查询状态、阶段、截止时间、预算及使用量 |
 | POST `/api/research/runs/{run_id}/cancel` | 请求取消，无请求体，可重复调用 |
 | GET `/api/research/runs/{run_id}/result` | 获取固定结果与证据引用；尚无有效结果返回 409 |
+| GET `/api/research/runs/{run_id}/evidence` | 查询该执行的固定归档目录；返回证据 ID、类型、摘要和元数据，不含对象存储键 |
+| GET `/api/research/runs/{run_id}/evidence/{evidence_id}` | 校验归属和摘要后读取固定资料；可读当前执行或明确关联的前序执行，移除原始 HTML 字节 |
 
 同一用户用同一幂等键提交不同内容返回 409；不存在或无权访问返回 404，
 无效输入返回 422，服务未就绪返回 503。归属、截止时间和预算由服务端确定。
+状态视图另含 `question` 和 `previous_run_id`，供浏览器展示研究问题和固定版本关系。
+浏览器归档读取使用聊天认证与 `X-Session-ID`，不要求沙箱执行身份，也不受研究终态限制。
+运行、失败或取消后的资料仍可核对，但归档存在不代表报告已通过校验。
 
 提交只登记研究；主 Agent 随后调用返回的 `agent` 参数启动后台任务。
 状态流转为 `queued → running → completed / failed`，running 来自受信原生任务事件。

@@ -123,7 +123,9 @@ class Ledger:
         """公开视图只含投递状态和正文，内部提示及控制端凭据不出库。"""
         with self.repo.transaction() as conn:
             return conn.execute(
-                "SELECT id,kind,run_id,state,answer FROM agent_deliveries "
+                "SELECT id,kind,run_id,state,answer,"
+                "CASE WHEN kind='chat' THEN question ELSE '' END AS question "
+                "FROM agent_deliveries "
                 "WHERE session_id=%s AND kind<>'research' ORDER BY created_at",
                 (session,),
             ).fetchall()

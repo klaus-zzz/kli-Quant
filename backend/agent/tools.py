@@ -55,6 +55,12 @@ def context(request: Request, owner=Depends(principal)):
         "mode": "research",
         **view(run),
         "request": run["request"],
+        # 复核直接取得旧判断和产物 ID，避免把新 run_id 当成旧结果查询目标。
+        "previous_result": (
+            runtime.research.result(owner, run["previous_run_id"])
+            if run["previous_run_id"]
+            else None
+        ),
         "result_schema": ResultBundle.model_json_schema(),
         # JSON Schema 只描述报告字段；同时公开执行与引用的语义契约，供模型编写代码。
         "execution_contract": {

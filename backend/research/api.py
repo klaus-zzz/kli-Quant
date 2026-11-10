@@ -1,4 +1,4 @@
-"""四个研究 HTTP 能力；可信身份和执行器接线缺失时明确拒绝。"""
+"""研究状态与固定归档接口；可信身份和执行器接线缺失时明确拒绝。"""
 
 import json
 from uuid import UUID
@@ -35,9 +35,13 @@ def service(request: Request):
 
 
 def view(run):
-    """只返回业务状态，隐藏内部幂等键、归属、原始输入和存储配置。"""
+    """公开问题和版本关系；隐藏内部幂等键、归属和存储配置。"""
     return {
         "run_id": str(run["id"]),
+        "question": run["request"]["question"],
+        "previous_run_id": (
+            str(run["previous_run_id"]) if run["previous_run_id"] else None
+        ),
         **{
             k: run[k]
             for k in (
@@ -97,6 +101,42 @@ def cancel(run_id: UUID, owner=Depends(principal), research=Depends(service)):
 @router.get("/{run_id}/result")
 def get_result(run_id: UUID, owner=Depends(principal), research=Depends(service)):
     return research.result(owner, run_id)
+
+
+@router.get("/{run_id}/evidence")
+def list_evidence(run_id: UUID, owner=Depends(principal), research=Depends(service)):
+    """归档目录可在运行中或结束后查询，探索资料不代表正式结论。"""
+    with research.repo.transaction() as conn:
+        research.repo.run(conn, owner, run_id)
+        rows = conn.execute(
+            "SELECT id AS evidence_id,run_id,kind,sha256,metadata,created_at "
+            "FROM research_evidence WHERE run_id=%s ORDER BY created_at,id",
+            (run_id,),
+        ).fetchall()
+    return {"evidence": rows}
+
+
+@router.get("/{run_id}/evidence/{evidence_id}")
+def get_evidence(
+    run_id: UUID,
+    evidence_id: UUID,
+    owner=Depends(principal),
+    research=Depends(service),
+):
+    """复用归属与摘要校验；不向浏览器暴露对象键或原始 HTML 字节。"""
+    ref, document = research.read_evidence(owner, run_id, evidence_id)
+    return {
+        "evidence_id": str(ref["id"]),
+        "run_id": str(ref["run_id"]),
+        "kind": ref["kind"],
+        "sha256": ref["sha256"],
+        "metadata": ref["metadata"],
+        "document": (
+            {k: v for k, v in document.items() if k != "raw_base64"}
+            if ref["kind"] == "source"
+            else document
+        ),
+    }
 
 
 def install_handlers(app):

@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 // 成功路径必须经过实际开发代理和后端，不能用模拟数据代替。
-test("显示开发骨架和真实健康状态", async ({ page }) => {
+test("显示对话入口和真实健康状态", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "开发骨架" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "对话与研究" })).toBeVisible();
   await expect(page.getByRole("status")).toHaveText("后端进程正常");
 });
 
