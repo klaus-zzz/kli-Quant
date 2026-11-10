@@ -21,7 +21,9 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 [Scrapling](https://github.com/D4Vinci/Scrapling) 和
 [curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)。
 抓取仅访问公网，使用 [nftables](https://www.nftables.org/) 隔离网络出口。
-当前尚未接入真实执行器与身份认证，详见 [研究接口说明](docs/research-api.md)。
+可显式启用 OmniAgent Gateway 与私有沙箱研究执行，使用单用户开发认证；
+Gateway 客户端使用 [websockets](https://github.com/python-websockets/websockets) 建立连接。
+详见 [Agent 接入](docs/agent.md) 和 [研究接口说明](docs/research-api.md)。
 
 ## 运行时基线
 
@@ -33,15 +35,17 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 `kli-axi` 0.0.13 声明 ≥3.12，其模块和命令为 `axi`；
 OmniAgent 沙箱定义基于 Python 3.12.11，现有 CubeSandbox 派生镜像
 `iruiiii/omniagent-sandbox:quant-0.1.5` 实测 Python 3.12.15。
-因此选择 3.12.15 作为统一开发基线。这里只核对运行时约束，未验证后续服务的完整集成。
-本项目使用 `kli-axi==0.0.13` 注册金融工具，尚不安装 OmniAgent，也不复制其源码。
+因此选择 3.12.15 作为统一开发基线。
+本项目使用 `kli-axi==0.0.13` 注册金融工具；[OmniAgent](https://github.com/aivp/OmniAgent)
+使用独立镜像运行，只接公开 Gateway、历史与沙箱协议，不复制上游源码。
 工具框架来自 [kli-axi](https://github.com/klaus-zzz/kli-axi)（基于 [AXI](https://github.com/deku0818/axi)）；
 采用其 `754fb05` 版 `axi-use` 及 PTC 参考作为业务 Agent 的工具使用技能，
 `axi-creator` 的适用规则整理在 [沙箱开发规则](sandbox/AGENTS.md)，用于维护原生工具接入。
 工具契约、调用方式和安全边界见 [Tushare 工具说明](sandbox/cli/README.md)。
 专属模板使用 [CubeSandbox](https://github.com/TencentCloud/CubeSandbox) 的 envd 执行命令，
 控制端通过官方 Python SDK 创建实例并动态注入后端地址，见同一说明中的模板章节。
-该入口不接入 Agent；镜像构建成功不代表集群模板注册、网络和业务调用均已通过。
+独立模板验收入口不启动 Agent；业务接线复用该模板，并在任务初始化时装载研究 CLI。
+镜像构建成功不代表集群模板注册、网络和业务调用均已通过。
 
 ## 开发容器启动（推荐）
 

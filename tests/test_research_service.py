@@ -310,6 +310,16 @@ def test_migration_rollback_and_repeat(research):
     migrate(dsn, "down")
     with research.repo.transaction() as conn:
         assert (
+            conn.execute("SELECT to_regclass('agent_sessions') AS t").fetchone()["t"]
+            is None
+        )
+        assert (
+            conn.execute("SELECT to_regclass('research_runs') AS t").fetchone()["t"]
+            is not None
+        )
+    migrate(dsn, "down")
+    with research.repo.transaction() as conn:
+        assert (
             conn.execute(
                 "SELECT to_regclass('research_runs') AS table_name"
             ).fetchone()["table_name"]

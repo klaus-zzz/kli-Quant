@@ -1,5 +1,6 @@
 {
   "nativeTools": [
-    {"module": "sandbox.cli.tushare", "name": "tushare"}
+    {"module": "sandbox.cli.tushare", "name": "tushare"},
+    {"module": "sandbox.cli.research", "name": "research"}
   ]
 }

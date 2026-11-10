@@ -248,21 +248,15 @@ class ResearchService:
                     conn, run_id, "failed", "ended", "deadline_exceeded"
                 )
 
-    def publish(self, owner, run_id, draft):
-        """先保存草稿并校验，再持锁发布；取消先到时不改变取消状态。"""
+    def check_draft(self, owner, run_id, draft):
+        """只读检查与正式发布使用同一规则，允许 Agent 在截止前修正草稿。"""
         from pydantic import ValidationError
 
         from backend.research.models import ResultBundle
         from backend.research.validation import validate_bundle
 
         run = self.get(owner, run_id)
-        if run["status"] == "completed":
-            current = self.result(owner, run_id)
-            if current["result"] != draft:
-                raise ResearchError("immutable_result")
-            return current
         self.require_running(run)
-        ref = self.archive.put(run_id, draft)
         bundle, errors = None, []
         try:
             bundle = ResultBundle.model_validate(draft)
@@ -282,6 +276,19 @@ class ResearchService:
             )
         except ValidationError:
             errors = ["invalid_result_schema"]
+        return bundle, errors
+
+    def publish(self, owner, run_id, draft):
+        """先保存草稿并校验，再持锁发布；取消先到时不改变取消状态。"""
+        run = self.get(owner, run_id)
+        if run["status"] == "completed":
+            current = self.result(owner, run_id)
+            if current["result"] != draft:
+                raise ResearchError("immutable_result")
+            return current
+        self.require_running(run)
+        ref = self.archive.put(run_id, draft)
+        bundle, errors = self.check_draft(owner, run_id, draft)
         result_id = uuid4()
         with self.repo.transaction() as conn:
             run = self.repo.run(conn, owner, run_id, lock=True)

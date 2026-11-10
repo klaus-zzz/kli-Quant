@@ -17,6 +17,11 @@ router = APIRouter(prefix="/api/research/runs")
 def principal(request: Request):
     """只信任认证中间件注入的 scope；普通 Header 和正文均无效。"""
     owner = request.scope.get("research_owner")
+    runtime = getattr(request.app.state, "agent", None)
+    if owner is None and runtime is not None:
+        binding = runtime.authorize_research(request)
+        request.scope["research_binding"] = binding
+        owner = binding["session_id"]
     if not isinstance(owner, str) or not owner:
         raise ResearchError("identity_not_ready", 503)
     return owner
@@ -92,6 +97,11 @@ def install_handlers(app):
     """异常只输出稳定分类，数据库连接字符串和 S3 密钥不会回显。"""
 
     async def business_error(request, exc):
+        if request.url.path.startswith("/api/agent/cube/"):
+            # 官方 e2b SDK 的错误解析要求 code/message，不回显底层异常正文。
+            return JSONResponse(
+                {"code": exc.status, "message": exc.code}, status_code=exc.status
+            )
         return JSONResponse({"error": exc.code}, status_code=exc.status)
 
     async def storage_error(request, exc):

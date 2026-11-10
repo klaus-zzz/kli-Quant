@@ -22,4 +22,13 @@ def test_public_routes() -> None:
         "/api/research/runs/{run_id}",
         "/api/research/runs/{run_id}/cancel",
         "/api/research/runs/{run_id}/result",
+        "/api/chat/sessions",
+        "/api/chat/sessions/{session}",
+        "/api/chat/sessions/{session}/history",
+        "/api/chat/sessions/{session}/messages",
+        "/api/research/context",
+        "/api/research/source",
+        "/api/research/evidence/{evidence_id}",
+        "/api/research/execute",
+        "/api/research/publish",
     }
