@@ -75,6 +75,22 @@ docker compose logs -f
 修改 `backend/main.py` 会重载后端，修改 `frontend/src/App.tsx` 会触发页面热更新。
 依赖变更后更新对应锁文件，再执行 `docker compose restart`。
 
+开发 Agent 启动前，在配置目录创建空的 `cache/` 挂载点，例如
+`mkdir -p /workspace/deploy/kli-quant/.omniagent/cache`。
+`.omniagent` 配置目录保持只读，`cache/` 单独挂载临时可写目录，
+供 [OmniAgent](https://github.com/aivp/OmniAgent) 缓存
+[models.dev](https://models.dev/) 的模型能力；重建容器后需要联网重新拉取。
+`agent.models.main.alias` 仅指定能力查询身份，不改变实际调用模型，必须与
+`main.model` 对应。GPT-6.1 Sol 使用 `openai/gpt-6.1-sol`，避免同名代理条目
+提供不同档位；其原生档位见 [OpenAI 模型说明](https://developers.openai.com/api/docs/models/gpt-6.1-sol)。
+启用开发 Agent 后，可在其容器中执行不调用付费模型的冒烟检查：
+
+```bash
+docker compose cp tests/check_agent_thinking.py agent:/tmp/check_agent_thinking.py
+docker compose exec -T agent /OmniAgent/.venv/bin/python /tmp/check_agent_thinking.py
+docker compose exec -T agent rm /tmp/check_agent_thinking.py
+```
+
 停止：`docker compose down`；要清除本项目的开发依赖卷：`docker compose down -v`。
 外部 `docker` 网络不会被删除。
 

@@ -91,6 +91,8 @@ services:
     volumes:
       - ${KLI_QUANT_AGENT_CONFIG_DIR:-/workspace/deploy/kli-quant}/.omniagent:/app/.omniagent:ro
       - ${KLI_QUANT_AGENT_CONFIG_DIR:-/workspace/deploy/kli-quant}/certs/cube-root-ca.crt:/usr/local/share/ca-certificates/cube-root-ca.crt:ro
+    # 配置保持只读；模型能力目录需要临时写入缓存，重建容器时重新拉取。
+    tmpfs: ["/app/.omniagent/cache:rw,nosuid,nodev,noexec,size=32m"]
     dns: ["${CUBESANDBOX_DNS:-172.20.0.53}"]
     networks:
       docker:
