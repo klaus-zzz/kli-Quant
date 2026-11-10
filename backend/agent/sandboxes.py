@@ -50,30 +50,29 @@ class Sandboxes:
             config=config,
         )
 
-    def ensure(self, thread_id, session, run=None):
-        """一次研究始终复用同一沙箱；失联研究不能悄悄新建后继续旧结果。"""
+    def ensure(self, thread_id, session):
+        """聊天与原生子 Agent 共用会话沙箱；研究结束不回收它。"""
         row = self.row(thread_id)
         if row and row["active"] and row["expires_at"] > datetime.now(UTC):
             return self.attach(row)
         if row:
             # 上游缓存不能热替换实例，过期会话明确结束，避免产生无法接回的新实例。
-            raise ResearchError("research_sandbox_lost" if run else "session_expired")
+            raise ResearchError("session_expired")
         from cubesandbox import Sandbox
 
         identity = secrets.token_urlsafe(32)
-        deadline = run["deadline"] if run else datetime.now(UTC) + timedelta(hours=1)
+        deadline = datetime.now(UTC) + timedelta(hours=1)
         timeout = max(1, int((deadline - datetime.now(UTC)).total_seconds()))
         source = (CLI / "research.py").read_bytes()
         with self.repo.transaction() as conn:
             conn.execute("DELETE FROM agent_sandboxes WHERE thread_id=%s", (thread_id,))
             conn.execute(
                 "INSERT INTO agent_sandboxes "
-                "(thread_id,session_id,run_id,identity_sha256,cli_sha256,expires_at) "
-                "VALUES (%s,%s,%s,%s,%s,%s)",
+                "(thread_id,session_id,identity_sha256,cli_sha256,expires_at) "
+                "VALUES (%s,%s,%s,%s,%s)",
                 (
                     thread_id,
                     session,
-                    run["id"] if run else None,
                     hashlib.sha256(identity.encode()).hexdigest(),
                     hashlib.sha256(source).hexdigest(),
                     deadline,
@@ -93,6 +92,9 @@ class Sandboxes:
                     (sb.sandbox_id, sb.traffic_access_token, thread_id),
                 )
             sb.files.write(f"{ROOT}/sandbox/cli/research.py", source)
+            sb.files.write(
+                f"{ROOT}/sandbox/cli/tushare.py", (CLI / "tushare.py").read_bytes()
+            )
             sb.files.write(
                 f"{ROOT}/sandbox/cli/axi.json",
                 (CLI / "axi.json").read_bytes(),

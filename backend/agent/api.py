@@ -59,6 +59,7 @@ def snapshot(runtime, session):
         "connected": runtime.ready,
         "deliveries": runtime.ledger.deliveries(session),
         "research": [view(r) for r in runs],
+        "tasks": runtime.native.list(session),
     }
 
 

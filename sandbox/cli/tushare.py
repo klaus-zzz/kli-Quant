@@ -20,6 +20,8 @@ def make_tool(contract):
 
     def execute(**params):
         fields = params.pop("fields", "")
+        # 研究标识逐次传入，不能用共享进程环境保存当前研究。
+        run_id = params.pop("run_id", "")
         validate(name, params, fields)
         # 沙箱注入优先，否则只读取 CLI 同目录配置，不搜索含凭据的根 .env。
         base = os.environ.get("KLI_QUANT_BACKEND_URL")
@@ -30,6 +32,7 @@ def make_tool(contract):
             response = httpx.post(
                 f"{base.rstrip('/')}/api/tushare/{name}",
                 json={"params": params, "fields": fields},
+                headers={"X-Research-Run": run_id} if run_id else {},
                 # 比后端 60 秒处理上限多留 5 秒返回余量。
                 timeout=65,
                 trust_env=False,
@@ -63,6 +66,17 @@ def make_tool(contract):
             inspect.Parameter.KEYWORD_ONLY,
             default="",
             annotation=annotations["fields"],
+        )
+    )
+    annotations["run_id"] = Annotated[
+        str, Field(description="Agent 模式必填研究 run_id；后端按会话检查归属并扣预算")
+    ]
+    parameters.append(
+        inspect.Parameter(
+            "run_id",
+            inspect.Parameter.KEYWORD_ONLY,
+            default="",
+            annotation=annotations["run_id"],
         )
     )
     execute.__name__ = name

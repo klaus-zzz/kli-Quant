@@ -1,11 +1,11 @@
-"""持久研究队列与 OmniAgent Gateway 接线，不参与模型内部规划。"""
+"""OmniAgent Gateway 与原生后台任务接线，不重建研究执行队列。"""
 
 import asyncio
 import hmac
 import json
 import logging
 from contextlib import suppress
-from datetime import UTC, datetime
+from uuid import UUID
 
 import httpx
 import psycopg
@@ -13,6 +13,7 @@ from websockets.asyncio.client import connect
 
 from backend.agent.ledger import Ledger
 from backend.agent.sandboxes import Sandboxes
+from backend.agent.tasks import NativeTasks
 from backend.research.models import ResearchError
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,8 @@ class Runtime:
         self.research, self.repo, self.env = research, research.repo, environ
         self.ledger = Ledger(self.repo)
         self.sandboxes = Sandboxes(self.repo, environ)
+        self.native = NativeTasks(research)
+        self.stop_requests = set()
         self.ready = False
         self.listeners = {}
         self.ws = None
@@ -47,14 +50,19 @@ class Runtime:
             row = {"session_id": session, "run_id": None}
         else:
             row = self.sandboxes.authenticate(authorization)
-        path = request.url.path
-        if row["run_id"] is not None and path.startswith("/api/research/runs"):
-            if not path.startswith(f"/api/research/runs/{row['run_id']}"):
-                raise ResearchError("not_found", 404)
-        if request.method == "POST" and path == "/api/research/runs":
+        # run_id 只是业务选择器；认证仍来自宿主身份，归属必须查数据库。
+        selected = request.headers.get("X-Research-Run")
+        if selected:
+            try:
+                run_id = UUID(selected)
+            except ValueError:
+                raise ResearchError("invalid_run_id", 422) from None
+            self.research.get(row["session_id"], run_id)
+            row = {**row, "run_id": run_id}
+        if request.method == "POST" and request.url.path == "/api/research/runs":
             if not self.ready:
                 raise ResearchError("agent_not_ready", 503)
-            # 主动回复轮只消费固定结果，不能被提示注入再次提交研究。
+            # 原生通知只消费已有结果，不能自行启动下一次研究。
             with self.repo.transaction() as conn:
                 notification = conn.execute(
                     "SELECT 1 FROM agent_deliveries WHERE thread_id=%s "
@@ -66,7 +74,7 @@ class Runtime:
         return row
 
     def submit(self, run_id):
-        """research_runs 本身就是持久队列，已启动的监管循环负责认领。"""
+        """只确认原生执行入口在线；调用方随后使用返回的 agent 参数启动。"""
         if not self.ready:
             raise ResearchError("agent_not_ready", 503)
 
@@ -87,7 +95,7 @@ class Runtime:
         return response.json()
 
     async def start(self):
-        """数据库锁保证同一业务库只有一个调度者，重启不重复执行旧研究。"""
+        """数据库锁保证同一业务库只有一个 Gateway 客户端。"""
         self.lease = psycopg.connect(self.repo.dsn, autocommit=True, connect_timeout=5)
         if not self.lease.execute("SELECT pg_try_advisory_lock(31704212)").fetchone()[
             0
@@ -97,21 +105,10 @@ class Runtime:
         await asyncio.to_thread(self.recover)
         self.research.executor = self
         self.task = asyncio.create_task(self.run())
-        self.supervisor = asyncio.create_task(self.supervise())
 
     def recover(self):
         self.ledger.recover()
-        with self.repo.transaction() as conn:
-            runs = conn.execute(
-                "SELECT r.* FROM research_runs r JOIN agent_sessions s ON s.id=r.owner "
-                "WHERE r.status IN ('running','cancelling')"
-            ).fetchall()
-        for run in runs:
-            self.sandboxes.close(f"kqr-{run['id'].hex}")
-            if run["status"] == "cancelling":
-                self.research.acknowledge_cancel(run["owner"], run["id"])
-            else:
-                self.research.fail(run["owner"], run["id"])
+        # 原生任务可能仍在 Agent 中运行，重连后以 task_list 核对。
 
     async def stop(self):
         self.ready = False
@@ -121,29 +118,11 @@ class Runtime:
         self.task.cancel()
         with suppress(asyncio.CancelledError):
             await self.task
-        # 等待正在创建的沙箱登记完成，再撤销身份，避免取消线程留下孤儿资源。
-        await self.supervisor
         await asyncio.to_thread(self.recover)
         # 会话沙箱留给重启后的同一 Gateway 继续使用；开发结束由 cleanup 回收。
         # 上游缓存不能单独刷新，关闭聊天沙箱会让仍运行的 Agent 接到过期句柄。
         if self.lease:
             self.lease.close()
-
-    async def supervise(self):
-        """Gateway 离线时仍执行取消、截止和回收；暂停认领新研究。"""
-        while not self.stopping.is_set():
-            try:
-                self.lease.execute("SELECT 1")
-                await asyncio.to_thread(self.advance_research)
-            except Exception as exc:
-                logger.warning("研究监管暂不可用：%s", type(exc).__name__)
-                self.ready = False
-                if self.ws:
-                    await self.ws.close()
-            try:
-                await asyncio.wait_for(self.stopping.wait(), timeout=0.5)
-            except TimeoutError:
-                pass
 
     async def run(self):
         """连接重建只重发尚未发送的记录，已发记录保留待核对。"""
@@ -166,6 +145,17 @@ class Runtime:
                     close_timeout=2,
                 ) as ws:
                     self.ws, self.ready = ws, True
+                    self.stop_requests.clear()
+                    with self.repo.transaction() as conn:
+                        sessions = conn.execute(
+                            "SELECT id FROM agent_sessions"
+                        ).fetchall()
+                    for session in sessions:
+                        await ws.send(
+                            json.dumps(
+                                {"type": "task_list", "thread_id": session["id"]}
+                            )
+                        )
                     receiver = asyncio.create_task(self.receive(ws))
                     try:
                         while not receiver.done() and not self.stopping.is_set():
@@ -191,114 +181,20 @@ class Runtime:
             finally:
                 self.ready, self.ws = False, None
 
-    def advance_research(self):
-        """研究事实独立于 WebSocket；取消、过期和完成统一在数据库收尾。"""
-        with self.repo.transaction() as conn:
-            runs = conn.execute(
-                "SELECT r.* FROM research_runs r JOIN agent_sessions s ON s.id=r.owner "
-                "WHERE r.status IN ('queued','running','cancelling') OR NOT EXISTS "
-                "(SELECT 1 FROM agent_deliveries d WHERE d.run_id=r.id "
-                "AND d.kind='notification') OR EXISTS (SELECT 1 FROM agent_sandboxes b "
-                "WHERE b.run_id=r.id) ORDER BY r.created_at LIMIT 20"
-            ).fetchall()
-        for run in runs:
-            owner, run_id = run["owner"], run["id"]
-            thread = f"kqr-{run_id.hex}"
-            if (
-                run["status"] == "queued"
-                and self.ready
-                and self.research.claim(owner, run_id)
-            ):
-                try:
-                    self.sandboxes.ensure(thread, owner, run)
-                    self.ledger.enqueue(
-                        f"research-{run_id}",
-                        owner,
-                        thread,
-                        "research",
-                        "这是已受理的后台研究执行。用 research/context 读取固定任务，"
-                        "自主查证、编写并执行代码、检查结果，"
-                        "最后用 research/publish 发布。"
-                        "不能再次提交研究。研究标识：" + str(run_id),
-                        run_id,
-                    )
-                except Exception:
-                    self.research.fail(owner, run_id)
-            run = self.research.get(owner, run_id)
-            if run["status"] == "cancelling":
-                self.sandboxes.close(thread)
-                self.research.acknowledge_cancel(owner, run_id)
-                run = self.research.get(owner, run_id)
-            if run["status"] in {"completed", "failed", "cancelled"}:
-                with self.repo.transaction() as conn:
-                    in_flight = conn.execute(
-                        "SELECT 1 FROM agent_deliveries WHERE run_id=%s "
-                        "AND kind='research' AND state IN ('sending','uncertain')",
-                        (run_id,),
-                    ).fetchone()
-                # publish 返回后 Agent 还要读取响应，等本轮结束再销毁沙箱。
-                if (
-                    run["status"] != "completed"
-                    or not in_flight
-                    or run["deadline"] <= datetime.now(UTC)
-                ):
-                    self.sandboxes.close(thread)
-                with self.repo.transaction() as conn:
-                    # 尚未发送的研究在取消后不得再次启动。
-                    conn.execute(
-                        "UPDATE agent_deliveries SET state='failed' WHERE run_id=%s "
-                        "AND kind='research' AND state='pending'",
-                        (run_id,),
-                    )
-                if run["status"] == "completed":
-                    result = self.research.result(owner, run_id)
-                    ref = {k: v for k, v in result.items() if k != "result"}
-                    detail = "固定结果引用：" + json.dumps(ref, ensure_ascii=False)
-                else:
-                    detail = json.dumps(
-                        {
-                            "run_id": str(run_id),
-                            "status": run["status"],
-                            "error": run["error"],
-                        },
-                        ensure_ascii=False,
-                    )
-                self.ledger.enqueue(
-                    f"result-{run_id}",
-                    owner,
-                    owner,
-                    "notification",
-                    "研究状态通知，请主动回复原对话。已完成时先用 research/result 读取"
-                    "并核对固定版本，再解释结果、反证与限制；失败或取消时如实说明。"
-                    "不要重新提交研究，也不要把状态通知当成新的用户要求。" + detail,
-                    run_id,
-                )
-
     async def tick(self):
-        # 取消、失败和超时还要终止上游生成；断线期间先撤销沙箱，接回后补停止。
-        with self.repo.transaction() as conn:
-            stopped = conn.execute(
-                "SELECT d.* FROM agent_deliveries d JOIN research_runs r "
-                "ON r.id=d.run_id WHERE d.kind='research' "
-                "AND d.state IN ('sending','uncertain') "
-                "AND r.status IN ('cancelling','cancelled','failed')"
-            ).fetchall()
-        for delivery in stopped:
-            await self.ws.send(
-                json.dumps(
-                    {
-                        "type": "message",
-                        "thread_id": delivery["thread_id"],
-                        "message_id": "stop-" + delivery["id"],
-                        "payload": {"user_id": "developer", "question": "/stop"},
-                    }
+        # 只转发原生取消请求；聊天投递仍使用原来的消息账本。
+        for task in await asyncio.to_thread(self.native.stops):
+            if task["task_id"] not in self.stop_requests:
+                await self.ws.send(
+                    json.dumps(
+                        {
+                            "type": "task_stop",
+                            "thread_id": task["session_id"],
+                            "task_id": task["task_id"],
+                        }
+                    )
                 )
-            )
-            with self.repo.transaction() as conn:
-                conn.execute(
-                    "UPDATE agent_deliveries SET state='failed' WHERE id=%s",
-                    (delivery["id"],),
-                )
+                self.stop_requests.add(task["task_id"])
         for delivery in await asyncio.to_thread(self.ledger.pending):
             with self.repo.transaction() as conn:
                 uncertain = conn.execute(
@@ -312,35 +208,34 @@ class Runtime:
                 history = await self.history(delivery["thread_id"])
                 if history.get("live"):
                     continue
-            if delivery["kind"] != "research":
-                creation = asyncio.create_task(
-                    asyncio.to_thread(
-                        self.sandboxes.ensure,
-                        delivery["thread_id"],
-                        delivery["session_id"],
-                    )
+            creation = asyncio.create_task(
+                asyncio.to_thread(
+                    self.sandboxes.ensure,
+                    delivery["thread_id"],
+                    delivery["session_id"],
                 )
-                try:
-                    await asyncio.shield(creation)
-                except asyncio.CancelledError:
-                    # to_thread 无法停止 SDK 创建，关闭时等待句柄落库后再释放租约。
-                    with suppress(Exception):
-                        await creation
+            )
+            try:
+                await asyncio.shield(creation)
+            except asyncio.CancelledError:
+                # to_thread 无法停止 SDK 创建，关闭时等待句柄落库后再释放租约。
+                with suppress(Exception):
+                    await creation
+                raise
+            except ResearchError as exc:
+                if exc.code != "session_expired":
                     raise
-                except ResearchError as exc:
-                    if exc.code != "session_expired":
-                        raise
-                    # 单个过期会话不能阻塞全局队列；固定研究结果仍可经 HTTP 读取。
-                    with self.repo.transaction() as conn:
-                        conn.execute(
-                            "UPDATE agent_deliveries SET state='failed',answer=%s,"
-                            "updated_at=now() WHERE id=%s AND state='pending'",
-                            (
-                                "会话沙箱已过期，请新建会话。已有研究结果仍可查询。",
-                                delivery["id"],
-                            ),
-                        )
-                    continue
+                # 单个过期会话不能阻塞全局队列；固定研究结果仍可经 HTTP 读取。
+                with self.repo.transaction() as conn:
+                    conn.execute(
+                        "UPDATE agent_deliveries SET state='failed',answer=%s,"
+                        "updated_at=now() WHERE id=%s AND state='pending'",
+                        (
+                            "会话沙箱已过期，请新建会话。已有研究结果仍可查询。",
+                            delivery["id"],
+                        ),
+                    )
+                continue
             if not await asyncio.to_thread(self.ledger.begin, delivery["id"]):
                 continue
             # 身份和会话取自持久记录，客户端不能把消息路由到任意上游会话。
@@ -376,36 +271,29 @@ class Runtime:
             )
 
     async def receive(self, ws):
-        """研究进度与聊天帧共用连接，但研究线程不会阻塞原聊天线程。"""
+        """任务帧与主动回复按已登记会话接收，浏览器离线仍然落库。"""
         async for raw in ws:
             frame = json.loads(raw)
-            if frame.get("type") != "event":
+            kind, session = frame.get("type"), frame.get("thread_id")
+            if kind == "task":
+                if not await asyncio.to_thread(
+                    self.native.record, session, frame["payload"]
+                ):
+                    continue
+            elif kind == "task_list":
+                await asyncio.to_thread(self.native.snapshot, session, frame["tasks"])
+            elif kind == "task_stop":
+                # 回执不等于任务终态；补拉状态确认停止或已经完成。
+                await self.ws.send(
+                    json.dumps({"type": "task_list", "thread_id": session})
+                )
                 continue
-            if not await asyncio.to_thread(self.ledger.record, frame):
+            elif kind == "event":
+                if not await asyncio.to_thread(self.ledger.record, frame):
+                    continue
+            else:
                 continue
-            with self.repo.transaction() as conn:
-                delivery = conn.execute(
-                    "SELECT * FROM agent_deliveries WHERE id=%s", (frame["message_id"],)
-                ).fetchone()
-            if delivery["kind"] == "research":
-                if frame["payload"]["type"] in {"done", "error"}:
-                    # 模型正常结束却未发布，也不能伪装成业务研究完成。
-                    run = await asyncio.to_thread(
-                        self.research.get, delivery["session_id"], delivery["run_id"]
-                    )
-                    if run["status"] == "running":
-                        await asyncio.to_thread(
-                            self.research.fail,
-                            delivery["session_id"],
-                            delivery["run_id"],
-                        )
-                frame = {
-                    **frame,
-                    "type": "research_progress",
-                    "run_id": str(delivery["run_id"]),
-                }
-            # 浏览器断线仅退订消息，不取消研究；满队列由重连快照恢复。
-            for queue in list(self.listeners.get(delivery["session_id"], ())):
+            for queue in list(self.listeners.get(session, ())):
                 if queue.full():
                     while not queue.empty():
                         queue.get_nowait()

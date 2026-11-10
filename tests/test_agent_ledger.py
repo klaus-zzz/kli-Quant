@@ -18,6 +18,7 @@ def test_delivery_identity_and_uncertain_recovery(research):
     assert not ledger.begin("msg-1")
     ledger.recover()
     assert ledger.deliveries(session)[0]["state"] == "uncertain"
+    assert ledger.deliveries(session)[0]["question"] == "你好"
     assert not ledger.begin("msg-1")
     with pytest.raises(ResearchError, match="not_found"):
         ledger.session("another-user", session)

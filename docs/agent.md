@@ -1,12 +1,13 @@
 # OmniAgent 开发接入
 
-业务后端保存研究状态、归属、调用预算、固定证据和通知账本。
+业务后端保存研究状态、归属、调用预算、固定证据和消息记录。
+研究执行复用 OmniAgent 原生后台子 Agent，不维护研究执行队列。
 [OmniAgent v1](https://github.com/aivp/OmniAgent/tree/v1) 负责模型规划、工具选择和回复；
 通过其 [Gateway](https://github.com/aivp/OmniAgent/blob/v1/docs/gateway-protocol.md)
 及 [历史接口](https://github.com/aivp/OmniAgent/blob/v1/docs/history-protocol.md) 接入。
 后端通过 [websockets](https://websockets.readthedocs.io/) 维护 Gateway 客户端连接。
 不重写 Agent 框架，也不复制上游源码；上游许可未确认，独立镜像不随本项目分发。
-前端仍为空应用，本阶段仅提供 HTTP/WebSocket 开发入口。
+前端提供持续对话和研究详情，使用业务 HTTP 接口，不直接连接上游 Gateway。
 
 ## 配置与启动
 
@@ -52,14 +53,38 @@ docker compose --env-file .env --env-file /workspace/deploy/kli-quant/.env \
 ```
 
 Agent 的 `.omniagent/config.yaml` 使用 PostgreSQL 持久化、开启 Gateway，
-`sandbox.executor=cubesandbox`，禁用 Agent 自建的 `background_task`、`agent`、
-`schedule` 和 `artifacts` 工具。研究调度与产物归档只有业务后端一个入口。
+`sandbox.executor=cubesandbox`，从 `agent.disabled_tools` 中移除 `agent` 与
+`background_task`；仍禁用 `schedule` 和 `artifacts`。原生后台执行负责运行与通知，
+业务后端负责证据归档与报告发布。
+原生子 Agent 定义维护在集中 `.omniagent/agents/deep-search.md`，主 Agent 方法维护在
+`.omniagent/prompts/AGENTS.md`；沿用根 Compose 对整个集中目录的挂载，不额外挂载仓库文件。
+改提示词后重启开发 Agent。模型、数据库和凭据继续留在集中配置中。
+模型配置只保留 `agent.models.main`，不配置 low/medium/high。上游会把未配置的档位
+回退到主模型，因此后台子 Agent 与聊天使用同一个已配置模型。
 `sandbox.env.AXI_CONFIG=/opt/kli-quant/sandbox/cli/axi.json`；
 `sandbox.env_from_auth.KLI_QUANT_MESSAGE_ID='{message_id}'` 只传非秘密消息标识，
-供 CLI 生成幂等键。研究方法提示词维护在集中 `.omniagent/prompts/AGENTS.md`。
+供 CLI 生成幂等键。子 Agent 不再调用 submit，使用父 Agent 已登记的 run_id。
 不要在共享 Agent 库执行清表测试；集成测试使用临时专用库和 bucket。
 
 ## 对话协议
+
+打开前端后输入 `KLI_QUANT_CHAT_TOKEN` 对应的开发聊天凭据。凭据仅保存在当前页面内存，
+刷新后重新输入；本机只记录最近的会话 ID。会话和研究 ID 放在页面片段地址中，
+可收藏具体版本；新建会话后仍可通过旧地址恢复原会话。
+浏览器每两秒串行查询一次持久快照，整批替换消息与状态，不依赖一次推送。
+断线保留已有内容并标记状态过期，重新连接后自动查询恢复；断开页面不会取消后台研究。
+发送失败保留原消息 ID，重试相同内容不会重复入账；投递待核对时可读取上游历史，
+不能把缺少终态确认的回复自动视为已完成，也不自动重放。
+
+主列可以在研究运行时继续聊天，研究列表和详情独立更新。取消中与已取消分开显示。
+正式结果只来自后端校验后的固定结果接口；对话分析、未发布报告和探索资料不能视为正式结果。
+支持与反证按判断分别列出，证据可读取固定原文、数据快照、代码、执行记录及输出。
+资料按纯文本显示，来源外链仅接受无内嵌凭据的 HTTP(S)，不执行模型返回的 HTML。
+点击“补充新证据”会把原执行 ID 与新证据交给 Agent，由它创建关联的新研究；
+前序版本链接固定到原执行，不会随新报告发布而跳转。
+
+单用户开发入口不提供多用户登录。浏览器会持有独立聊天凭据，但不会获得 Gateway、
+Tushare、S3 或 CubeSandbox 服务凭据。根 `.env` 和集中 Agent 配置均不注入前端。
 
 所有 HTTP 聊天请求使用 `Authorization: Bearer <聊天 Token>`。
 服务端分配会话 ID，不接受客户端自报用户身份或上游 thread_id。
@@ -70,7 +95,7 @@ Agent 的 `.omniagent/config.yaml` 使用 PostgreSQL 持久化、开启 Gateway�
 | POST `/api/chat/sessions/{id}/messages` | 提交 `{message_id: UUID, text: 字符串}`，同 ID 相同内容幂等 |
 | GET `/api/chat/sessions/{id}` | 投递状态、正文、研究状态和连接情况 |
 | GET `/api/chat/sessions/{id}/history` | 上游持久历史与本地投递状态，供断线核对 |
-| WS `/api/chat/sessions/{id}/ws` | 接收快照、聊天 event 和 research_progress，也可发消息 |
+| WS `/api/chat/sessions/{id}/ws` | 接收快照、聊天 event 和原生 task/task_list，也可发消息 |
 
 WebSocket 使用 Authorization 请求头；浏览器不支持自定义头时，首帧发送
 `{"authorization":"Bearer <聊天 Token>"}`，随后发送与 HTTP 相同的消息对象。
@@ -78,15 +103,32 @@ Token 不放 URL。首个快照含已有研究和投递；`resync_required` 表�
 读取快照和历史。断开浏览器只停止订阅，不取消研究。
 
 直接查询或取消研究时，在聊天认证外增加 `X-Session-ID`，接口见[研究说明](research-api.md)。
-启用后，一个会话内消息串行投递；研究另开执行线程，因此不阻塞原会话聊天。
-研究完成通知携带固定 run_id、result_id、版本和哈希，唤醒原会话 Agent 读取并解释。
+启用后，一个会话内消息串行投递；主 Agent 调用 research/submit 登记研究，
+再原样调用返回的 `agent` 参数，例如：
+
+```json
+{"name":"deep-search","prompt":"research:<run_id>","run_in_background":true}
+```
+
+`queued` 表示已登记、等待原生任务启动；HTTP 提交本身不会派发执行。
+`prompt` 必须保持返回值不变，原生任务的 `brief` 据此关联研究；后端再次核对会话归属。
+主 Agent 不额外添加 `model` 参数，子 Agent 默认沿用主模型；避免自行选择未配置可用的档位。
+`task` 帧推进状态，`task_list` 在重连时补拉，`task_stop` 只取消指定任务。
+快照含 `tasks`，浏览器 WebSocket 同时收到上游原生任务帧。
+原生任务完成后自动唤醒父会话；`agent-` 主动消息按已登记会话落库并转发。
+主 Agent 必须读取 research/result 核对固定结果；执行 completed 不等于报告已发布。
+取消没有主动回复，以 task 的 cancelled 状态和研究状态为准。
+协议见 [OmniAgent 1.0.0a84 Gateway](https://github.com/aivp/OmniAgent/blob/b129b598804f1e7cb173a681c50a8041c9b7751a/docs/gateway-protocol.md)。
 
 ## 身份、执行与恢复边界
 
 [CubeSandbox 安全代理](https://docs.cubesandbox.com/zh/guide/security-proxy)
-为每个沙箱注入独立随机身份，只放行指定后端主机、端口和研究/Tushare 路径。
+为每个会话沙箱注入独立随机身份，只放行指定后端主机、端口和研究/Tushare 路径。
 沙箱禁止公网出口，外部原文由隔离抓取器读取；CLI 不读取任何数据源凭据。
 代理覆盖伪造的 Authorization；模型提供的 run_id 不是认证依据。
+聊天与研究共享会话沙箱、文件和身份；研究工具显式传 run_id，CLI 将它作为
+`X-Research-Run` 发送，后端查询研究归属。不同会话不能相互读取、扣预算或发布。
+同一会话内不再隔离聊天与研究的权限；不用共享环境变量表示“当前研究”。
 研究默认 300 秒、30 次采集或受信执行调用，失败也扣预算；截止后拒绝发布。
 
 私有沙箱令牌只保存于业务数据库，`/api/agent/cube` 只允许控制 Token 查询或接回
@@ -100,25 +142,30 @@ Token 不放 URL。首个快照含已有研究和投递；`resync_required` 表�
 控制面和数据面仅用于可信开发内网；不向浏览器提供这些 Token。
 
 模板仍复用已验收镜像；每次创建后装载当前研究 CLI 及 axi 配置。
-研究复用同一实例，控制端归档代码与固定输入，再执行摘要校验后的字节。
+聊天与所有研究复用会话实例，控制端归档代码与固定输入，再执行摘要校验后的字节。
 执行限制 45 秒、512 MiB、每个输出流 1 MiB，归档实际退出码和输出摘要。
 模型自行在 bash 中运行的代码不自动获得可信执行记录；正式产物必须经 research/execute。
-`research/context` 同时给出结果 Schema、固定输入/输出格式和引用规则。
+`research/context` 同时给出结果 Schema、固定输入/输出格式和引用规则；
+复核时还提供经归属和摘要校验的 `previous_result`，包含旧判断 ID、证据与计算引用，
+供 Agent 按旧判断逐项填写 revisions；首次研究该字段为 null。
 Agent 发布入口先只读预检；无效草稿返回稳定 `errors` 与 `published=false`，
 模型可在原预算、截止内修改后重试。正式发布仍完整校验、持锁，固定版本不可改写。
 
 Gateway 没有 ACK 或游标重放：发送前持久落账；发送后失联标记 `uncertain`
 （“回复待核对”），保留固定结果且不自动重发。下一条投递前核对上游 live 状态，
 避免与旧轮次合并。历史缺少可信完成确认时不把未知状态伪装成已完成。
-通知按研究版本唯一，重复调度不重复创建正式结论。
+原生任务 ID 关联唯一研究；重复启动的额外任务会被停止，正式报告仍只能发布一次。
 
-进程重启后，旧运行研究标记失败，取消中的研究先销毁沙箱再确认取消；不重新执行旧任务。
-Gateway 离线时监管仍处理取消、超时和回收，恢复后再投递尚未发送的通知。
-取消或失败时通过 Gateway `/stop` 终止研究线程生成；断线时先停止沙箱执行，
-重连后补发幂等停止命令，不重新运行研究。
-后端重启保留有效聊天沙箱，避免上游进程缓存变成失效句柄；研究沙箱按失败/取消收尾。
-聊天授权期为一小时；过期投递明确失败并提示新建会话，已有结果仍可查询。
-不替换上游仍缓存的沙箱句柄。崩溃创建窗口由有限 TTL 兜底。
+后端重启与 Gateway 断线不取消上游任务，重连后补拉 task_list 核对。
+原生任务运行在 Agent 进程内；Agent 重启不续跑旧任务，核对时缺失的运行任务标记失败，
+取消中的任务收尾为 cancelled。已发布结果不受影响，不重发旧研究。
+Gateway 断线时无法发送 task_stop，但后端继续拒绝已取消或超期的采集与发布，重连后补停止。
+取消和超时只停止对应原生任务，不销毁共享沙箱；已进入可信 execute 的请求受原有
+45 秒执行上限约束，取消后不会发布其产物。原生 cancelled 表示子 Agent 已停止。
+后端重启保留会话沙箱；开发结束停止后端和 Agent，再用 cleanup 回收。
+聊天沙箱授权期为一小时；过期投递明确失败并提示新建会话，已有结果仍可查询。
+升级前先停止旧后端和 Agent 并清理旧沙箱，再执行迁移；003 会将旧未完成研究标记失败，
+不会迁移或重跑旧研究。不要在活动执行中升级。
 需要重新研究时新建版本，已发布结果不改写。当前只支持单个调度实例和单用户开发入口，
 不构成面向多用户或生产的认证系统。
 

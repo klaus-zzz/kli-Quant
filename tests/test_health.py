@@ -22,6 +22,8 @@ def test_public_routes() -> None:
         "/api/research/runs/{run_id}",
         "/api/research/runs/{run_id}/cancel",
         "/api/research/runs/{run_id}/result",
+        "/api/research/runs/{run_id}/evidence",
+        "/api/research/runs/{run_id}/evidence/{evidence_id}",
         "/api/chat/sessions",
         "/api/chat/sessions/{session}",
         "/api/chat/sessions/{session}/history",

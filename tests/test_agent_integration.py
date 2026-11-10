@@ -18,7 +18,7 @@ def agent(research, monkeypatch):
     runtime = Runtime(research, {"KLI_QUANT_CHAT_TOKEN": "chat-secret"})
     runtime.ready = True
     session = runtime.ledger.create_session("developer")
-    identity = {"session_id": session, "run_id": None}
+    identity = {"session_id": session, "run_id": None, "sandbox_id": "shared"}
 
     def authenticate(value):
         if value != "host-injected":
@@ -52,7 +52,7 @@ def test_identity_budget_and_session_boundaries(agent, monkeypatch):
 
     run_id = UUID(response.json()["run_id"])
     assert runtime.research.claim(session, run_id)
-    identity["run_id"] = run_id
+    headers["X-Research-Run"] = str(run_id)
     with runtime.repo.transaction() as conn:
         conn.execute("UPDATE research_runs SET max_calls=1 WHERE id=%s", (run_id,))
 
@@ -79,7 +79,7 @@ def test_identity_budget_and_session_boundaries(agent, monkeypatch):
     assert client.post("/api/tushare/daily", json=query).status_code == 401
     assert (
         client.post("/api/research/runs", headers=headers, json=payload).status_code
-        == 404
+        == 200
     )
     other = runtime.ledger.create_session("developer")
     headers = {"Authorization": "Bearer chat-secret", "X-Session-ID": other}
@@ -88,34 +88,15 @@ def test_identity_budget_and_session_boundaries(agent, monkeypatch):
     )
 
 
-def test_cancel_and_restart_do_not_restart_research(agent):
-    runtime, session, _, _ = agent
-    run, _ = runtime.research.submit(
-        session, "cancel", Submission(event="事件", question="研究")
-    )
-    runtime.research.claim(session, run["id"])
-    runtime.research.cancel(session, run["id"])
-    runtime.recover()
-    assert runtime.research.get(session, run["id"])["status"] == "cancelled"
-    runtime.sandboxes.close.assert_called_once()
-    run, _ = runtime.research.submit(
-        session, "restart", Submission(event="事件", question="研究")
-    )
-    runtime.research.claim(session, run["id"])
-    runtime.recover()
-    assert runtime.research.get(session, run["id"])["status"] == "failed"
-    assert not runtime.research.claim(session, run["id"])
-
-
 def test_context_exposes_execution_and_citation_contract(agent):
     runtime, session, identity, client = agent
     run, _ = runtime.research.submit(
         session, "contract", Submission(event="事件", question="研究")
     )
     runtime.research.claim(session, run["id"])
-    identity["run_id"] = run["id"]
     response = client.get(
-        "/api/research/context", headers={"Authorization": "host-injected"}
+        "/api/research/context",
+        headers={"Authorization": "host-injected", "X-Research-Run": str(run["id"])},
     )
     contract = response.json()["execution_contract"]
     assert contract["input"] == "{evidence_id: document}"
@@ -133,8 +114,7 @@ def test_invalid_agent_draft_can_be_corrected_before_deadline(agent):
         session, "correct", Submission(event="事件", question="研究")
     )
     runtime.research.claim(session, run["id"])
-    identity["run_id"] = run["id"]
-    headers = {"Authorization": "host-injected"}
+    headers = {"Authorization": "host-injected", "X-Research-Run": str(run["id"])}
     payload = draft()
     payload["conclusion"] = "conditional_observation"
     response = client.post("/api/research/publish", headers=headers, json=payload)
@@ -207,25 +187,6 @@ def test_expired_session_does_not_block_other_deliveries(agent):
     runtime.ws.send.assert_called_once()
     assert runtime.ledger.deliveries(session)[0]["state"] == "failed"
     assert runtime.ledger.deliveries(other)[0]["state"] == "sending"
-
-
-def test_notification_deduplicates_and_forbids_new_research(agent):
-    runtime, session, _, client = agent
-    run, _ = runtime.research.submit(
-        session, "cancelled", Submission(event="事件", question="研究")
-    )
-    runtime.research.cancel(session, run["id"])
-    runtime.advance_research()
-    runtime.advance_research()
-    deliveries = runtime.ledger.deliveries(session)
-    assert len(deliveries) == 1 and deliveries[0]["kind"] == "notification"
-    runtime.ledger.begin(deliveries[0]["id"])
-    response = client.post(
-        "/api/research/runs",
-        json={"event": "事件", "question": "研究"},
-        headers={"Authorization": "host-injected", "Idempotency-Key": "new"},
-    )
-    assert response.status_code == 403
 
 
 def test_private_reconnect_is_scoped_and_authenticated(agent, monkeypatch):
@@ -314,23 +275,6 @@ def test_envd_proxy_checks_instance_token_and_fixed_target(agent, monkeypatch):
     )
 
 
-def test_disconnected_supervision_cancels_without_starting_queued_work(agent):
-    runtime, session, _, _ = agent
-    queued, _ = runtime.research.submit(
-        session, "queued", Submission(event="事件", question="研究")
-    )
-    cancelled, _ = runtime.research.submit(
-        session, "disconnected", Submission(event="事件", question="研究")
-    )
-    runtime.research.claim(session, cancelled["id"])
-    runtime.research.cancel(session, cancelled["id"])
-    runtime.ready = False
-    runtime.advance_research()
-    assert runtime.research.get(session, cancelled["id"])["status"] == "cancelled"
-    assert runtime.research.get(session, queued["id"])["status"] == "queued"
-    runtime.sandboxes.ensure.assert_not_called()
-
-
 def test_reconnect_checks_live_history_before_next_delivery(agent):
     import asyncio
     from unittest.mock import AsyncMock
@@ -348,61 +292,3 @@ def test_reconnect_checks_live_history_before_next_delivery(agent):
     asyncio.run(runtime.tick())
     runtime.ws.send.assert_called_once()
     assert runtime.ledger.deliveries(session)[0]["state"] == "uncertain"
-
-
-def test_cancel_stops_upstream_turn_without_resubmitting_research(agent):
-    import asyncio
-    import json
-    from unittest.mock import AsyncMock
-
-    runtime, session, _, _ = agent
-    run, _ = runtime.research.submit(
-        session, "stop", Submission(event="事件", question="研究")
-    )
-    runtime.research.claim(session, run["id"])
-    thread = f"kqr-{run['id'].hex}"
-    runtime.ledger.enqueue("running", session, thread, "research", "工作", run["id"])
-    runtime.ledger.begin("running")
-    runtime.research.cancel(session, run["id"])
-    runtime.ws = SimpleNamespace(send=AsyncMock())
-    asyncio.run(runtime.tick())
-    assert (
-        json.loads(runtime.ws.send.call_args.args[0])["payload"]["question"] == "/stop"
-    )
-    asyncio.run(runtime.tick())
-    runtime.ws.send.assert_called_once()
-
-
-def test_publish_waits_for_agent_turn_before_destroying_sandbox(agent, monkeypatch):
-    runtime, session, _, _ = agent
-    run, _ = runtime.research.submit(
-        session, "publish", Submission(event="事件", question="研究")
-    )
-    thread = f"kqr-{run['id'].hex}"
-    runtime.ledger.enqueue(
-        "research-test", session, thread, "research", "工作", run["id"]
-    )
-    runtime.ledger.begin("research-test")
-    with runtime.repo.transaction() as conn:
-        conn.execute(
-            "UPDATE research_runs SET status='completed' WHERE id=%s", (run["id"],)
-        )
-        conn.execute(
-            "INSERT INTO agent_sandboxes (thread_id,session_id,run_id,identity_sha256,"
-            "cli_sha256,expires_at) VALUES "
-            "(%s,%s,%s,'hash','code',now()+interval '1 hour')",
-            (thread, session, run["id"]),
-        )
-    monkeypatch.setattr(runtime.research, "result", lambda *args: {"version": 1})
-    runtime.advance_research()
-    runtime.sandboxes.close.assert_not_called()
-    runtime.ledger.record(
-        {
-            "message_id": "research-test",
-            "thread_id": thread,
-            "message_seq": 0,
-            "payload": {"type": "done"},
-        }
-    )
-    runtime.advance_research()
-    runtime.sandboxes.close.assert_called_once_with(thread)

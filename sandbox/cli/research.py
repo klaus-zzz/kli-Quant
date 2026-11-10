@@ -8,7 +8,7 @@ import httpx
 from axi import tool
 
 
-def request(method, path, payload=None, key=None):
+def request(method, path, payload=None, key=None, run_id=""):
     """宿主代理负责身份注入；错误只返回后端稳定分类。"""
     base = os.environ["KLI_QUANT_BACKEND_URL"].rstrip("/")
     try:
@@ -16,7 +16,10 @@ def request(method, path, payload=None, key=None):
             method,
             base + "/api/research" + path,
             json=payload,
-            headers={"Idempotency-Key": key} if key else {},
+            headers={
+                **({"Idempotency-Key": key} if key else {}),
+                **({"X-Research-Run": run_id} if run_id else {}),
+            },
             timeout=70,
             trust_env=False,
         )
@@ -34,14 +37,15 @@ def request(method, path, payload=None, key=None):
         "聊天模式返回会话标识。"
     ),
 )
-def context() -> dict:
-    return request("GET", "/context")
+def context(run_id: str = "") -> dict:
+    return request("GET", "/context", run_id=run_id)
 
 
 @tool(
     name="submit",
     description=(
-        "提交后台多跳研究，快速返回 run_id，聊天可以继续。"
+        "登记多跳研究，返回 run_id 和 agent 参数；"
+        "随后必须原样调用原生 agent 工具启动后台研究。"
         "event 或 url 至少一个。复核旧结论用 previous_run_id 新建版本。"
     ),
 )
@@ -96,16 +100,16 @@ def result(run_id: str) -> dict:
         "返回 evidence_id、段落及时间信息。仅研究任务可用。"
     ),
 )
-def source(url: str) -> dict:
-    return request("POST", "/source", {"url": url})
+def source(run_id: str, url: str) -> dict:
+    return request("POST", "/source", {"url": url}, run_id=run_id)
 
 
 @tool(
     name="evidence",
     description="读取当前研究或关联旧版本的固定证据；禁止读取其他会话。",
 )
-def evidence(evidence_id: str) -> dict:
-    return request("GET", f"/evidence/{evidence_id}")
+def evidence(run_id: str, evidence_id: str) -> dict:
+    return request("GET", f"/evidence/{evidence_id}", run_id=run_id)
 
 
 @tool(
@@ -116,8 +120,8 @@ def evidence(evidence_id: str) -> dict:
         "stdout 打印 JSON 可作为产物；检查 exit_code，失败后修改代码再执行。"
     ),
 )
-def execute(code: str, inputs: list[str]) -> dict:
-    return request("POST", "/execute", {"code": code, "inputs": inputs})
+def execute(run_id: str, code: str, inputs: list[str]) -> dict:
+    return request("POST", "/execute", {"code": code, "inputs": inputs}, run_id=run_id)
 
 
 @tool(
@@ -128,5 +132,5 @@ def execute(code: str, inputs: list[str]) -> dict:
         "后端校验后才发布；返回 errors/published=false 时，在原截止前修正草稿再调用。"
     ),
 )
-def publish(draft: dict) -> dict:
-    return request("POST", "/publish", draft)
+def publish(run_id: str, draft: dict) -> dict:
+    return request("POST", "/publish", draft, run_id=run_id)

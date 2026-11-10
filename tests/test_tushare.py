@@ -284,17 +284,20 @@ assert {n for n in registry.list_names() if n.startswith('research/')} == {
                              'source', 'evidence', 'execute', 'publish')}
 meta = registry.get('tushare/daily')
 assert 'trade_date' in meta.input_schema['properties']
+assert 'run_id' in meta.input_schema['properties']
 assert '成交量' in meta.description
 assert 'tushare/daily' in [item.name for item in registry.search('股票日线', top_k=20)]
 def fake_post(url, **kwargs):
     assert url == EXPECTED_BASE + '/api/tushare/daily'
     assert kwargs['json']['params'] == {'ts_code': '000001.SZ'}
+    assert kwargs['headers'] == {'X-Research-Run': 'test-run'}
     # 客户端需等到后端处理完超时并返回结果，避免提前误报不可用。
     assert kwargs['timeout'] > BACKEND_TIMEOUT
     return httpx.Response(200, json={'status': 'success'},
                           request=httpx.Request('POST', url))
 httpx.post = fake_post
-assert tool('tushare/daily')(ts_code='000001.SZ')['status'] == 'success'
+queried = tool('tushare/daily')(ts_code='000001.SZ', run_id='test-run')
+assert queried['status'] == 'success'
 assert 'TUSHARE_TOKEN' not in os.environ
 """
     script = (
