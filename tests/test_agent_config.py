@@ -41,7 +41,6 @@ def test_stop_sets_flag_before_waiting_for_transport_cleanup():
                 await runtime.stopping.wait()
 
         runtime.task = asyncio.create_task(transport())
-        runtime.supervisor = asyncio.create_task(runtime.stopping.wait())
         await asyncio.sleep(0)
         stopper = asyncio.create_task(runtime.stop())
         await asyncio.sleep(0.02)
@@ -56,7 +55,7 @@ def test_stop_sets_flag_before_waiting_for_transport_cleanup():
 
 def test_gateway_stop_does_not_wait_for_another_incoming_frame(monkeypatch):
     import asyncio
-    from unittest.mock import Mock
+    from unittest.mock import MagicMock, Mock
 
     from backend.agent.runtime import Runtime
 
@@ -76,6 +75,9 @@ def test_gateway_stop_does_not_wait_for_another_incoming_frame(monkeypatch):
         SimpleNamespace(repo=None),
         {"OMNIAGENT_URL": "http://agent", "OMNIAGENT_GATEWAY_TOKEN": "gateway"},
     )
+    runtime.repo = MagicMock()
+    connection = runtime.repo.transaction.return_value.__enter__.return_value
+    connection.execute.return_value.fetchall.return_value = []
     runtime.lease = Mock()
 
     async def stop_during_tick():

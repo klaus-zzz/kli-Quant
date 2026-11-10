@@ -21,7 +21,8 @@ React/TypeScript 页面仍为空应用，通过真实请求确认后端状态，
 [Scrapling](https://github.com/D4Vinci/Scrapling) 和
 [curl_cffi](https://curl-cffi.readthedocs.io/en/latest/api.html)。
 抓取仅访问公网，使用 [nftables](https://www.nftables.org/) 隔离网络出口。
-可显式启用 OmniAgent Gateway 与私有沙箱研究执行，使用单用户开发认证；
+可显式启用 OmniAgent Gateway 与原生后台研究，聊天和研究共用私有会话沙箱，
+使用单用户开发认证；
 Gateway 客户端使用 [websockets](https://github.com/python-websockets/websockets) 建立连接。
 详见 [Agent 接入](docs/agent.md) 和 [研究接口说明](docs/research-api.md)。
 

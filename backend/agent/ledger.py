@@ -85,6 +85,15 @@ class Ledger:
     def record(self, frame):
         """按消息和序号去重；错误会话及终态后的迟到帧均丢弃。"""
         with self.repo.transaction() as conn:
+            # 上游主动回复没有预先投递记录，只能归入服务端已登记的会话。
+            if frame["message_id"].startswith("agent-"):
+                conn.execute(
+                    "INSERT INTO agent_deliveries"
+                    "(id,session_id,thread_id,kind,question,state) "
+                    "SELECT %s,id,id,'notification','','sending' FROM agent_sessions "
+                    "WHERE id=%s ON CONFLICT DO NOTHING",
+                    (frame["message_id"], frame["thread_id"]),
+                )
             row = conn.execute(
                 "SELECT * FROM agent_deliveries WHERE id=%s AND thread_id=%s "
                 "FOR UPDATE",

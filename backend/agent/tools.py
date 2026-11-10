@@ -31,9 +31,11 @@ async def body(request, limit=131072):
 
 
 def binding(request, *, require_run=True):
-    """聊天身份不能调用计算和发布，研究身份不能冒充其他执行。"""
+    """会话身份和已核对归属的研究标识一起约束计算、预算和发布。"""
     row = request.scope.get("research_binding")
-    if not row or (require_run and row.get("run_id") is None):
+    if not row or (
+        require_run and (row.get("run_id") is None or not row.get("sandbox_id"))
+    ):
         raise ResearchError("research_identity_required", 403)
     runtime = request.app.state.agent
     if require_run:

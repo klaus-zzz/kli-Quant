@@ -38,6 +38,12 @@ from axi import tool
 result = tool("tushare/daily")(ts_code="000001.SZ", trade_date="20261030")
 ```
 
+启用 Agent 时，聊天与研究共享会话沙箱；Tushare 调用还须显式传 `run_id`。
+CLI 将该值写入 `X-Research-Run`，不会传给 Tushare；后端核对会话归属并扣研究预算。
+`research/context`、`source`、`evidence`、`execute`、`publish` 同样逐次传研究标识，
+不在共享环境中设置“当前研究”。`research/submit` 只登记研究，主 Agent 随后调用
+返回的原生 `agent` 参数启动后台任务，见 [Agent 接入](../../docs/agent.md)。
+
 CLI 按以下优先级读取 `KLI_QUANT_BACKEND_URL`：进程环境变量、
 `sandbox/cli/.env`、默认地址 `http://127.0.0.1:18100`。
 文件路径相对于 `tushare.py` 定位，切换工作目录不影响读取；文件缺失或值为空时使用默认地址。

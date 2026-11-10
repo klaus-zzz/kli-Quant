@@ -21,7 +21,7 @@ class ResearchService:
             return self.repo.run(conn, owner, run_id)
 
     def submit(self, owner, key, submission: Submission):
-        """先持久受理，再快速派发；并发幂等由唯一约束裁决。"""
+        """先持久登记再确认执行入口；并发幂等由唯一约束裁决。"""
         request = submission.model_dump(mode="json")
         with self.repo.transaction() as conn:
             existing = conn.execute(

@@ -52,6 +52,9 @@ def draft():
 
 
 def test_no_identity_or_executor_does_not_accept_work():
+    # 明确模拟未配置存储，容器自身的开发配置不应改变该用例前提。
+    original = app.state.research_service
+    app.state.research_service = None
     with TestClient(app) as client:
         response = client.post(
             "/api/research/runs", headers={"X-Owner": "attacker"}, json={}
@@ -64,6 +67,7 @@ def test_no_identity_or_executor_does_not_accept_work():
             assert response.json()["error"] == "executor_not_ready"
         finally:
             app.dependency_overrides.clear()
+            app.state.research_service = original
 
 
 def test_submission_rejects_backend_controls():

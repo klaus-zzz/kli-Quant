@@ -73,9 +73,15 @@ async def submit(request: Request, owner=Depends(principal), research=Depends(se
     run, created = await run_in_threadpool(research.submit, owner, key, body)
     from fastapi.encoders import jsonable_encoder
 
-    return JSONResponse(
-        jsonable_encoder(view(run)), status_code=202 if created else 200
-    )
+    result = view(run)
+    # 业务记录不自动派发；主 Agent 原样调用这组原生工具参数。
+    if run["status"] == "queued":
+        result["agent"] = {
+            "name": "deep-search",
+            "prompt": f"research:{run['id']}",
+            "run_in_background": True,
+        }
+    return JSONResponse(jsonable_encoder(result), status_code=202 if created else 200)
 
 
 @router.get("/{run_id}")
