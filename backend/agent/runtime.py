@@ -94,6 +94,26 @@ class Runtime:
             raise ResearchError("agent_history_unavailable", 503)
         return response.json()
 
+    async def thinking(self, session):
+        """只转发模型能力和当前档位，模型密钥与运行配置不进入浏览器。"""
+        try:
+            async with httpx.AsyncClient(timeout=10, trust_env=False) as client:
+                response = await client.get(
+                    self.env["OMNIAGENT_URL"].rstrip("/") + "/api/agent/model",
+                    params={"thread_id": session},
+                    headers={
+                        "Authorization": "Bearer " + self.env["OMNIAGENT_GATEWAY_TOKEN"]
+                    },
+                )
+            response.raise_for_status()
+            value = response.json()["thinking"]
+            return {
+                key: value[key]
+                for key in ("control", "levels", "recommended_effort", "current_effort")
+            }
+        except (httpx.HTTPError, ValueError, KeyError, TypeError):
+            raise ResearchError("agent_model_unavailable", 503) from None
+
     async def start(self):
         """数据库锁保证同一业务库只有一个 Gateway 客户端。"""
         self.lease = psycopg.connect(self.repo.dsn, autocommit=True, connect_timeout=5)
@@ -248,6 +268,7 @@ class Runtime:
                         "payload": {
                             "user_id": "developer",
                             "question": delivery["question"],
+                            "effort": delivery["effort"],
                             "display": (
                                 [
                                     {

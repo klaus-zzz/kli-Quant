@@ -23,6 +23,15 @@ export type Snapshot = {
   connected: boolean;
   deliveries: Delivery[];
   research: Run[];
+  tasks: {
+    task_id: string;
+    run_id: string | null;
+    name: string;
+    brief: string;
+    status: string;
+    result?: string;
+    error?: string;
+  }[];
 };
 export type Reference = { evidence_id: string; locator: string };
 export type Hop = {
@@ -116,6 +125,8 @@ const labels: Record<string, string> = {
   budget_exceeded: "调用预算已耗尽",
   validation_failed: "草稿未通过校验",
   result_integrity_failed: "结果完整性校验失败",
+  unsupported_effort: "该模型不支持所选思考档位，请刷新页面后重试",
+  agent_model_unavailable: "暂时无法读取模型档位",
 };
 export const label = (value: string) => labels[value] ?? value;
 export const date = (value: string) =>

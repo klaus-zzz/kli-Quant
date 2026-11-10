@@ -59,7 +59,7 @@ async function setup(page: Page) {
     offline: false,
     loseReply: false,
     cancelling: false,
-    messages: [] as { message_id: string; text: string }[],
+    messages: [] as { message_id: string; text: string; effort?: string }[],
     deliveries: [] as {
       id: string;
       question: string;
@@ -68,6 +68,14 @@ async function setup(page: Page) {
       kind: string;
     }[],
     runs: [{ ...baseRun }] as Run[],
+    tasks: [] as {
+      task_id: string;
+      run_id: null;
+      name: string;
+      brief: string;
+      status: string;
+      result: string;
+    }[],
   };
   await page.route("**/api/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -131,13 +139,42 @@ async function setup(page: Page) {
             }
           : report,
       });
+    if (path.endsWith("/thinking"))
+      return route.fulfill({
+        json: {
+          control: "effort",
+          levels: ["low", "medium", "high", "xhigh"],
+          current_effort: "medium",
+          recommended_effort: "medium",
+        },
+      });
     if (path === "/api/chat/sessions")
-      return route.fulfill({ status: 201, json: { session_id: session } });
+      return route.fulfill({
+        status: 200,
+        json:
+          route.request().method() === "POST"
+            ? { session_id: session }
+            : {
+                sessions: [
+                  {
+                    id: session,
+                    title: "测试对话",
+                    updated_at: "2026-11-10T00:00:00Z",
+                  },
+                  {
+                    id: "kq-older",
+                    title: "历史里的会议记录",
+                    updated_at: "2026-11-09T00:00:00Z",
+                  },
+                ],
+              },
+      });
     return route.fulfill({
       json: {
         connected: state.connected,
         deliveries: state.deliveries,
         research: state.runs,
+        tasks: state.tasks,
       },
     });
   });
@@ -147,6 +184,7 @@ async function setup(page: Page) {
   await expect(
     page.getByText("对话服务已连接", { exact: false }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "切换任务侧栏" }).click();
   return state;
 }
 
@@ -208,6 +246,7 @@ test("取消确认与终态分开，正式结果和危险内容正确展示", as
   );
   state.runs[0].status = "completed";
   await page.getByRole("button", { name: "重新查询研究" }).click();
+  await page.getByRole("button", { name: "产物", exact: true }).click();
   await expect(page.getByText("正式结果 · v1 · 证据不足")).toBeVisible();
   await page.getByRole("button", { name: /p:1/ }).click();
   await expect(
@@ -236,14 +275,17 @@ test("新证据关联旧执行，固定版本链接与窄屏可用", async ({ pa
   await expect(
     page.getByText("尚不足以建立因果关系", { exact: true }),
   ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "切换任务侧栏" }).click();
   await page.getByRole("button", { name: "补充新证据" }).click();
+  await expect(page.getByLabel("新证据或原文链接")).toBeFocused();
   await page.getByLabel("新证据或原文链接").fill("补充原始披露链接");
   await page.getByRole("button", { name: "发送消息" }).click();
   await expect.poll(() => state.messages.length).toBe(1);
   expect(state.messages[0].text).toContain(`previous_run_id 为 ${first}`);
   await expect(page).toHaveURL(new RegExp(first));
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "研究 · 2", exact: true }).click();
+  await page.getByRole("button", { name: "切换任务侧栏", exact: true }).click();
   await expect(page.getByRole("region", { name: "研究详情" })).toBeVisible();
   expect(
     await page.evaluate(
@@ -342,4 +384,172 @@ test("新回复可见且不打断历史阅读", async ({ page }) => {
   await page.getByRole("button", { name: "刷新状态" }).click();
   await expect(page.getByText("新的主动回复")).toBeAttached();
   expect(await messages.evaluate((el) => el.scrollTop)).toBe(0);
+});
+
+// 滑块可连续跟手；释放后固定档位，失败重试不能丢失原来的模型参数。
+test("思考链平滑拖动、键盘选择与幂等重试", async ({ page }) => {
+  const state = await setup(page);
+  await page.getByRole("button", { name: "关闭任务侧栏" }).click();
+  await page.getByRole("button", { name: "思考链：中", exact: true }).click();
+  const range = page.getByRole("slider", { name: "思考链", exact: true });
+  const box = (await range.boundingBox())!;
+  await page.mouse.move(
+    box.x + 18 + (box.width - 36) / 3,
+    box.y + box.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    box.x + 18 + (box.width - 36) * 0.56,
+    box.y + box.height / 2,
+    { steps: 12 },
+  );
+  const during = Number(await range.inputValue());
+  expect(during).toBeGreaterThan(1.5);
+  expect(during).toBeLessThan(1.9);
+  await page.mouse.up();
+  await expect(range).toHaveValue("2");
+  await range.press("End");
+  await expect(range).toHaveValue("3");
+  await range.press("ArrowLeft");
+  await expect(range).toHaveAttribute("aria-valuetext", "高");
+  await range.press("Escape");
+  state.loseReply = true;
+  await page.getByLabel("消息", { exact: true }).fill("带思考档位的消息");
+  await page.getByRole("button", { name: "发送消息" }).click();
+  await expect(page.getByRole("alert")).toContainText("尚未确认送达");
+  await expect(
+    page.getByRole("button", { name: "思考链：高", exact: true }),
+  ).toBeDisabled();
+  state.loseReply = false;
+  await page.getByRole("button", { name: "重试同一消息" }).click();
+  await expect.poll(() => state.messages.length).toBe(2);
+  expect(state.messages[0].effort).toBe("high");
+  expect(state.messages[1]).toEqual(state.messages[0]);
+});
+
+test("窄屏导航、搜索恢复与任务侧栏互斥", async ({ page }) => {
+  await setup(page);
+  await page.setViewportSize({ width: 789, height: 780 });
+  const menu = page.getByRole("button", { name: "切换会话导航" });
+  await menu.click();
+  await expect(menu).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    page.getByRole("button", { name: "新建对话", exact: true }),
+  ).toBeFocused();
+  await expect(page.getByText("Agent workspace")).toHaveCount(0);
+  await page.getByRole("button", { name: "搜索对话", exact: true }).click();
+  await page.getByLabel("对话关键词").fill("会议");
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "历史里的会议记录" })
+    .click();
+  await expect(page).toHaveURL(/session=kq-older/);
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await menu.click();
+  await page.getByRole("button", { name: "当前对话任务" }).click();
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(
+    page.getByRole("button", { name: "关闭任务侧栏" }),
+  ).toBeFocused();
+  await expect(page.locator(".conversation-host")).toHaveAttribute("inert", "");
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "切换任务侧栏" }),
+  ).toBeFocused();
+  await expect(page.locator(".conversation-host")).not.toHaveAttribute(
+    "inert",
+    "",
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("模型没有档位能力时如实使用默认值", async ({ page }) => {
+  await setup(page);
+  await page.route("**/thinking", (route) =>
+    route.fulfill({
+      json: {
+        control: "none",
+        levels: [],
+        current_effort: null,
+        recommended_effort: null,
+      },
+    }),
+  );
+  await page.reload();
+  await page.getByLabel("开发聊天凭据").fill("browser-only-test-token");
+  await page.getByRole("button", { name: "恢复对话" }).click();
+  await expect(
+    page.getByRole("button", { name: "思考链：模型默认" }),
+  ).toBeDisabled();
+});
+
+test("普通后台任务直接显示真实结果，不冒充研究报告", async ({ page }) => {
+  const state = await setup(page);
+  state.runs = [];
+  state.tasks.push({
+    task_id: "meeting-1",
+    run_id: null,
+    name: "agent",
+    brief: "整理会议记录",
+    status: "completed",
+    result: "负责人：张三；下周提交接口文档。",
+  });
+  await page.getByRole("button", { name: "刷新状态" }).click();
+  await expect(
+    page.getByRole("heading", { name: "整理会议记录" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("负责人：张三；下周提交接口文档。"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "取消研究", exact: true }),
+  ).toHaveCount(0);
+});
+
+test("减少动态效果时抽屉仍正确接管和归还焦点", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await setup(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "切换会话导航" }).click();
+  await expect(
+    page.getByRole("button", { name: "新建对话", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "切换任务侧栏" }).click();
+  await expect(
+    page.getByRole("button", { name: "关闭任务侧栏" }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "切换任务侧栏" }),
+  ).toBeFocused();
+});
+
+// 推荐档位不等于已保存的当前档位，浏览器不能替用户覆盖上游默认值。
+test("尚无当前档位时保留模型默认，不自动发送推荐参数", async ({ page }) => {
+  const state = await setup(page);
+  await page.route("**/thinking", (route) =>
+    route.fulfill({
+      json: {
+        control: "effort",
+        levels: ["low", "medium", "high"],
+        current_effort: null,
+        recommended_effort: "high",
+      },
+    }),
+  );
+  await page.reload();
+  await page.getByLabel("开发聊天凭据").fill("browser-only-test-token");
+  await page.getByRole("button", { name: "恢复对话" }).click();
+  await expect(
+    page.getByRole("button", { name: "思考链：模型默认" }),
+  ).toBeEnabled();
+  await page.getByLabel("消息", { exact: true }).fill("沿用服务端设置");
+  await page.getByRole("button", { name: "发送消息" }).click();
+  await expect.poll(() => state.messages.length).toBe(1);
+  expect(state.messages[0]).not.toHaveProperty("effort");
 });

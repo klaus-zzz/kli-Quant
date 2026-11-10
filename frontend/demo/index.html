@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>kli-Quant · Agent 工作台设计预览</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- 独立设计稿仅使用示例内容，不接入业务 API 或读取聊天凭据。 -->
+    <div class="app-shell panel-closed" id="shell">
+      <button
+        class="nav-backdrop"
+        data-action="close-nav"
+        aria-label="收起会话导航"
+        tabindex="-1"
+      ></button>
+      <button
+        class="panel-backdrop"
+        data-action="close-panel"
+        aria-label="收起任务详情"
+        tabindex="-1"
+      ></button>
+      <aside class="sidebar" id="session-nav" aria-label="会话导航">
+        <a class="brand" href="./" aria-label="kli-Quant 设计预览"
+          ><span data-icon="brand"></span><span>kli-Quant</span></a
+        >
+        <button class="new-chat" data-action="new">
+          <span data-icon="plus"></span>新建对话<span class="key-hint"
+            >⌘ K</span
+          >
+        </button>
+        <nav class="nav-links">
+          <button data-action="search">
+            <span data-icon="search"></span>搜索对话
+          </button>
+          <button data-action="library">
+            <span data-icon="layers"></span>全部任务
+          </button>
+        </nav>
+        <div class="sidebar-heading">最近对话</div>
+        <div id="sessions" class="sessions"></div>
+        <div class="sidebar-bottom">
+          <div class="workspace-name">
+            <span class="avatar">K</span>
+            <div>个人工作空间<small>设计预览 · 本地示例</small></div>
+          </div>
+          <button class="design-note" data-action="about">
+            <span data-icon="info"></span>关于这版设计<span
+              data-icon="arrowUpRight"
+            ></span>
+          </button>
+        </div>
+      </aside>
+      <main class="workspace">
+        <header class="workspace-header">
+          <button
+            class="icon-button menu-button"
+            data-action="menu"
+            aria-label="打开会话导航"
+            aria-controls="session-nav"
+            aria-expanded="false"
+          >
+            <span data-icon="panelLeft"></span>
+          </button>
+          <div class="breadcrumb">
+            个人空间<span>/</span><span id="breadcrumb">新建对话</span>
+          </div>
+          <div class="header-actions">
+            <span class="demo-label">设计预览</span
+            ><button
+              class="icon-button"
+              data-action="panel"
+              aria-label="切换任务侧栏"
+              aria-controls="task-panel"
+              aria-expanded="false"
+            >
+              <span data-icon="panelRight"></span>
+            </button>
+          </div>
+        </header>
+        <div class="workspace-body">
+          <section class="conversation" aria-label="Agent 对话">
+            <div id="conversation-scroll" class="conversation-scroll">
+              <div id="thread" class="thread"></div>
+            </div>
+            <footer class="composer-area">
+              <div id="suggestions" class="suggestions"></div>
+              <form id="composer" class="composer">
+                <label class="sr-only" for="message">继续提问</label>
+                <textarea
+                  id="message"
+                  rows="2"
+                  placeholder="描述你想完成的事…"
+                  maxlength="2000"
+                ></textarea>
+                <div class="composer-toolbar">
+                  <button
+                    type="button"
+                    class="icon-button"
+                    data-action="link"
+                    aria-label="补充资料链接"
+                  >
+                    <span data-icon="plus"></span>
+                  </button>
+                  <button
+                    type="button"
+                    id="effort-trigger"
+                    class="effort-trigger"
+                    popovertarget="effort-popover"
+                    aria-label="思考链：中"
+                  >
+                    <span data-icon="sliders"></span>思考 ·
+                    <span id="effort-value">中</span
+                    ><span data-icon="chevronDown"></span>
+                  </button>
+                  <span class="composer-hint">Enter 发送</span>
+                  <button
+                    class="send"
+                    type="submit"
+                    aria-label="发送演示消息"
+                    disabled
+                  >
+                    <span data-icon="arrowUp"></span>
+                  </button>
+                </div>
+              </form>
+              <p class="demo-disclaimer">
+                交互设计 Demo · 所有任务与内容均为示例，不调用真实 Agent
+              </p>
+            </footer>
+          </section>
+          <aside class="research-panel" id="task-panel" aria-label="任务详情">
+            <div class="panel-heading">
+              <span>任务详情</span
+              ><button
+                class="icon-button"
+                data-action="panel"
+                aria-label="关闭任务侧栏"
+              >
+                <span data-icon="close"></span>
+              </button>
+            </div>
+            <div class="panel-tabs" role="tablist" aria-label="任务详情分类">
+              <button role="tab" data-tab="sources" aria-selected="true">
+                资料 <span id="source-count">0</span>
+              </button>
+              <button role="tab" data-tab="report" aria-selected="false">
+                产物
+              </button>
+              <button role="tab" data-tab="versions" aria-selected="false">
+                过程
+              </button>
+            </div>
+            <div id="panel-content" class="panel-content"></div>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <!-- 原生 popover 支持点外部收起与 Escape；滑杆只改变本地演示设置。 -->
+    <div
+      id="effort-popover"
+      class="effort-popover"
+      popover="auto"
+      aria-labelledby="effort-title"
+    >
+      <div class="effort-heading">
+        <div>
+          <output id="effort-level" for="effort-range">中</output
+          ><span id="effort-title">思考链</span>
+        </div>
+      </div>
+      <div class="effort-slider">
+        <div class="effort-track" aria-hidden="true">
+          <span id="effort-fill"></span>
+        </div>
+        <div class="effort-ticks" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </div>
+        <span class="effort-thumb" aria-hidden="true"></span>
+        <input
+          id="effort-range"
+          type="range"
+          min="0"
+          max="3"
+          step="any"
+          value="1"
+          aria-label="思考链"
+          aria-valuetext="中"
+          aria-describedby="effort-description"
+        />
+      </div>
+      <p id="effort-description" class="sr-only">平衡速度与思考深度</p>
+    </div>
+    <dialog id="search-dialog" aria-label="搜索对话">
+      <div class="dialog-title">
+        <h2>搜索对话</h2>
+        <button
+          class="icon-button"
+          data-action="close-search"
+          aria-label="关闭搜索"
+        >
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <label class="sr-only" for="search">对话关键词</label
+      ><input id="search" placeholder="搜索对话或任务…" autocomplete="off" />
+      <div id="search-results"></div>
+    </dialog>
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-title">
+        <h2 id="about-title">留给思考更多空间</h2>
+        <button
+          class="icon-button"
+          data-action="close-about"
+          aria-label="关闭设计说明"
+        >
+          <span data-icon="close"></span>
+        </button>
+      </div>
+      <p>
+        以对话发起任务，按需展开资料、产物和过程。研究是其中一项能力，不占据整个工作台。
+      </p>
+      <p>
+        这是一版独立的交互设计预览。会话、任务产物、来源摘录和状态均为示例，输入内容只留在本页，刷新后重置。
+      </p>
+      <p>
+        设计参考：<a
+          href="https://claude.com/resources/articles/research"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Claude Research</a
+        >、<a
+          href="https://openai.com/index/introducing-deep-research/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >ChatGPT deep research</a
+        >、<a
+          href="https://www.manus.im/blog/introducing-wide-research"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Manus</a
+        >。
+      </p>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script type="module" src="./demo.js"></script>
+  </body>
+</html>

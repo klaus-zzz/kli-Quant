@@ -32,6 +32,9 @@ export default function ResearchPanel({
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [revision, setRevision] = useState(0);
+  const [tab, setTab] = useState(
+    run.status === "completed" ? "report" : "process",
+  );
   useEffect(() => {
     const controller = new AbortController();
     setError("");
@@ -88,8 +91,8 @@ export default function ResearchPanel({
   return (
     <section aria-label="研究详情" className="research-detail">
       <div className="section-heading">
-        <h2>研究详情</h2>
-        <a href={runLink(access.session)}>返回研究列表</a>
+        <span className="muted">深度研究</span>
+        <a href={runLink(access.session)}>返回任务列表</a>
       </div>
       <h3>
         {run.question.length > 96
@@ -102,20 +105,35 @@ export default function ResearchPanel({
           <p>{run.question}</p>
         </details>
       )}
-      <p>
-        <strong>{label(run.status)}</strong> · {label(run.stage)}
-      </p>
-      <p className="muted">
-        已使用 {run.used_calls} / {run.max_calls} 次调用 · 截止{" "}
-        {date(run.deadline)}
-      </p>
-      <p className="identifier">执行 {run.run_id}</p>
       {run.previous_run_id && (
         <a href={runLink(access.session, run.previous_run_id)}>
           查看前序版本 →
         </a>
       )}
-      {run.error && <p className="notice">{label(run.error)}</p>}
+      <nav className="panel-tabs" aria-label="任务详情分类">
+        {(
+          [
+            ["sources", `资料 · ${evidence.length}`],
+            ["report", "产物"],
+            ["process", "过程"],
+          ] as const
+        ).map(([id, name]) => (
+          <button key={id} aria-pressed={tab === id} onClick={() => setTab(id)}>
+            {name}
+          </button>
+        ))}
+      </nav>
+      <div hidden={tab !== "process"}>
+        <p>
+          <strong>{label(run.status)}</strong> · {label(run.stage)}
+        </p>
+        <p className="muted">
+          已使用 {run.used_calls} / {run.max_calls} 次调用 · 截止{" "}
+          {date(run.deadline)}
+        </p>
+        <p className="identifier">执行 {run.run_id}</p>
+        {run.error && <p className="notice">{label(run.error)}</p>}
+      </div>
       <div className="actions">
         {["queued", "running"].includes(run.status) && (
           <button disabled={busy} onClick={() => void cancel()}>
@@ -146,34 +164,48 @@ export default function ResearchPanel({
         </p>
       )}
       {!loaded && <p role="status">正在读取研究归档…</p>}
-      {report && <ReportView report={report} openEvidence={setSelected} />}
-      {!report && loaded && (
-        <p className="notice">
-          尚无通过校验的正式结果。对话中的分析和以下资料仅供探索。
-        </p>
-      )}
-      <details className="archive" open={!report}>
-        <summary>探索资料与固定归档（{evidence.length}）</summary>
-        {!evidence.length && loaded && <p className="muted">尚未归档资料。</p>}
-        {evidence.map((item) => (
-          <button
-            className="archive-row"
-            key={item.evidence_id}
-            onClick={() => setSelected(item.evidence_id)}
-          >
-            <span>{label(item.kind)}</span>
-            <span className="identifier">{item.evidence_id.slice(0, 8)}</span>
-          </button>
-        ))}
-      </details>
-      {selected && (
-        <EvidenceView
-          access={access}
-          run={run.run_id}
-          id={selected}
-          close={() => setSelected("")}
-        />
-      )}
+      <div hidden={tab !== "report"}>
+        {report && (
+          <ReportView
+            report={report}
+            openEvidence={(id) => {
+              setSelected(id);
+              setTab("sources");
+            }}
+          />
+        )}
+        {!report && loaded && (
+          <p className="notice">
+            尚无通过校验的正式结果。对话中的分析和以下资料仅供探索。
+          </p>
+        )}
+      </div>
+      <div hidden={tab !== "sources"}>
+        <details className="archive" open>
+          <summary>探索资料与固定归档（{evidence.length}）</summary>
+          {!evidence.length && loaded && (
+            <p className="muted">尚未归档资料。</p>
+          )}
+          {evidence.map((item) => (
+            <button
+              className="archive-row"
+              key={item.evidence_id}
+              onClick={() => setSelected(item.evidence_id)}
+            >
+              <span>{label(item.kind)}</span>
+              <span className="identifier">{item.evidence_id.slice(0, 8)}</span>
+            </button>
+          ))}
+        </details>
+        {selected && (
+          <EvidenceView
+            access={access}
+            run={run.run_id}
+            id={selected}
+            close={() => setSelected("")}
+          />
+        )}
+      </div>
     </section>
   );
 }

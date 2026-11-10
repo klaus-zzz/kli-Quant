@@ -28,24 +28,46 @@ class Ledger:
             raise ResearchError("not_found", 404)
         return session
 
-    def enqueue(self, message_id, session, thread, kind, question, run_id=None):
+    def sessions(self, owner):
+        """标题取首条用户问题，更新时间取最后投递；始终按认证归属筛选。"""
+        with self.repo.transaction() as conn:
+            return conn.execute(
+                "SELECT s.id, COALESCE((SELECT left(question,80) FROM agent_deliveries "
+                "WHERE session_id=s.id AND kind='chat' ORDER BY created_at LIMIT 1),"
+                "'新建对话') AS title, COALESCE((SELECT max(updated_at) "
+                "FROM agent_deliveries WHERE session_id=s.id),"
+                "s.created_at) AS updated_at "
+                "FROM agent_sessions s WHERE owner=%s ORDER BY updated_at DESC",
+                (owner,),
+            ).fetchall()
+
+    def enqueue(
+        self, message_id, session, thread, kind, question, run_id=None, effort=None
+    ):
         """消息 ID 和研究版本均唯一；重复请求必须保持原始内容。"""
         with self.repo.transaction() as conn:
             conn.execute(
                 "INSERT INTO agent_deliveries "
-                "(id,session_id,thread_id,kind,question,run_id) "
-                "VALUES (%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
-                (message_id, session, thread, kind, question, run_id),
+                "(id,session_id,thread_id,kind,question,run_id,effort) "
+                "VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING",
+                (message_id, session, thread, kind, question, run_id, effort),
             )
             row = conn.execute(
                 "SELECT * FROM agent_deliveries WHERE id=%s", (message_id,)
             ).fetchone()
-            expected = (session, thread, kind, question, run_id)
+            expected = (session, thread, kind, question, run_id, effort)
             if (
                 not row
                 or tuple(
                     row[k]
-                    for k in ("session_id", "thread_id", "kind", "question", "run_id")
+                    for k in (
+                        "session_id",
+                        "thread_id",
+                        "kind",
+                        "question",
+                        "run_id",
+                        "effort",
+                    )
                 )
                 != expected
             ):

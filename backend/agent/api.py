@@ -32,9 +32,10 @@ def session_access(request, session):
 class Message(Model):
     message_id: UUID
     text: str = Field(min_length=1, max_length=12000)
+    effort: str | None = Field(default=None, min_length=1, max_length=32)
 
 
-def enqueue(runtime, session, value):
+async def enqueue(runtime, session, value):
     """输入大小和身份在业务入口收口，不透传客户端 configurable。"""
     if not runtime.ready:
         raise ResearchError("agent_not_ready", 503)
@@ -42,8 +43,18 @@ def enqueue(runtime, session, value):
         message = Message.model_validate(value)
     except ValueError:
         raise ResearchError("invalid_message", 422) from None
-    runtime.ledger.enqueue(
-        str(message.message_id), session, session, "chat", message.text
+    if message.effort is not None:
+        thinking = await runtime.thinking(session)
+        if message.effort not in thinking["levels"]:
+            raise ResearchError("unsupported_effort", 422)
+    await run_in_threadpool(
+        runtime.ledger.enqueue,
+        str(message.message_id),
+        session,
+        session,
+        "chat",
+        message.text,
+        effort=message.effort,
     )
     return {"type": "accepted", "message_id": str(message.message_id)}
 
@@ -75,6 +86,19 @@ def get_session(session: str, request: Request):
     return snapshot(session_access(request, session), session)
 
 
+@router.get("/sessions")
+def list_sessions(request: Request):
+    runtime = agent(request)
+    owner = runtime.user(request.headers.get("Authorization", ""))
+    return {"sessions": runtime.ledger.sessions(owner)}
+
+
+@router.get("/sessions/{session}/thinking")
+async def thinking(session: str, request: Request):
+    runtime = await run_in_threadpool(session_access, request, session)
+    return await runtime.thinking(session)
+
+
 @router.get("/sessions/{session}/history")
 async def history(session: str, request: Request):
     runtime = await run_in_threadpool(session_access, request, session)
@@ -88,9 +112,7 @@ async def history(session: str, request: Request):
 @router.post("/sessions/{session}/messages", status_code=202)
 async def message(session: str, request: Request):
     runtime = await run_in_threadpool(session_access, request, session)
-    return await run_in_threadpool(
-        enqueue, runtime, session, await body(request, 32768)
-    )
+    return await enqueue(runtime, session, await body(request, 32768))
 
 
 @router.websocket("/sessions/{session}/ws")
@@ -123,9 +145,7 @@ async def websocket(session: str, ws: WebSocket):
                 raw = await ws.receive_text()
                 if len(raw.encode()) > 32768:
                     raise ResearchError("request_too_large", 413)
-                accepted = await run_in_threadpool(
-                    enqueue, runtime, session, json.loads(raw)
-                )
+                accepted = await enqueue(runtime, session, json.loads(raw))
                 await queue.put(accepted)
 
         async def outgoing():

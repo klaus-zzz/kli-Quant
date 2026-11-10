@@ -309,6 +309,13 @@ def test_migration_rollback_and_repeat(research):
     migrate(dsn)
     migrate(dsn, "down")
     with research.repo.transaction() as conn:
+        assert not conn.execute(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_name='agent_deliveries' AND column_name='effort'"
+        ).fetchone()
+        assert conn.execute("SELECT to_regclass('agent_tasks') AS t").fetchone()["t"]
+    migrate(dsn, "down")
+    with research.repo.transaction() as conn:
         assert (
             conn.execute("SELECT to_regclass('agent_tasks') AS t").fetchone()["t"]
             is None

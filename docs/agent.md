@@ -7,7 +7,7 @@
 及 [历史接口](https://github.com/aivp/OmniAgent/blob/v1/docs/history-protocol.md) 接入。
 后端通过 [websockets](https://websockets.readthedocs.io/) 维护 Gateway 客户端连接。
 不重写 Agent 框架，也不复制上游源码；上游许可未确认，独立镜像不随本项目分发。
-前端提供持续对话和研究详情，使用业务 HTTP 接口，不直接连接上游 Gateway。
+前端提供持续对话、会话列表和任务详情，使用业务 HTTP 接口，不直接连接上游 Gateway。
 
 ## 配置与启动
 
@@ -70,7 +70,7 @@ Agent 的 `.omniagent/config.yaml` 使用 PostgreSQL 持久化、开启 Gateway�
 
 打开前端后输入 `KLI_QUANT_CHAT_TOKEN` 对应的开发聊天凭据。凭据仅保存在当前页面内存，
 刷新后重新输入；本机只记录最近的会话 ID。会话和研究 ID 放在页面片段地址中，
-可收藏具体版本；新建会话后仍可通过旧地址恢复原会话。
+可收藏具体版本；新建会话后仍可通过左侧列表、标题搜索或旧地址恢复原会话。
 浏览器每两秒串行查询一次持久快照，整批替换消息与状态，不依赖一次推送。
 断线保留已有内容并标记状态过期，重新连接后自动查询恢复；断开页面不会取消后台研究。
 发送失败保留原消息 ID，重试相同内容不会重复入账；投递待核对时可读取上游历史，
@@ -92,8 +92,10 @@ Tushare、S3 或 CubeSandbox 服务凭据。根 `.env` 和集中 Agent 配置均
 | 方法与路径 | 用途 |
 | --- | --- |
 | POST `/api/chat/sessions` | 创建会话，返回 `session_id` |
-| POST `/api/chat/sessions/{id}/messages` | 提交 `{message_id: UUID, text: 字符串}`，同 ID 相同内容幂等 |
+| GET `/api/chat/sessions` | 当前认证归属的会话标题与更新时间，不返回其他归属的数据 |
+| POST `/api/chat/sessions/{id}/messages` | 提交 `{message_id: UUID, text: 字符串, effort?: 字符串}`，同 ID 相同内容和档位幂等 |
 | GET `/api/chat/sessions/{id}` | 投递状态、正文、研究状态和连接情况 |
+| GET `/api/chat/sessions/{id}/thinking` | 上游模型支持的档位、推荐值及会话当前值 |
 | GET `/api/chat/sessions/{id}/history` | 上游持久历史与本地投递状态，供断线核对 |
 | WS `/api/chat/sessions/{id}/ws` | 接收快照、聊天 event 和原生 task/task_list，也可发消息 |
 
@@ -101,6 +103,13 @@ WebSocket 使用 Authorization 请求头；浏览器不支持自定义头时，�
 `{"authorization":"Bearer <聊天 Token>"}`，随后发送与 HTTP 相同的消息对象。
 Token 不放 URL。首个快照含已有研究和投递；`resync_required` 表示客户端需要重新
 读取快照和历史。断开浏览器只停止订阅，不取消研究。
+
+思考链控件复用 OmniAgent 的 `GET /api/agent/model?thread_id=...` 能力接口与 Gateway
+`payload.effort`，档位来自上游目录，不维护另一份模型能力表。
+显式选择先检查当前模型是否支持，再随投递落库；未选择时不覆盖上游当前值或推荐值。
+目录未识别模型或模型没有可调档位时，界面显示“模型默认”；读取失败可单独重试，普通聊天仍可用。
+这项设置控制模型思考档位，不展示模型的私有推理过程，也不是“普通/深度研究”模式开关。
+更新源码后先执行配置与启动章节的版本迁移，`004_message_effort` 为旧消息保留空值。
 
 直接查询或取消研究时，在聊天认证外增加 `X-Session-ID`，接口见[研究说明](research-api.md)。
 启用后，一个会话内消息串行投递；主 Agent 调用 research/submit 登记研究，

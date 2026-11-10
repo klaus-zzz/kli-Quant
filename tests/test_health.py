@@ -27,6 +27,7 @@ def test_public_routes() -> None:
         "/api/chat/sessions",
         "/api/chat/sessions/{session}",
         "/api/chat/sessions/{session}/history",
+        "/api/chat/sessions/{session}/thinking",
         "/api/chat/sessions/{session}/messages",
         "/api/research/context",
         "/api/research/source",
